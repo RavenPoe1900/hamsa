@@ -78,6 +78,7 @@
 <main id="main" class="page container" data-checkout-root><p style="padding-top:20px;" data-i18n="co.loading">Cargando…</p></main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
+<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -180,7 +181,7 @@
       </dialog>
       <aside class="summary-card">
         <h2 style="font-size:15px;margin-bottom:12px;">${T("co.yourOrder")}</h2>
-        ${lines.map(l=>`<div class="mini-line"><div class="mini-thumb" style="${VUI.thumbStyle(l.product)}">${VUI.thumbImg(l.product)}</div><div class="mini-line-name" style="flex:1;">${VUI.esc(l.product.title)} <span style="color:var(--muted-fg);">×${l.qty}</span></div><div>${VUI.money(l.product.price*l.qty)}</div></div>`).join("")}
+        ${lines.map(l=>`<div class="mini-line"><div class="mini-thumb" style="${VUI.thumbStyle(l.product)}">${VUI.thumbImg(l.product)}</div><div class="mini-line-name" style="flex:1;">${VUI.esc(VDB.pTitle(l.product))} <span style="color:var(--muted-fg);">×${l.qty}</span></div><div>${VUI.money(l.product.price*l.qty)}</div></div>`).join("")}
         <hr class="divider">
         <div class="summary-row"><span>${T("sum.subtotal")}</span><span>${VUI.money(totals.subtotal)}</span></div>
         <div class="summary-row"><span>${T("sum.shipping")}</span><span>${totals.shipping===0?T("sum.free"):VUI.money(totals.shipping)}</span></div>
@@ -245,7 +246,7 @@
     let msg = `🧾 *${T("co.waOrder")} #${order.id}*\n${rule}\n\n`;
     msg += `👤 *${T("co.waName")}* ${address.nombre}\n📱 *${T("co.waPhone")}* ${address.telefono}\n📍 *${T("co.waAddress")}* ${formatAddress(address)}\n\n`;
     msg += `🛒 *${T("co.waItems")}*\n`;
-    order.items.forEach(it=>{ msg += `• ${it.title} ×${it.qty} — ${VUI.money(it.priceAtPurchase*it.qty)}\n`; });
+    order.items.forEach(it=>{ msg += `• ${VDB.lineTitle(it)} ×${it.qty} — ${VUI.money(it.priceAtPurchase*it.qty)}\n`; });
     msg += `\n${rule}\n`;
     msg += `${T("sum.subtotal")}: ${VUI.money(order.subtotal)}\n`;
     msg += `${T("sum.shipping")}: ${order.shipping===0?T("sum.free"):VUI.money(order.shipping)}\n`;

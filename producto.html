@@ -332,6 +332,7 @@
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
+<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -351,7 +352,7 @@
     return;
   }
 
-  const productTitle = VUI.titleCase(p.title);
+  const productTitle = VUI.titleCase(VDB.pTitle(p));
   document.title = productTitle + T("pdp.suffix");
 
   // Breadcrumb: capitalización correcta, sin punto final, hover azul (ver CSS)
@@ -417,7 +418,7 @@
         <span style="font-size:12.5px;color:var(--muted-fg)">${TP("pdp.reviews", p.reviewCount||0, {n:VI18N.fmtNum(p.reviewCount||0)})}</span>
         ${p.prime ? `<span class="prime-badge">${T("filter.delivery24")}</span>` : ""}
       </div>
-      <p class="desc-block">${VUI.esc(p.description)}</p>
+      <p class="desc-block">${VUI.esc(VDB.pDesc(p))}</p>
     </div>
 
     <aside class="buy-box">
@@ -549,7 +550,7 @@
   // Descripción
   document.querySelector("[data-tab-panel='desc']").innerHTML =
     `<div class="tab-panel-body">
-       <p class="desc-block" style="margin:0;max-width:none;">${VUI.esc(p.description)}</p>
+       <p class="desc-block" style="margin:0;max-width:none;">${VUI.esc(VDB.pDesc(p))}</p>
      </div>`;
 
   // Especificaciones: tabla etiqueta → valor con líneas sutiles
@@ -587,7 +588,7 @@
         </a>
         <span class="fbw-check-row">
           <input type="checkbox" data-fbw-check="${fp.id}" data-fbw-price="${fp.price}" ${i===0 ? "checked disabled" : "checked"}>
-          <a href="producto.html?id=${fp.id}" class="fbw-title">${VUI.esc(VUI.titleCase(fp.title))}</a>
+          <a href="producto.html?id=${fp.id}" class="fbw-title">${VUI.esc(VUI.titleCase(VDB.pTitle(fp)))}</a>
         </span>
         <span class="fbw-tag-slot">${i===0 ? `<span class="fbw-tag">${T("pdp.thisProduct")}</span>` : ""}</span>
         <span class="fbw-price-row">

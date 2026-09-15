@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-15T21:09:22.295Z",
+        "reason": "pre-existing site-wide choice, not authored this session: file header (style.css L1-4) documents it as the deliberate 'Systemic' shadcn/ui direction (zinc + indigo + Inter) chosen before this task; my edits only touched the language selector, never this import"
+      }
+    ]
+  }
+}

@@ -84,6 +84,7 @@
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
+<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -111,11 +112,12 @@
     const lines = o.items.map(it=>{
       const lineTotal = it.priceAtPurchase * it.qty;
       const href = `producto.html?id=${encodeURIComponent(it.productId)}`;
+      const itTitle = VDB.lineTitle(it);
       return `
         <div class="mini-line">
-          <a href="${href}" class="mini-thumb" title="${esc(it.title)}">${VUI.thumbImg(it)}</a>
+          <a href="${href}" class="mini-thumb" title="${esc(itTitle)}">${VUI.thumbImg(it)}</a>
           <div class="mini-info">
-            <a href="${href}" class="mini-title" style="color:inherit;">${esc(it.title)}</a>
+            <a href="${href}" class="mini-title" style="color:inherit;">${esc(itTitle)}</a>
             ${it.qty > 1 ? `<span class="mini-qty">×${it.qty}</span>` : ''}
           </div>
           <div class="mini-price">

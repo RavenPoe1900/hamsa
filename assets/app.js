@@ -67,7 +67,7 @@
   function money(n){ return window.VDB.money(n); }
   function etaLabel(d){ return window.VI18N.fmtDate(Date.now()+d*86400000,{weekday:"long",day:"numeric",month:"long"}); }
   function thumbStyle(p){ return `--thumb-tone:${p.hue1}2E`; }
-  function thumbImg(p){ return p && p.image ? `<img src="${p.image}" alt="${esc(p.title||"")}" loading="lazy">` : `<span style="font-size:30px">${p?p.emoji:""}</span>`; }
+  function thumbImg(p){ return p && p.image ? `<img src="${p.image}" alt="${esc((window.VDB&&VDB.pTitle(p))||p.title||"")}" loading="lazy">` : `<span style="font-size:30px">${p?p.emoji:""}</span>`; }
 
   function renderHeader(){
     const VDB=window.VDB, user=VDB.currentUser(), count=user?VDB.cartCount(user.id):0;
@@ -134,7 +134,7 @@
         ${p.oldPrice?`<span class="discount-badge">−${discountPct}%</span>`:""}
       </a>
       <button class="wish-btn" data-wish="${p.id}" aria-pressed="${!!wished}" aria-label="${wished?T("card.removeFromFav"):T("card.addToFav")}">${icon(wished?'heartFill':'heart')}</button>
-      <a href="producto.html?id=${p.id}" class="product-title">${esc(p.title)}</a>
+      <a href="producto.html?id=${p.id}" class="product-title">${esc(VDB.pTitle(p))}</a>
       ${meta?`<p class="product-meta">${meta}</p>`:""}
       <div class="price-row">
         <span class="price">${VDB.db.settings.currency}${euros}<small>.${cents}</small></span>

@@ -213,7 +213,7 @@
     // ---- catalog ----
     listProducts({ q, category, minPrice, maxPrice, minRating, primeOnly, inStockOnly, onSaleOnly, brands, sort } = {}){
       let list = db.products.slice();
-      if(q){ const needle=q.toLowerCase(); list = list.filter(p=> p.title.toLowerCase().includes(needle) || p.brand.toLowerCase().includes(needle) || p.categoryName.toLowerCase().includes(needle) || VDB.catName(p).toLowerCase().includes(needle)); }
+      if(q){ const needle=q.toLowerCase(); list = list.filter(p=> p.title.toLowerCase().includes(needle) || VDB.pTitle(p).toLowerCase().includes(needle) || p.brand.toLowerCase().includes(needle) || p.categoryName.toLowerCase().includes(needle) || VDB.catName(p).toLowerCase().includes(needle)); }
       if(category) list = list.filter(p=>p.category===category);
       if(minPrice!=null) list = list.filter(p=>p.price>=minPrice);
       if(maxPrice!=null) list = list.filter(p=>p.price<=maxPrice);
@@ -396,6 +396,19 @@
 
     // El categoryName de cada producto viene congelado en español desde el scrapeo.
     catName(p){ return window.VI18N.cat(p.category, p.categoryName); },
+    // ---- catálogo traducido ----
+    // Sin entrada para el idioma activo se devuelve el texto español original:
+    // preferimos un título sin traducir a un hueco en la página.
+    catalogText(id, field, fallback){
+      const L = window.VI18N.lang;
+      if(L === "es") return fallback;
+      const e = (window.CATALOG_I18N || {})[id];
+      return (e && e[field] && e[field][L]) || fallback;
+    },
+    pTitle(p){ return p ? this.catalogText(p.id, "t", p.title) : ""; },
+    pDesc(p){  return p ? this.catalogText(p.id, "d", p.description) : ""; },
+    // Las líneas de pedido guardan una copia del título del momento de la compra.
+    lineTitle(it){ return this.catalogText(it.productId, "t", it.title); },
     money(n){ return db.settings.currency + Number(n).toFixed(2); },
     uid,
   };

@@ -14,6 +14,7 @@
 </head>
 <body>
 <script src="../assets/products-data.js"></script>
+<script src="../assets/i18n-catalog.js"></script>
 <script src="../assets/data.js"></script>
 <script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
 <script src="../assets/app.js"></script>
@@ -46,7 +47,7 @@
     document.querySelector("[data-rows]").innerHTML = slice.map(p=>`
       <tr data-row="${p.id}">
         <td><div class="thumb-cell" style="${VUI.thumbStyle(p)}">${VUI.thumbImg(p)}</div></td>
-        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(p.title)}<div class="mono-tag">${p.id}</div></td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(VDB.pTitle(p))}<div class="mono-tag">${p.id}</div></td>
         <td>${VUI.esc(VDB.catName(p))}</td>
         <td class="num"><input class="inline-edit num" data-edit-price type="number" step="0.01" min="0" value="${p.price}"></td>
         <td class="num"><input class="inline-edit num" data-edit-stock type="number" min="0" value="${p.stock}"></td>

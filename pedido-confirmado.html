@@ -61,6 +61,7 @@
 <main id="main" class="page container"><div class="confirm-box" data-confirm-root></div></main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
+<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -76,7 +77,7 @@
     <p style="color:var(--muted-fg);margin-top:8px;">${T("oc.sent",{eta:`<strong style="color:var(--foreground)">${VUI.etaLabel(order.shipping===0?4:2)}</strong>`})}</p>
     <div class="card order-card">
       <div class="order-meta"><span>${T("oc.order")} <span class="order-id-chip">${order.id}</span></span><span>${VI18N.fmtDate(order.createdAt,{day:'numeric',month:'long',year:'numeric'})}</span></div>
-      ${order.items.map(it=>`<a class="mini-line" href="producto.html?id=${encodeURIComponent(it.productId)}"><div class="mini-thumb" style="background:${it.hue1}22;color:${it.hue1}">${VUI.thumbImg(it)}</div><div style="flex:1;"><span class="mini-line-title">${VUI.esc(it.title)} <span style="color:var(--muted-fg);">×${it.qty}</span></span>${it.qty>1?`<span class="mini-line-unit">${VUI.money(it.priceAtPurchase)} ${T("common.each")}</span>`:""}</div><div>${VUI.money(it.priceAtPurchase*it.qty)}</div></a>`).join("")}
+      ${order.items.map(it=>`<a class="mini-line" href="producto.html?id=${encodeURIComponent(it.productId)}"><div class="mini-thumb" style="background:${it.hue1}22;color:${it.hue1}">${VUI.thumbImg(it)}</div><div style="flex:1;"><span class="mini-line-title">${VUI.esc(VDB.lineTitle(it))} <span style="color:var(--muted-fg);">×${it.qty}</span></span>${it.qty>1?`<span class="mini-line-unit">${VUI.money(it.priceAtPurchase)} ${T("common.each")}</span>`:""}</div><div>${VUI.money(it.priceAtPurchase*it.qty)}</div></a>`).join("")}
       <div class="summary-row"><span>${T("sum.subtotal")}</span><span>${VUI.money(order.subtotal)}</span></div>
       <div class="summary-row"><span>${T("sum.shipping")}</span><span class="${order.shipping===0?'sum-free':''}">${order.shipping===0?T("sum.free"):VUI.money(order.shipping)}</span></div>
       <div class="summary-row"><span>${T("sum.tax")}</span><span>${VUI.money(order.tax)}</span></div>

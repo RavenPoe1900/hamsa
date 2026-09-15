@@ -472,26 +472,53 @@ table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
 [dir="rtl"] .pdp-gallery img{ direction:ltr; }
 
 /* ---------------- selector de idioma ---------------- */
-.lang-switch{
-  display:inline-flex; align-items:center; flex-shrink:0;
-  border:1px solid var(--border); border-radius:var(--radius);
-  background:var(--card); overflow:hidden; height:34px;
-}
-.lang-switch button{
-  appearance:none; border:0; background:none; cursor:pointer;
+/* Un disparador —bandera + código del idioma activo— que despliega la
+   lista de los tres. Es la forma característica de un selector de
+   idioma (Amazon, entre otros): un botón compacto y un menú flotante,
+   no tres opciones siempre a la vista. */
+.lang-switch{ position:relative; display:inline-flex; flex-shrink:0; }
+
+.lang-trigger{
+  appearance:none; border:1px solid var(--border); background:var(--card); cursor:pointer;
+  display:inline-flex; align-items:center; gap:6px;
   font-family:var(--font-ui); font-size:11.5px; font-weight:700; letter-spacing:.03em;
-  color:var(--muted-fg); padding:0 9px; height:100%; min-width:34px;
-  border-inline-start:1px solid var(--border);
-  transition:background .12s ease, color .12s ease;
+  color:var(--foreground); padding:0 10px; height:34px; border-radius:999px;
+  transition:background .12s ease, border-color .12s ease;
 }
-.lang-switch button:first-child{ border-inline-start:0; }
-.lang-switch button:hover{ background:var(--muted); color:var(--foreground); }
-.lang-switch button.is-active{ background:var(--accent); color:var(--accent-fg); }
-.lang-switch button:focus-visible{ outline:2px solid var(--ring); outline-offset:-2px; }
+.lang-trigger .flag{ font-size:14px; line-height:1; }
+.lang-trigger .chevron{ color:var(--muted-fg); transition:transform .15s ease; }
+.lang-trigger:hover{ background:var(--muted); }
+.lang-trigger[aria-expanded="true"]{ border-color:var(--ring); }
+.lang-trigger[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+.lang-trigger:focus-visible{ outline:2px solid var(--ring); outline-offset:1px; }
+
+/* El menú cuelga del borde que cae hacia dentro de la cabecera: con
+   inset-inline-end en vez de right, se abre hacia la izquierda en LTR
+   y hacia la derecha en RTL sin código aparte para cada dirección. */
+.lang-menu{
+  position:absolute; top:calc(100% + 6px); inset-inline-end:0; z-index:60;
+  min-width:168px; margin:0; padding:6px; list-style:none;
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:0 10px 28px rgba(0,0,0,.16);
+}
+.lang-menu li + li{ margin-top:2px; }
+.lang-menu button{
+  appearance:none; border:0; background:none; cursor:pointer; width:100%;
+  display:flex; align-items:center; gap:9px; text-align:start;
+  padding:8px 9px; border-radius:calc(var(--radius) - 2px);
+  font-family:var(--font-ui); font-size:13px; color:var(--foreground);
+}
+.lang-menu button:hover{ background:var(--muted); }
+.lang-menu button:focus-visible{ outline:2px solid var(--ring); outline-offset:-2px; }
+.lang-menu .flag{ font-size:16px; line-height:1; flex-shrink:0; }
+.lang-menu .name{ flex:1; min-width:0; }
+.lang-menu button.is-active{ color:var(--accent); font-weight:700; }
+.lang-menu .check{ flex-shrink:0; color:var(--accent); }
 
 @media (max-width:640px){
-  .lang-switch{ height:30px; }
-  .lang-switch button{ min-width:28px; padding:0 5px; font-size:10.5px; }
+  .lang-trigger{ height:30px; padding:0 8px; font-size:10.5px; gap:4px; }
+  .lang-trigger .flag{ font-size:12.5px; }
+  .lang-menu{ min-width:152px; }
   /* El selector suma una pieza más a una fila que en móvil ya iba justa:
      se deja envolver en lugar de empujar la página a scroll horizontal. */
   .header-actions{ flex-wrap:wrap; flex-shrink:1; justify-content:flex-end; row-gap:4px; }

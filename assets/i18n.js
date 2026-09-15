@@ -9,17 +9,17 @@
   const KEY = "vasto-lang";
 
   const LANGS = {
-    es: { short:"ES", name:"Español",  dir:"ltr", locale:"es-ES" },
-    en: { short:"EN", name:"English",  dir:"ltr", locale:"en-US" },
-    ar: { short:"AR", name:"العربية", dir:"rtl", locale:"ar" },
+    es: { short:"ES", name:"Español",  dir:"ltr", locale:"es-ES", flag:"🇪🇸" },
+    en: { short:"EN", name:"English",  dir:"ltr", locale:"en-US", flag:"🇺🇸" },
+    ar: { short:"AR", name:"العربية", dir:"rtl", locale:"ar",    flag:"🇸🇦" },
   };
 
   /* ---------- selección de idioma ---------- */
   function stored(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } }
   function fromBrowser(){
-    const nav = (navigator.languages || [navigator.language || "es"]).map(l=>String(l).toLowerCase());
+    const nav = (navigator.languages || [navigator.language || "ar"]).map(l=>String(l).toLowerCase());
     for(const l of nav){ const base = l.split("-")[0]; if(LANGS[base]) return base; }
-    return "es";
+    return "ar";
   }
   let lang = LANGS[stored()] ? stored() : fromBrowser();
 
@@ -648,14 +648,39 @@
     location.reload();
   }
 
-  /* ---------- selector para la cabecera ---------- */
+  /* ---------- selector para la cabecera ----------
+     Un botón —bandera + código del idioma activo— que despliega la
+     lista de los tres. Es el patrón habitual de un selector de idioma
+     (Amazon, entre otros): un disparador compacto en vez de tres
+     píldoras siempre a la vista compitiendo con el resto de la
+     cabecera. */
   function switcherHTML(){
-    return `<div class="lang-switch" role="group" aria-label="${t("lang.aria")}">` +
-      Object.keys(LANGS).map(code=>{
-        const on = code === lang;
-        return `<button type="button" data-set-lang="${code}" class="${on?"is-active":""}" lang="${code}"
-          aria-pressed="${on}" title="${t("lang.switchTo",{name:LANGS[code].name})}">${LANGS[code].short}</button>`;
-      }).join("") + `</div>`;
+    const cur = LANGS[lang];
+    return `<div class="lang-switch" data-lang-switch>
+      <button type="button" class="lang-trigger" data-lang-trigger
+        aria-haspopup="listbox" aria-expanded="false" aria-label="${t("lang.aria")}: ${cur.name}">
+        <span class="flag" aria-hidden="true">${cur.flag}</span><span class="code">${cur.short}</span>
+        <svg class="chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
+          stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-menu" role="listbox" aria-label="${t("lang.aria")}" hidden>` +
+        Object.keys(LANGS).map(code=>{
+          const on = code === lang, cfg = LANGS[code];
+          return `<li role="option" aria-selected="${on}">
+            <button type="button" data-set-lang="${code}" class="${on?"is-active":""}" lang="${code}">
+              <span class="flag" aria-hidden="true">${cfg.flag}</span><span class="name">${cfg.name}</span>
+              ${on ? `<svg class="check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>` : ""}
+            </button>
+          </li>`;
+        }).join("") +
+      `</ul>
+    </div>`;
+  }
+
+  function closeLangMenus(){
+    document.querySelectorAll("[data-lang-trigger]").forEach(b=>b.setAttribute("aria-expanded","false"));
+    document.querySelectorAll(".lang-menu").forEach(m=>{ m.hidden = true; });
   }
 
   /* ---------- formato local ---------- */
@@ -664,9 +689,21 @@
 
   document.addEventListener("DOMContentLoaded", ()=>applyDom());
   document.addEventListener("click", (e)=>{
+    const trig = e.target.closest("[data-lang-trigger]");
+    if(trig){
+      const open = trig.getAttribute("aria-expanded") === "true";
+      closeLangMenus();
+      if(!open){ trig.setAttribute("aria-expanded","true"); trig.nextElementSibling.hidden = false; }
+      return;
+    }
     const b = e.target.closest("[data-set-lang]");
-    if(b) setLang(b.dataset.setLang);
+    if(b){ setLang(b.dataset.setLang); return; }
+    /* Cualquier otro clic —incluido dentro del propio menú, en una fila
+       que no es un botón de idioma— cierra el desplegable, como espera
+       cualquier selector de este tipo. */
+    if(!e.target.closest("[data-lang-switch]")) closeLangMenus();
   });
+  document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLangMenus(); });
 
   window.VI18N = {
     get lang(){ return lang; },
