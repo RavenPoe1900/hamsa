@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="search.title">Resultados — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  .hero-search{ display:flex; height:50px; max-width:600px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--background); box-shadow:0 1px 2px rgba(15,23,42,.04); transition:border-color .15s ease, box-shadow .15s ease; }
+  .hero-search:focus-within{ border-color:var(--ring); box-shadow:0 0 0 3px var(--accent-tint); }
+  .hero-search input{ flex:1; min-width:0; border:0; background:transparent; padding:0 14px; font-size:14px; color:var(--foreground); font-family:inherit; }
+  .hero-search input:focus{ outline:none; }
+  .hero-search button{ display:inline-flex; align-items:center; gap:7px; border:0; padding:0 22px; background:var(--accent); color:var(--accent-fg); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .12s ease; }
+  .hero-search button .ic{ width:16px; height:16px; }
+  .hero-search button:hover{ background:var(--accent-hover); }
+  .results-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:20px 0 18px; flex-wrap:wrap; }
+  .results-count{ font-size:13px; color:var(--muted-fg); }
+  .results-count strong{ color:var(--foreground); font-family:var(--font-display); font-size:16px; }
+  .active-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .filters-toggle{ display:none; }
+  @media (max-width: 900px){ .filters-toggle{ display:flex; margin:16px 0 0; } .filters-panel{ display:none; } .filters-panel.open{ display:block; } }
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page container">
+  <nav class="breadcrumbs" style="margin-top:16px;"><a href="index.html" data-i18n="crumb.home">Inicio</a><span>/</span><span data-crumb-current>Resultados</span></nav>
+  <form class="hero-search" role="search" data-search-form style="margin:16px 0;">
+    <input type="search" class="input" name="q" data-i18n-ph="search.placeholder" data-i18n-aria="search.label" autocomplete="off" data-search-input>
+    <button type="submit" class="btn btn-primary" data-search-btn data-i18n="search.submit">Buscar</button>
+  </form>
+  <button class="btn btn-outline filters-toggle" data-toggle-filters aria-expanded="false" data-i18n="filters">Filtros</button>
+  <div class="two-col">
+    <aside class="filters-panel" data-i18n-aria="filters">
+      <form id="filter-form">
+        <div class="filter-group"><h3 data-i18n="search.catAria">Categoría</h3><div data-filter-categories></div></div>
+        <div class="filter-group"><h3 data-i18n="filter.price">Precio</h3><div style="display:flex; gap:8px;">
+          <input class="input" type="number" min="0" name="minPrice" data-i18n-ph="filter.min" data-i18n-aria="filter.min" style="min-height:40px; flex:1; min-width:0;">
+          <input class="input" type="number" min="0" name="maxPrice" data-i18n-ph="filter.max" data-i18n-aria="filter.max" style="min-height:40px; flex:1; min-width:0;"></div></div>
+        <div class="filter-group"><h3 data-i18n="filter.deals">Ofertas</h3>
+          <label class="filter-option"><input type="checkbox" name="onSaleOnly"> <span data-i18n="filter.onSaleOnly">Solo con rebaja</span></label></div>
+        <div class="filter-group"><h3 data-i18n="filter.availability">Disponibilidad</h3>
+          <label class="filter-option"><input type="checkbox" name="primeOnly"> <span data-i18n="filter.delivery24">Entrega en 24h</span></label>
+          <label class="filter-option"><input type="checkbox" name="inStockOnly"> <span data-i18n="filter.inStockOnly">Solo en stock</span></label></div>
+        <div style="padding:16px 20px;"><button type="button" class="btn btn-ghost btn-sm" data-clear-filters data-i18n="filter.clear">Limpiar filtros</button></div>
+      </form>
+    </aside>
+    <section>
+      <div class="results-bar">
+        <p class="results-count"><strong data-result-count>0</strong> <span data-result-noun>resultados</span></p>
+        <select id="sort" class="input" style="min-height:38px;">
+          <option value="relevance" data-i18n="sort.relevance">Más relevantes</option><option value="price-asc" data-i18n="sort.priceAsc">Precio: menor a mayor</option>
+          <option value="price-desc" data-i18n="sort.priceDesc">Precio: mayor a menor</option><option value="new" data-i18n="sort.new">Más recientes</option>
+          <option value="discount" data-i18n="sort.discount">Mayor descuento</option>
+        </select>
+      </div>
+      <div class="active-chips" data-active-chips></div>
+      <div class="product-grid" data-results></div>
+      <div class="empty-state" data-empty hidden>
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <h2 data-i18n="empty.noResults">No hay resultados</h2><p data-i18n="empty.noResultsHint">Prueba a quitar algún filtro o busca con otras palabras.</p>
+        <button class="btn btn-outline btn-sm" data-clear-filters data-i18n="filter.clear">Limpiar filtros</button>
+      </div>
+    </section>
+  </div>
+</main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
+  const params = new URLSearchParams(location.search);
+  document.querySelector("[data-filter-categories]").innerHTML = VDB.CATEGORIES.map(c=>`<label class="filter-option"><input type="checkbox" name="category" value="${c.id}"> ${c.name}</label>`).join("");
+  const form = document.getElementById("filter-form"), sortSel = document.getElementById("sort");
+  const searchForm = document.querySelector("[data-search-form]"), searchInput = document.querySelector("[data-search-input]");
+  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + T("search.submit");
+  let currentQ = params.get("q")||"";
+  searchInput.value = currentQ;
+
+  function readState(){
+    const fd = new FormData(form);
+    return { q: currentQ, categories: fd.getAll("category"), minPrice: fd.get("minPrice")?Number(fd.get("minPrice")):null,
+      maxPrice: fd.get("maxPrice")?Number(fd.get("maxPrice")):null,
+      primeOnly: !!fd.get("primeOnly"), inStockOnly: !!fd.get("inStockOnly"), onSaleOnly: !!fd.get("onSaleOnly"), sort: sortSel.value };
+  }
+  function applyUrlToForm(){
+    if(params.get("cat")){ const cb=form.querySelector(`[name="category"][value="${params.get("cat")}"]`); if(cb) cb.checked=true; }
+    if(params.get("onSale")) form.onSaleOnly.checked = true;
+    if(params.get("sort")) sortSel.value = params.get("sort");
+  }
+  // Marca en el filtro de categoría de dónde salen los resultados de la búsqueda de texto,
+  // para que luego se puedan desmarcar una por una y excluirlas.
+  function markCategoriesFromQuery(){
+    const checkboxes = form.querySelectorAll('[name="category"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    if(!currentQ) return;
+    const cats = new Set(VDB.listProducts({ q: currentQ }).map(p => p.category));
+    checkboxes.forEach(cb => { if(cats.has(cb.value)) cb.checked = true; });
+  }
+  function render(){
+    const s = readState();
+    let list = VDB.listProducts({ q:s.q, sort:s.sort==="relevance"?undefined:s.sort, minPrice:s.minPrice, maxPrice:s.maxPrice, primeOnly:s.primeOnly, inStockOnly:s.inStockOnly, onSaleOnly:s.onSaleOnly });
+    if(s.categories.length) list = list.filter(p=>s.categories.includes(p.category));
+    document.querySelector("[data-result-count]").textContent = VI18N.fmtNum(list.length);
+    document.querySelector("[data-result-noun]").textContent = TP("results.count", list.length);
+    document.querySelector("[data-crumb-current]").textContent = s.q ? `“${s.q}”` : (s.categories.length===1 ? VDB.CATEGORIES.find(c=>c.id===s.categories[0]).name : T("search.results"));
+    const grid = document.querySelector("[data-results]"), empty = document.querySelector("[data-empty]");
+    if(list.length===0){ grid.innerHTML=""; empty.hidden=false; } else { empty.hidden=true; grid.innerHTML = list.map(p=>VUI.productCard(p)).join(""); }
+    const chips = [];
+    if(s.q) chips.push({label:`“${s.q}”`, clear:()=>{ currentQ=""; searchInput.value=""; history.replaceState(null,"",location.pathname); markCategoriesFromQuery(); render(); }});
+    s.categories.forEach(c=>{ const def=VDB.CATEGORIES.find(x=>x.id===c); chips.push({label:def.name, clear:()=>{ form.querySelector(`[name="category"][value="${c}"]`).checked=false; render(); }}); });
+    if(s.onSaleOnly) chips.push({label:T("chip.onSale"), clear:()=>{ form.onSaleOnly.checked=false; render(); }});
+    if(s.primeOnly) chips.push({label:T("card.delivery24"), clear:()=>{ form.primeOnly.checked=false; render(); }});
+    if(s.inStockOnly) chips.push({label:T("chip.inStock"), clear:()=>{ form.inStockOnly.checked=false; render(); }});
+    document.querySelector("[data-active-chips]").innerHTML = chips.map((c,i)=>`<span class="chip" data-chip-idx="${i}">${VUI.esc(c.label)}<button aria-label="${VUI.esc(T("filter.removeAria",{label:c.label}))}">✕</button></span>`).join("");
+    document.querySelectorAll("[data-chip-idx]").forEach(el=> el.querySelector("button").addEventListener("click", ()=> chips[Number(el.dataset.chipIdx)].clear()));
+  }
+  applyUrlToForm();
+  if(!params.get("cat")) markCategoriesFromQuery();
+  render();
+  searchForm.addEventListener("submit", (e)=>{ e.preventDefault(); currentQ = searchInput.value.trim(); history.replaceState(null,"", "buscar.html"+(currentQ?`?q=${encodeURIComponent(currentQ)}`:"")); markCategoriesFromQuery(); render(); });
+  form.addEventListener("change", render); sortSel.addEventListener("change", render);
+  document.querySelectorAll("[data-clear-filters]").forEach(b=>b.addEventListener("click", ()=>{ form.reset(); sortSel.value="relevance"; history.replaceState(null,"","buscar.html"); render(); }));
+  document.querySelector("[data-toggle-filters]")?.addEventListener("click", (e)=>{ const p=document.querySelector(".filters-panel"); const open=p.classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded",String(open)); });
+})();
+</script>
+</body>
+</html>

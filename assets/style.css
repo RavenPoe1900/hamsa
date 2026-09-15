@@ -1,0 +1,498 @@
+/* ============================================================
+   VASTO — "Systemic" (dirección C, /ui-ux-pro-max:ui-styling)
+   shadcn/ui visual language: zinc neutrals + un acento índigo,
+   Inter, radius 0.5rem, borde sutil + ring de foco. Sin adornos.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --background:  #FAFAFA;
+  --foreground:  #18181B;
+  --muted:       #F4F4F5;
+  --muted-fg:    #71717A;
+  --card:        #FFFFFF;
+  --border:      #E4E4E7;
+  --input:       #E4E4E7;
+  --ring:        #3B82F6;
+
+  --primary:      #3B82F6;
+  --primary-fg:   #FFFFFF;
+
+  /* un solo color de acción (azul) para todo: foco, enlaces, filtros, CTA de compra */
+  --accent:       #3B82F6;
+  --accent-fg:    #FFFFFF;
+  --accent-tint:  #EFF6FF;
+  --accent-hover: #2E6FE0;
+
+  --conversion:      #3B82F6;
+  --conversion-hover:#2E6FE0;
+  --conversion-fg:   #FFFFFF;
+  --conversion-tint: #EFF6FF;
+
+  --success:      #16A34A;
+  --success-tint: #EFFDF3;
+  --warning:      #B45309;
+  --warning-tint: #FEF3C7;
+  --destructive:  #DC2626;
+  --destructive-tint:#FEF2F2;
+  --star:         #F5A524;
+
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --radius: 0.5rem;
+  --radius-lg: 18px;   /* solo hero/piezas de escala mayor */
+  --radius-tag: 4px;   /* etiquetas de descuento: etiqueta, no pill */
+
+  /* espaciado del header, en variables para no repetir números mágicos */
+  --header-pad-x: 24px;
+  --header-pad-y: 10px;
+  --header-gap: 20px;
+  color-scheme: light;
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --background:#0A0A0B; --foreground:#FAFAFA; --muted:#18181B; --muted-fg:#A1A1AA;
+    --card:#141416; --border:#27272A; --input:#27272A; --ring:#60A5FA;
+    --primary:#FAFAFA; --primary-fg:#18181B; --accent:#60A5FA; --accent-fg:#0A0A0B; --accent-tint:#132038; --accent-hover:#3B82F6;
+    --conversion:#60A5FA; --conversion-hover:#3B82F6; --conversion-fg:#08101F; --conversion-tint:#132038;
+    --success:#4ADE80; --success-tint:#122318; --warning:#FBBF24; --warning-tint:#2A1F05;
+    --destructive:#F87171; --destructive-tint:#2C1517; --star:#F5B94F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --background:#0A0A0B; --foreground:#FAFAFA; --muted:#18181B; --muted-fg:#A1A1AA;
+  --card:#141416; --border:#27272A; --input:#27272A; --ring:#60A5FA;
+  --primary:#FAFAFA; --primary-fg:#18181B; --accent:#60A5FA; --accent-fg:#0A0A0B; --accent-tint:#132038; --accent-hover:#3B82F6;
+  --conversion:#60A5FA; --conversion-hover:#3B82F6; --conversion-fg:#08101F; --conversion-tint:#132038;
+  --success:#4ADE80; --success-tint:#122318; --warning:#FBBF24; --warning-tint:#2A1F05;
+  --destructive:#F87171; --destructive-tint:#2C1517; --star:#F5B94F;
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+[hidden]{ display:none !important; }
+body{ margin:0; background:var(--background); color:var(--foreground); font-family:var(--font-ui); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; margin:0; padding:0; }
+h1,h2,h3,h4{ margin:0; font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; }
+p{ margin:0; }
+::selection{ background:var(--accent-tint); color:var(--accent); }
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; border-radius:4px; }
+
+/* los SVG inline no traen tamaño propio: sin esto colapsan a 0×0 */
+.ic{ display:inline-grid; place-items:center; width:18px; height:18px; flex-shrink:0; }
+.ic svg{ width:100%; height:100%; }
+
+.container{ max-width:1240px; margin-inline:auto; padding-inline:24px; }
+.visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.skip-link{ position:absolute; inset-inline-start:8px; top:-48px; background:var(--primary); color:var(--primary-fg); padding:10px 16px; border-radius:var(--radius); z-index:1000; transition:top .15s ease; }
+.skip-link:focus{ top:8px; }
+
+/* ================= header: 2 filas (fila superior + menú de categorías) ================= */
+
+/* contenedor general: pegado arriba, con sombra suave para separarlo del contenido */
+.site-header{ position:sticky; top:0; z-index:100; background:color-mix(in srgb, var(--background) 88%, transparent); backdrop-filter:blur(8px); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+
+/* --- fila superior: logo a la izquierda, accesos de usuario a la derecha --- */
+.header-row{
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+  gap:10px var(--header-gap); max-width:1240px; margin-inline:auto;
+  padding:var(--header-pad-y) var(--header-pad-x);
+}
+
+/* logotipo: isotipo SVG en badge + wordmark en dos pesos, componente real (no imagen) */
+.brand{ display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.brand-mark{ width:48px; height:48px; border-radius:var(--radius); background:var(--accent); color:#fff; display:grid; place-items:center; flex-shrink:0; }
+.brand-mark svg{ width:26px; height:26px; }
+.brand-text{ display:flex; flex-direction:column; line-height:1.15; }
+.brand-name{ font-family:var(--font-display); font-weight:800; font-size:19px; letter-spacing:-.02em; color:var(--foreground); }
+.brand-city{ font-size:11.5px; font-weight:600; color:var(--muted-fg); letter-spacing:.03em; }
+
+/* accesos de usuario: fila de íconos con label secundario (gris) + texto principal (negrita) */
+.header-actions{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.header-link{ display:flex; flex-direction:row; align-items:center; gap:9px; padding:8px 12px; border-radius:var(--radius); font-size:13px; line-height:1.25; min-height:46px; background:none; border:0; font-family:inherit; color:inherit; cursor:pointer; }
+.header-link:hover{ background:var(--muted); }
+.header-link .txt{ display:flex; flex-direction:column; justify-content:center; }
+.header-link .lbl{ color:var(--muted-fg); font-size:12px; }
+.header-link b{ font-size:13.5px; font-weight:700; }
+.header-link.icon-only{ width:46px; height:46px; padding:0; justify-content:center; }
+
+/* carrito: badge numérico anclado a la esquina del ícono, siempre centrado sobre él */
+.header-link.cart{ position:relative; }
+.cart-badge{ position:absolute; top:2px; inset-inline-end:2px; background:var(--conversion); color:var(--conversion-fg); font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:999px; display:grid; place-items:center; padding:0 4px; line-height:1; }
+
+/* botón hamburguesa: solo existe visualmente <768px (ver media query) */
+.cat-toggle{ display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:var(--radius); background:none; border:1px solid var(--border); cursor:pointer; color:var(--foreground); }
+
+/* --- fila inferior: menú de categorías, separado con línea superior --- */
+.subnav{ background:var(--card); border-top:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; }
+.subnav-row{ max-width:1240px; margin-inline:auto; padding-inline:var(--header-pad-x); height:44px; display:flex; align-items:center; gap:4px; overflow-x:auto; scrollbar-width:none; }
+.subnav-row::-webkit-scrollbar{ display:none; }
+.subnav-row a{ color:var(--muted-fg); font-size:12.5px; font-weight:500; padding:7px 14px; white-space:nowrap; flex-shrink:0; transition:color .12s ease; }
+.subnav-row a:not(:last-child){ border-inline-end:1px solid var(--border); }
+.subnav-row a:hover{ color:var(--accent); text-decoration:underline; text-underline-offset:4px; }
+.subnav-row a.all{ font-weight:700; color:var(--foreground); }
+/* pista de que hay más categorías fuera de vista, sin flechas ni JS */
+.subnav::after{ content:""; position:absolute; top:0; inset-inline-end:0; width:28px; height:100%; background:linear-gradient(to var(--fade-to, right), transparent, var(--card)); pointer-events:none; }
+
+/* --- responsive <768px: logo más chico, categorías colapsan tras hamburguesa --- */
+@media (max-width:768px){
+  .brand-mark{ width:38px; height:38px; }
+  .brand-mark svg{ width:20px; height:20px; }
+  .brand-name{ font-size:16px; }
+  .brand-city{ font-size:10.5px; }
+  .cat-toggle{ display:flex; }
+  .subnav-row{ display:none; height:auto; flex-direction:column; align-items:stretch; overflow:visible; padding-block:8px; }
+  .subnav.is-open .subnav-row{ display:flex; }
+  .subnav-row a{ padding:10px var(--header-pad-x); border-radius:0; border-inline-end:0 !important; border-bottom:1px solid var(--border); }
+  .subnav-row a:last-child{ border-bottom:0; }
+  .subnav::after{ display:none; }
+}
+
+/* ---------------- buttons (shadcn Button) ---------------- */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:38px; padding:0 16px; border-radius:var(--radius); font-size:13.5px; font-weight:500; border:1px solid transparent; cursor:pointer; transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease,box-shadow .12s ease; }
+.btn-buy{ background:var(--conversion); color:var(--conversion-fg); font-weight:600; }
+.btn-buy:hover:not([disabled]){ background:var(--conversion-hover); transform:translateY(-1px); box-shadow:0 6px 14px -4px rgba(59,130,246,.45); }
+.btn-buy:active:not([disabled]){ transform:translateY(0); box-shadow:none; }
+.btn-buy.is-added{ background:var(--success); color:#fff; }
+.btn-primary{ background:var(--accent); color:var(--accent-fg); }
+.btn-primary:hover{ opacity:.9; }
+.btn-outline{ background:var(--card); border-color:var(--border); color:var(--foreground); }
+.btn-outline:hover{ background:var(--muted); }
+.btn-danger{ background:transparent; border-color:var(--destructive); color:var(--destructive); }
+.btn-danger:hover{ background:var(--destructive-tint); }
+.btn-ghost{ background:transparent; color:var(--foreground); }
+.btn-ghost:hover{ background:var(--muted); }
+.btn-sm{ min-height:32px; padding:0 12px; font-size:12.5px; border-radius:calc(var(--radius) - 2px); }
+.btn-block{ width:100%; }
+.btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+/* ---------------- product card ----------------
+   Componente único (VUI.productCard, assets/app.js) reutilizado en index.html,
+   buscar.html, favoritos.html y en producto.html ("también te puede interesar").
+   Ritmo vertical en múltiplos de 4/8px: imagen → título(8) → vendedor(4) → precio(8) → stock(4) → botón. */
+.product-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(206px,1fr)); gap:14px; }
+.product-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:12px; display:flex; flex-direction:column; gap:8px; position:relative; transition:border-color .12s ease, box-shadow .12s ease; }
+.product-card:hover{ border-color:var(--ring); }
+.product-thumb, .pdp-gallery{
+  aspect-ratio:1/1; border-radius:calc(var(--radius) - 2px); display:grid; place-items:center; position:relative; overflow:hidden;
+  background-color:var(--muted);
+  background-image:
+    radial-gradient(circle at 50% 38%, var(--thumb-tone, var(--accent-tint)) 0%, transparent 62%),
+    radial-gradient(currentColor 1px, transparent 1px);
+  background-size:auto, 14px 14px;
+  color:var(--border);
+}
+.product-thumb span, .pdp-gallery{ position:relative; z-index:1; }
+.product-thumb{ font-size:34px; }
+.product-thumb img, .pdp-gallery img, .cart-thumb img, .mini-thumb img, .thumb-cell img, .preview-box img, .shot img, .h-f2-art img{
+  width:100%; height:100%; object-fit:contain; position:relative; z-index:1; background:#fff; padding:6%; box-sizing:border-box;
+}
+.cart-thumb, .mini-thumb, .thumb-cell, .preview-box, .shot, .h-f2-art{ overflow:hidden; }
+/* badge de descuento: esquina superior izquierda de la imagen, condicional (solo con oldPrice)
+   selector calificado con el contenedor de miniatura: ".product-thumb span" (más específico) si no, gana y pisa el position/z-index */
+.product-thumb .discount-badge, .fbw-thumb .discount-badge, .pdp-gallery .discount-badge{
+  position:absolute; top:8px; inset-inline-start:8px; z-index:2;
+  background:var(--destructive); color:#fff; font-size:11.5px; font-weight:800;
+  letter-spacing:-.01em; padding:3px 7px; border-radius:var(--radius-tag);
+  box-shadow:0 2px 6px -1px rgba(0,0,0,.35);
+}
+.wish-btn{
+  position:absolute; top:8px; inset-inline-end:8px; z-index:2; width:32px; height:32px; border-radius:999px;
+  background:color-mix(in srgb, var(--card) 92%, transparent); border:1px solid var(--border);
+  box-shadow:0 1px 4px -1px rgba(0,0,0,.2);
+  display:grid; place-items:center; cursor:pointer; color:var(--muted-fg);
+  transition:transform .12s ease, border-color .12s ease, color .12s ease;
+}
+.wish-btn:hover{ transform:scale(1.12); }
+.wish-btn .ic{ width:16px; height:16px; }
+/* el CTA cae al fondo: todas las cards de una fila comparten línea base */
+.product-card > .btn{ margin-top:auto; }
+.wish-btn[aria-pressed="true"]{ color:var(--destructive); border-color:var(--destructive); }
+.product-title{ font-size:13px; line-height:1.35; color:var(--muted-fg); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:34px; font-weight:500; margin-top:8px; }
+.product-card:hover .product-title{ color:var(--foreground); }
+/* micro-atributos: reduce fricción de decisión sin abrir el detalle */
+.product-meta{ font-size:11.5px; color:var(--muted-fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:4px; }
+.product-seller{ color:inherit; }
+.product-seller:hover{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+.rating-row{ display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted-fg); }
+.stars{ display:inline-flex; gap:1px; }
+.stars svg{ width:12px; height:12px; }
+.price-row{ display:flex; align-items:baseline; gap:7px; margin-top:8px; flex-wrap:wrap; }
+.price{ font-weight:800; font-size:21px; line-height:1.1; color:var(--foreground); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+.price small{ font-size:13px; font-weight:700; vertical-align:baseline; }
+.price-old{ font-size:13px; color:var(--muted-fg); text-decoration:line-through; font-variant-numeric:tabular-nums; }
+.price-badge{ font-size:10.5px; font-weight:700; color:var(--destructive); background:var(--destructive-tint); padding:2px 6px; border-radius:var(--radius-tag); }
+/* señal secundaria: nunca compite con la etiqueta de descuento */
+.prime-badge{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:600; color:var(--muted-fg); background:var(--muted); border:1px solid var(--border); padding:1px 7px; border-radius:999px; width:fit-content; }
+/* urgencia solo cuando es real (stock crítico o agotado); "En stock" no se pinta */
+.stock-note{ display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--warning); margin-top:4px; }
+.stock-note .ic{ width:12px; height:12px; }
+.stock-note.ok{ color:var(--success); }
+.stock-note.out{ color:var(--muted-fg); }
+
+/* ---------------- layout ---------------- */
+.page{ min-height:calc(100vh - 300px); }
+.breadcrumbs{ display:flex; gap:6px; font-size:12px; color:var(--muted-fg); flex-wrap:wrap; }
+.breadcrumbs a:hover{ color:var(--foreground); }
+.two-col{ display:grid; grid-template-columns:240px 1fr; gap:20px; align-items:start; }
+.card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.section-title{ font-size:18px; font-weight:700; }
+.rail{ display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x proximity; }
+.rail > *{ scroll-snap-align:start; flex:0 0 196px; }
+
+/* ---------------- filters ---------------- */
+.filter-group{ border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:14px; }
+.filter-group:last-child{ border-bottom:0; }
+.filter-group h3{ font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:9px; font-weight:700; color:var(--muted-fg); }
+.filter-option{ display:flex; align-items:center; gap:8px; padding:5px 2px; font-size:13px; cursor:pointer; border-radius:4px; }
+.filter-option:hover{ background:var(--muted); }
+.filter-option input{ width:15px; height:15px; accent-color:var(--accent); flex-shrink:0; }
+
+.chip{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:4px 10px; border-radius:999px; background:var(--muted); color:var(--foreground); border:1px solid var(--border); }
+.chip button{ background:none; border:0; cursor:pointer; color:inherit; }
+
+/* segmented control — opciones excluyentes, más rápido de escanear que una lista de radios */
+.seg{ display:flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--card); }
+.seg label{ flex:1; position:relative; display:block; }
+.seg input{ position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; }
+.seg span{ display:block; text-align:center; padding:7px 6px; font-size:12px; font-weight:500; color:var(--muted-fg); cursor:pointer; border-inline-start:1px solid var(--border); }
+.seg label:first-child span{ border-inline-start:0; }
+.seg input:checked + span{ background:var(--accent-tint); color:var(--accent); font-weight:600; }
+.seg input:focus-visible + span{ outline:2px solid var(--ring); outline-offset:-2px; }
+
+/* ---------------- forms (shadcn Input) ---------------- */
+.field{ display:flex; flex-direction:column; gap:6px; margin-bottom:15px; }
+.field label{ font-size:12.5px; font-weight:600; }
+.field .hint{ font-size:11.5px; color:var(--muted-fg); }
+.field .error{ font-size:12px; color:var(--destructive); font-weight:600; display:none; }
+.field.has-error .error{ display:block; }
+.input, select.input, textarea.input{ border:1px solid var(--input); border-radius:var(--radius); padding:9px 12px; font-size:13.5px; background:var(--card); color:var(--foreground); min-height:38px; font-family:var(--font-ui); }
+.input:focus{ outline:none; border-color:var(--ring); box-shadow:0 0 0 3px var(--accent-tint); }
+.field.has-error .input{ border-color:var(--destructive); }
+textarea.input{ min-height:80px; resize:vertical; }
+
+/* Desplegables: la lista de un <select> nativo la dibuja el sistema operativo (esquinas
+   rectas, resaltado con el acento del SO). appearance:base-select la vuelve estilable,
+   para que herede el radio, el borde y el azul de marca del resto del sitio. */
+select{ appearance:base-select; align-items:center; }
+select::picker(select){
+  appearance:base-select;
+  border:1px solid var(--border); border-radius:var(--radius);
+  background:var(--card); padding:4px;
+  box-shadow:0 10px 28px -10px rgba(0,0,0,.30);
+}
+select::picker-icon{ color:var(--muted-fg); font-size:9px; }
+select option{
+  padding:7px 10px; border-radius:calc(var(--radius) - 3px);
+  font-size:13.5px; color:var(--foreground); background:transparent;
+}
+select option::checkmark{ display:none; }
+select option:hover{ background:var(--accent-tint); color:var(--accent); }
+select option:checked{ background:var(--accent); color:var(--accent-fg); }
+.checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13px; }
+.checkbox-row input{ width:16px; height:16px; accent-color:var(--accent); }
+
+/* ---------------- table ---------------- */
+.table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); }
+table.data-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+table.data-table th{ text-align:start; padding:10px 14px; font-weight:600; color:var(--muted-fg); font-size:11.5px; border-bottom:1px solid var(--border); background:var(--muted); position:sticky; top:0; }
+table.data-table td{ padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+table.data-table tr:last-child td{ border-bottom:0; }
+table.data-table tr:hover td{ background:var(--muted); }
+/* números comparables entre filas: alineados a la derecha y sin baile de dígitos */
+table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
+/* dot + texto: el estado no depende solo del color */
+.status-pill{ display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; }
+.status-pill::before{ content:""; width:6px; height:6px; border-radius:999px; background:currentColor; flex-shrink:0; }
+.status-pending{ background:var(--warning-tint); color:var(--warning); }
+.status-paid{ background:var(--muted); color:var(--foreground); }
+.status-shipped{ background:var(--success-tint); color:var(--success); }
+.status-delivered{ background:var(--success); color:#fff; }
+.status-cancelled{ background:var(--destructive-tint); color:var(--destructive); }
+
+/* ---------------- toast ---------------- */
+#toast-root{ position:fixed; bottom:20px; inset-inline-end:20px; z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+.toast{ background:var(--card); color:var(--foreground); border:1px solid var(--border); padding:11px 16px; border-radius:var(--radius); font-size:13px; font-weight:500; box-shadow:0 4px 16px rgba(0,0,0,.1); }
+
+/* ---------------- footer ---------------- */
+.site-footer{ background:var(--card); color:var(--muted-fg); margin-top:64px; border-top:1px solid var(--border); }
+.footer-grid{ max-width:1240px; margin-inline:auto; padding:40px 24px 32px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+.footer-grid h4{ color:var(--foreground); font-size:12px; margin-bottom:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+.footer-grid a{ display:block; padding:5px 0; font-size:12.5px; color:var(--muted-fg); transition:color .12s ease; }
+.footer-grid a:hover{ color:var(--accent); }
+.footer-base{ border-top:1px solid var(--border); display:flex; flex-direction:column; align-items:center; gap:12px; padding:18px 24px; font-size:11.5px; color:var(--muted-fg); }
+.footer-social{ display:flex; gap:6px; }
+.footer-social-link{ display:grid; place-items:center; width:34px; height:34px; border-radius:999px; color:var(--muted-fg); border:1px solid var(--border); transition:color .12s ease, border-color .12s ease, background .12s ease; }
+.footer-social-link:hover{ color:var(--accent); border-color:var(--accent); background:var(--accent-tint); }
+/* Botón flotante volver arriba */
+.back-to-top{ position:fixed; bottom:24px; inset-inline-end:24px; z-index:200; width:46px; height:46px; border-radius:999px; background:var(--accent); color:#fff; border:0; cursor:pointer; display:grid; place-items:center; box-shadow:0 4px 16px -4px color-mix(in srgb,var(--accent) 60%,transparent); transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease; }
+.back-to-top[hidden]{ display:none; }
+.back-to-top:hover{ transform:translateY(-3px); box-shadow:0 8px 22px -6px color-mix(in srgb,var(--accent) 70%,transparent); }
+
+.empty-state{ text-align:center; padding:60px 20px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.empty-state svg{ color:var(--border); }
+.empty-state h2{ font-size:17px; }
+.empty-state p{ color:var(--muted-fg); max-width:340px; font-size:13px; }
+
+.mono-tag{ font-family:ui-monospace,'SF Mono',Consolas,monospace; font-size:11px; color:var(--muted-fg); }
+.divider{ height:1px; background:var(--border); border:0; margin:16px 0; }
+
+/* Comprados juntos habitualmente: tarjeta unificada de "oferta combinada" */
+.fbw-section{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:0 2px 12px -4px rgba(0,0,0,.07); padding:24px 28px;
+}
+/* título en su propia franja, separado del contenido por un margen + una línea */
+.fbw-section .section-head{ margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.fbw-body{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+/* la fila ocupa todo el ancho disponible (flex:1) y reparte ese ancho en partes iguales
+   entre los productos que haya (1 a 4) — nunca deja espacio vacío sin usar */
+.fbw-row{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; align-items:start; flex:1; min-width:0; }
+.fbw-item{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:0 12px; cursor:pointer; }
+.fbw-item:not(:last-child){ border-inline-end:1px solid var(--border); }
+.fbw-thumb{ width:88px; height:88px; border-radius:var(--radius); background:var(--muted); display:grid; place-items:center; overflow:hidden; flex-shrink:0; position:relative; }
+.fbw-thumb img{ width:100%; height:100%; object-fit:contain; }
+/* el badge de descuento (.discount-badge) se reutiliza aquí, en una miniatura más chica */
+.fbw-thumb .discount-badge{ top:4px; inset-inline-start:4px; font-size:10px; padding:2px 6px; }
+/* altura FIJA (no mínima) calculada para 3 líneas: el nombre más largo no puede desalinear el precio */
+.fbw-check-row{ display:flex; align-items:flex-start; gap:6px; text-align:start; height:51px; width:100%; }
+.fbw-check-row input{ margin-top:3px; flex-shrink:0; accent-color:var(--accent); }
+.fbw-check-row input:disabled{ opacity:1; accent-color:var(--muted-fg); cursor:not-allowed; }
+.fbw-title{
+  font-size:12.5px; color:var(--foreground); line-height:1.35;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+/* franja reservada para la etiqueta "Este producto": vacía en el resto, mantiene la fila de precios alineada */
+.fbw-tag-slot{ min-height:20px; display:flex; align-items:center; }
+.fbw-tag{
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted-fg);
+  background:var(--muted); border:1px solid var(--border); border-radius:999px; padding:2px 8px;
+}
+.fbw-price-row{ display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+.fbw-price{ font-size:13.5px; font-weight:700; }
+.fbw-price-old{ font-size:11px; color:var(--muted-fg); text-decoration:line-through; }
+.fbw-chip{
+  flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+  min-width:180px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px 26px;
+}
+.fbw-chip .btn{ width:100%; }
+.fbw-total{ font-size:14px; color:var(--muted-fg); }
+.fbw-total strong{ color:var(--foreground); font-size:16px; }
+
+@media (max-width:760px){
+  .fbw-section{ padding:20px; }
+  .fbw-body{ flex-direction:column; align-items:stretch; }
+  .fbw-row{ grid-auto-columns:130px; overflow-x:auto; padding-bottom:6px; }
+  .fbw-chip{ width:100%; min-width:0; }
+}
+
+@media (max-width: 900px){ .two-col{ grid-template-columns:1fr; } .footer-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width: 640px){
+  .header-row{ gap:8px 10px; padding-inline:14px; }
+  .header-link .txt{ display:none; }
+  .header-link{ width:44px; height:44px; padding:0; justify-content:center; }
+  .subnav-row{ padding-inline:14px; }
+  .container{ padding-inline:14px; } .footer-grid{ grid-template-columns:1fr 1fr; padding:24px 14px; }
+  .product-grid{ grid-template-columns:repeat(2,1fr); gap:10px; } .rail > *{ flex-basis:150px; }
+}
+
+
+/* ============================================================
+   Idiomas: español · inglés · árabe
+   El grueso del RTL ya lo resuelven las propiedades lógicas de
+   arriba; aquí queda solo lo que ninguna propiedad lógica cubre.
+   ============================================================ */
+
+/* Inter va primero a propósito: cubre dígitos, $ y latín, y el árabe
+   cae por fallback de glifo a Noto (o a la fuente árabe del sistema si
+   no hay red, así la página sigue legible abierta desde el disco). */
+:root[lang="ar"]{
+  --font-ui:      'Inter', 'Noto Sans Arabic', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, 'Geeza Pro', sans-serif;
+  --font-display: 'Inter', 'Noto Sans Arabic', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, 'Geeza Pro', sans-serif;
+}
+/* El tracking negativo rompe la unión de las letras árabes: se anula. */
+:root[lang="ar"] body{ line-height:1.7; letter-spacing:normal; }
+:root[lang="ar"] h1,
+:root[lang="ar"] h2,
+:root[lang="ar"] h3,
+:root[lang="ar"] h4,
+:root[lang="ar"] .section-title,
+:root[lang="ar"] .price,
+:root[lang="ar"] .brand-name,
+:root[lang="ar"] .fbw-tag,
+:root[lang="ar"] .prime-badge,
+:root[lang="ar"] .discount-badge{ letter-spacing:normal; }
+/* Las versalitas en caja alta no existen en árabe: sin transform ni tracking. */
+:root[lang="ar"] .fbw-tag,
+:root[lang="ar"] .hero-feature .tag,
+:root[lang="ar"] .sec-title,
+:root[lang="ar"] .addr-default{ text-transform:none; }
+
+[dir="rtl"]{ --fade-to: left; }
+
+/* Precios, códigos de pedido y SKU son secuencias latinas dentro de texto
+   árabe: se aíslan para que el $ no salte al otro extremo del número. */
+[dir="rtl"] :is(.price, .price-old, .price-badge, .discount-badge, .line-total, .line-unit,
+  .t-value, .fbw-price, .fbw-price-old, .p-total, .p-unit, .mini-price, .cart-model,
+  .order-id-chip, .mono-tag, .summary-row > span:last-child, .specs-table td:last-child, .amt,
+  .fbw-total strong){
+  direction:ltr; unicode-bidi:isolate;
+}
+/* El precio grande de la ficha es display:block: al forzarlo a LTR se iría
+   al margen izquierdo, así que se vuelve a anclar al lado de inicio. */
+[dir="rtl"] .buy-box-price .price{ text-align:right; }
+
+/* El catálogo sigue en español (títulos, descripciones, marcas y fichas
+   técnicas). Dentro de una página en árabe ese texto latino se rompía: los
+   puntos finales saltaban al principio del párrafo. `plaintext` es el
+   equivalente CSS de dir="auto": cada párrafo elige su propia dirección
+   según su primera letra fuerte, y se alinea en consecuencia. */
+[dir="rtl"] :is(.product-title, .pdp-title, .desc-block, .cart-title, .cart-model,
+  .fbw-title, .mini-line-title, .mini-title, .product-seller, .pdp-brand,
+  .product-meta, .specs-table td, .addr-text, .order-id-chip,
+  .hero-feature h2, .hero-feature .meta, .mini-line-name){
+  unicode-bidi:plaintext; text-align:start;
+}
+/* …pero el precio se sigue alineando al lado que le toca en RTL. */
+[dir="rtl"] :is(.line-total, .line-unit, .p-total, .p-unit, .t-value, .summary-row > span:last-child){ text-align:left; }
+
+/* Flechas e íconos que apuntan: se reflejan, no se traducen. */
+[dir="rtl"] :is(.keep-shopping, .cat-nav) .ic svg,
+[dir="rtl"] .keep-shopping > svg{ transform:scaleX(-1); }
+
+/* El zoom de la galería usa transformOrigin en %: con dir=rtl el origen
+   se invierte, así que la imagen se fija a LTR y el marco no. */
+[dir="rtl"] .pdp-gallery img{ direction:ltr; }
+
+/* ---------------- selector de idioma ---------------- */
+.lang-switch{
+  display:inline-flex; align-items:center; flex-shrink:0;
+  border:1px solid var(--border); border-radius:var(--radius);
+  background:var(--card); overflow:hidden; height:34px;
+}
+.lang-switch button{
+  appearance:none; border:0; background:none; cursor:pointer;
+  font-family:var(--font-ui); font-size:11.5px; font-weight:700; letter-spacing:.03em;
+  color:var(--muted-fg); padding:0 9px; height:100%; min-width:34px;
+  border-inline-start:1px solid var(--border);
+  transition:background .12s ease, color .12s ease;
+}
+.lang-switch button:first-child{ border-inline-start:0; }
+.lang-switch button:hover{ background:var(--muted); color:var(--foreground); }
+.lang-switch button.is-active{ background:var(--accent); color:var(--accent-fg); }
+.lang-switch button:focus-visible{ outline:2px solid var(--ring); outline-offset:-2px; }
+
+@media (max-width:640px){
+  .lang-switch{ height:30px; }
+  .lang-switch button{ min-width:28px; padding:0 5px; font-size:10.5px; }
+  /* El selector suma una pieza más a una fila que en móvil ya iba justa:
+     se deja envolver en lugar de empujar la página a scroll horizontal. */
+  .header-actions{ flex-wrap:wrap; flex-shrink:1; justify-content:flex-end; row-gap:4px; }
+}

@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-title>Producto — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  /* ── Breadcrumb: hover azul para diferencia enlaces del texto plano ── */
+  .breadcrumbs a:hover { color: var(--accent) !important; }
+
+  /* ── PDP GRID ───────────────────────────────────────────────────────── */
+  .pdp {
+    display: grid;
+    grid-template-columns: minmax(0, 460px) 1fr 320px;
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+  .pdp > * { padding: 28px; border-inline-end: 1px solid var(--border); }
+  .pdp > *:last-child { border-inline-end: 0; }
+
+  /* ── GALERÍA ─────────────────────────────────────────────────────────── */
+  .pdp-gallery-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .pdp-gallery {
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    font-size: 110px;
+    overflow: hidden;
+    cursor: zoom-in;
+    border-radius: var(--radius);
+    background-color: var(--muted);
+    background-image:
+      radial-gradient(circle at 50% 38%, var(--thumb-tone, var(--accent-tint)) 0%, transparent 62%),
+      radial-gradient(currentColor 1px, transparent 1px);
+    background-size: auto, 14px 14px;
+    color: var(--border);
+    position: relative;
+  }
+  .pdp-gallery img {
+    width: 100%; height: 100%; object-fit: contain;
+    padding: 6%; box-sizing: border-box; background: #fff;
+    transition: transform 0.28s ease;
+    position: relative; z-index: 1;
+  }
+  /* El zoom lo controla el JS (escala + transform-origin siguiendo el cursor).
+     transform-origin no se transiciona, así que el paneo va instantáneo mientras
+     que el acercarse/alejarse sí se anima con la transición de arriba. */
+  .pdp-gallery.is-zooming { cursor: zoom-out; }
+  .pdp-gallery > span {
+    position: relative; z-index: 1;
+    display: inline-block;
+    transition: transform 0.28s ease;
+  }
+  .pdp-gallery:hover > span { transform: scale(1.05); }
+  /* mismo badge de descuento que las tarjetas, escalado a la foto grande del producto */
+  .pdp-gallery .discount-badge { top: 14px; inset-inline-start: 14px; font-size: 15px; padding: 5px 11px; }
+
+  /* Tira de miniaturas — lista para múltiples ángulos */
+  .pdp-thumb-strip { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pdp-thumb-item {
+    width: 58px; height: 58px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 2px solid var(--border);
+    overflow: hidden; cursor: pointer;
+    background: var(--muted);
+    display: grid; place-items: center;
+    transition: border-color 0.12s ease, opacity 0.12s ease;
+    font-size: 22px;
+  }
+  /* hover: solo una pista sutil, distinta del borde azul de "seleccionada" */
+  .pdp-thumb-item:hover:not(.active) { border-color: var(--muted-fg); opacity: .8; }
+  .pdp-thumb-item.active { border-color: var(--accent); }
+  .pdp-thumb-item img { width: 100%; height: 100%; object-fit: contain; }
+
+  /* ── COLUMNA DE INFO DEL PRODUCTO ───────────────────────────────────── */
+  .pdp-title { font-size: 22px; margin-bottom: 8px; line-height: 1.3; font-weight: 700; }
+  .pdp-seller { font-size: 12.5px; color: var(--muted-fg); margin-bottom: 6px; }
+  .pdp-seller a {
+    font-weight: 600; color: var(--accent);
+    transition: opacity 0.12s ease;
+  }
+  .pdp-seller a:hover { opacity: 0.75; text-decoration: underline; text-underline-offset: 3px; }
+  .pdp-brand {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted-fg);
+    display: inline-block; margin-bottom: 10px;
+  }
+  .pdp-rating { display: flex; align-items: center; gap: 8px; margin: 10px 0 16px; font-size: 13px; flex-wrap: wrap; }
+  .desc-block {
+    max-width: 70ch; line-height: 1.7;
+    color: var(--muted-fg); font-size: 14px;
+    white-space: pre-line; margin-top: 10px;
+  }
+
+  /* ── BUY BOX ─────────────────────────────────────────────────────────── */
+  .buy-box { display: flex; flex-direction: column; }
+  .buy-box-price {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .buy-box-price .price { font-size: 44px; display: block; margin-bottom: 6px; }
+  .buy-box-price .price small { font-size: 22px; }
+  .buy-box-price .price-old { font-size: 19px; }
+  .buy-box-price .price-badge { font-size: 15px; padding: 4px 9px; }
+
+  .stock-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 17px; font-weight: 600; margin-bottom: 12px;
+  }
+  .stock-row .ic { width: 22px; height: 22px; }
+  .stock-row.ok   { color: var(--success); }
+  .stock-row.warn { color: var(--warning); }
+  .stock-row.out  { color: var(--muted-fg); }
+
+  .eta-row {
+    display: flex; align-items: flex-start; gap: 9px;
+    font-size: 15px; color: var(--muted-fg);
+    margin-bottom: 20px; line-height: 1.45;
+  }
+  .eta-row .ic { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+  .eta-row b { color: var(--foreground); font-weight: 600; display: block; }
+
+  /* ── SELECTOR DE CANTIDAD (+/-) ─────────────────────────────────────── */
+  .qty-row { display: flex; align-items: center; gap: 14px; margin: 16px 0 20px; }
+  .qty-row > label { font-size: 14px; color: var(--muted-fg); }
+  .qty-stepper {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--input);
+    border-radius: var(--radius);
+    background: var(--card);
+    height: 48px; overflow: hidden;
+  }
+  .qty-stepper button {
+    width: 46px; height: 48px;
+    background: none; border: 0;
+    cursor: pointer; font-size: 22px; font-weight: 400;
+    color: var(--foreground);
+    display: grid; place-items: center;
+    transition: background 0.1s ease;
+    flex-shrink: 0; line-height: 1;
+  }
+  .qty-stepper button:hover:not([disabled]) { background: var(--muted); }
+  .qty-stepper button[disabled] { opacity: 0.35; cursor: not-allowed; }
+  .qty-stepper .qty-display {
+    width: 52px; text-align: center;
+    font-size: 18px; font-weight: 600;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    height: 100%; display: grid; place-items: center;
+    user-select: none;
+  }
+
+  /* ── JERARQUÍA DE BOTONES DE ACCIÓN ─────────────────────────────────── */
+  .action-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .action-stack .ic { width: 20px; height: 20px; }
+
+  /* Primario: azul sólido, máximo peso visual */
+  .btn-add-cart {
+    background: var(--conversion); color: var(--conversion-fg);
+    font-weight: 600; font-size: 16px; min-height: 54px;
+    border: 1px solid transparent;
+  }
+  .btn-add-cart:hover:not([disabled]) {
+    background: var(--conversion-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px -4px rgba(59,130,246,.45);
+  }
+  .btn-add-cart:active:not([disabled]) { transform: translateY(0); box-shadow: none; }
+  .btn-add-cart.is-added { background: var(--success); }
+
+  /* Secundario: outline azul con borde de 2px */
+  .btn-buy-now {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 700; font-size: 15.5px;
+    min-height: 52px;
+  }
+  .btn-buy-now:hover:not([disabled]) { background: var(--accent-tint); }
+
+  /* Terciario: sin fondo, ícono + texto discreto */
+  .btn-wish {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted-fg);
+    font-size: 14px; font-weight: 500;
+    gap: 8px; min-height: 44px;
+  }
+  .btn-wish:hover { background: var(--muted); color: var(--foreground); }
+  .btn-wish[aria-pressed="true"] { color: var(--destructive); border-color: var(--destructive); }
+  .btn-wish[aria-pressed="true"]:hover { background: var(--destructive-tint); }
+
+  /* ── COMPRADOS JUNTOS: separación respecto a las pestañas de abajo ────── */
+  .fbw-section { margin-bottom: 28px; }
+  .fbw-add-label { font-size:14px; font-weight:600; letter-spacing:-.01em; }
+
+  /* ── TABS ────────────────────────────────────────────────────────────── */
+  .tabs { display: flex; border-bottom: 1.5px solid var(--foreground); }
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 12.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted-fg);
+    border: 0; background: none; cursor: pointer;
+    border-inline-end: 1px solid var(--border);
+    transition: color 0.1s ease, background 0.1s ease;
+  }
+  .tab-btn[aria-selected="true"] { color: var(--foreground); background: var(--card); }
+  .tab-btn:last-child { border-inline-end: 0; }
+  .tab-btn:hover:not([aria-selected="true"]) { color: var(--foreground); }
+
+  /* ── CONTENIDO DE TABS ───────────────────────────────────────────────── */
+  .tab-panel-body { padding: 28px; }
+  .specs-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .specs-table tr { border-bottom: 1px solid var(--border); }
+  .specs-table tr:last-child { border-bottom: 0; }
+  .specs-table td { padding: 11px 4px; }
+  .specs-table td:first-child {
+    color: var(--muted-fg); width: 40%;
+    text-transform: uppercase;
+    font-size: 11px; letter-spacing: .05em; font-weight: 700;
+  }
+
+  /* ── TARJETAS RELACIONADAS ───────────────────────────────────────────── */
+  /* Sombra para diferenciarlas del fondo blanco */
+  .product-card { box-shadow: 0 2px 10px -2px rgba(0,0,0,.08); }
+  /* Truncamiento uniforme a 2 líneas */
+  .product-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  /* Ícono de corazón: dimensión ligeramente mayor para mejorar el render */
+  .wish-btn .ic { width: 16px; height: 16px; }
+
+  /* Grid de relacionados: 4 columnas fijas en escritorio */
+  .pdp-section .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .pdp { grid-template-columns: 1fr 1fr; }
+    .pdp .buy-box {
+      grid-column: span 2;
+      border-inline-end: 0;
+      border-top: 1px solid var(--border);
+    }
+    /* bloque de compra: mismo aumento, algo más compacto en tablet */
+    .buy-box-price .price { font-size: 38px; }
+    .buy-box-price .price small { font-size: 20px; }
+    .stock-row { font-size: 15.5px; }
+    .stock-row .ic { width: 20px; height: 20px; }
+    .eta-row { font-size: 14px; }
+    .qty-stepper, .qty-stepper button { height: 44px; }
+    .qty-stepper button { width: 42px; font-size: 20px; }
+    .qty-stepper .qty-display { font-size: 16px; }
+    .btn-add-cart { font-size: 15px; min-height: 50px; }
+    .btn-buy-now { font-size: 14.5px; min-height: 48px; }
+    .btn-wish { font-size: 13.5px; min-height: 42px; }
+  }
+  @media (max-width: 900px) {
+    .pdp-section .product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .pdp { grid-template-columns: 1fr; }
+    .pdp > * { border-inline-end: 0; border-bottom: 1px solid var(--border); }
+    .pdp .buy-box { grid-column: auto; border-top: 0; }
+    .pdp-section .product-grid { grid-template-columns: repeat(2, 1fr); }
+    /* bloque de compra: un paso más compacto en móvil, siempre por encima del tamaño original */
+    .buy-box-price { padding-bottom: 16px; margin-bottom: 16px; }
+    .buy-box-price .price { font-size: 32px; }
+    .buy-box-price .price small { font-size: 17px; }
+    .buy-box-price .price-old { font-size: 16px; }
+    .stock-row { font-size: 14px; margin-bottom: 10px; }
+    .stock-row .ic { width: 18px; height: 18px; }
+    .eta-row { font-size: 13px; margin-bottom: 16px; }
+    .eta-row .ic { width: 18px; height: 18px; }
+    .qty-row { margin: 14px 0 18px; }
+    .qty-stepper, .qty-stepper button { height: 42px; }
+    .qty-stepper button { width: 40px; font-size: 19px; }
+    .qty-stepper .qty-display { width: 46px; font-size: 15px; }
+    .action-stack { gap: 10px; }
+    .btn-add-cart { font-size: 14.5px; min-height: 48px; }
+    .btn-buy-now { font-size: 14px; min-height: 46px; }
+    .btn-wish { font-size: 13px; min-height: 40px; }
+  }
+  @media (max-width: 440px) {
+    .pdp-section .product-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── RADIO DE BORDES UNIFICADO ───────────────────────────────────────── */
+  .pdp-gallery, .pdp-thumb-item, .qty-stepper,
+  .btn-add-cart, .btn-buy-now, .btn-wish {
+    border-radius: var(--radius);
+  }
+  .cart-thumb, .mini-thumb, .preview-box, .thumb-cell { border-radius: var(--radius); }
+  .check-circle { border-radius: 50%; }
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page container" style="padding-inline:0; max-width:1280px;">
+  <nav class="breadcrumbs" style="margin:16px 28px" data-breadcrumb></nav>
+  <div class="pdp" data-pdp-root></div>
+  <section class="pdp-section section container fbw-section" data-fbw hidden>
+    <div class="section-head"><h2 class="section-title" data-i18n="pdp.fbw">Comprados juntos habitualmente</h2></div>
+    <div class="fbw-body">
+      <div class="fbw-row" data-fbw-row></div>
+      <div class="fbw-chip">
+        <div class="fbw-total"><span data-i18n="pdp.fbwTotal">Precio total:</span> <strong data-fbw-total></strong></div>
+        <button class="btn btn-primary btn-sm" data-fbw-add><span class="fbw-add-label">Agregar los <span data-fbw-count></span> al carrito</span></button>
+      </div>
+    </div>
+  </section>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn" role="tab" aria-selected="true"  data-tab="desc" data-i18n="pdp.tabDesc">Descripción</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="specs" data-i18n="pdp.tabSpecs">Especificaciones</button>
+  </div>
+  <div data-tab-panel="desc"></div>
+  <div data-tab-panel="specs"    hidden></div>
+  <section class="pdp-section section container" style="border-bottom:0;">
+    <div class="section-head"><h2 class="section-title" data-i18n="pdp.alsoLike">También te puede interesar</h2></div>
+    <div class="product-grid" data-related></div>
+  </section>
+</main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
+  const id = new URLSearchParams(location.search).get("id");
+  const p  = VDB.getProduct(id);
+  const root = document.querySelector("[data-pdp-root]");
+
+  if(!p){
+    root.style.borderInlineEnd = "0";
+    root.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:28px;">
+      <h2>${T("pdp.notFound")}</h2><p>${T("pdp.notFoundHint")}</p>
+      <a class="btn btn-primary btn-sm" href="buscar.html">${T("pdp.backToCatalog")}</a></div>`;
+    document.title = T("pdp.notFound") + T("pdp.suffix");
+    return;
+  }
+
+  const productTitle = VUI.titleCase(p.title);
+  document.title = productTitle + T("pdp.suffix");
+
+  // Breadcrumb: capitalización correcta, sin punto final, hover azul (ver CSS)
+  document.querySelector("[data-breadcrumb]").innerHTML =
+    `<a href="index.html">${T("crumb.home")}</a><span>/</span>` +
+    `<a href="buscar.html?cat=${p.category}">${VUI.esc(VDB.catName(p))}</a><span>/</span>` +
+    `<span>${VUI.esc(productTitle)}</span>`;
+
+  try{
+    let recent = JSON.parse(localStorage.getItem("vasto_recent")||"[]").filter(x=>x!==p.id);
+    recent.unshift(p.id);
+    localStorage.setItem("vasto_recent", JSON.stringify(recent.slice(0,8)));
+  }catch(e){}
+
+  const user        = VDB.currentUser();
+  const wished      = user && VDB.isWishlisted(user.id, p.id);
+  const discountPct = p.oldPrice ? Math.round((1 - p.price/p.oldPrice)*100) : 0;
+  const eta         = VUI.etaLabel(p.stock>0 ? (p.prime?1:3) : 8);
+  const maxQty      = Math.min(10, Math.max(1, p.stock));
+  const currency    = VDB.db.settings.currency;
+
+  // Precio con decimales separados (consistencia con las tarjetas)
+  const [priceInt, priceDec] = p.price.toFixed(2).split(".");
+
+  // Estado de stock
+  const stockStatus = p.stock===0 ? "out" : p.stock<5 ? "warn" : "ok";
+  const stockLabel  = p.stock===0 ? T("card.outOfStock")
+                    : p.stock<5   ? TP("card.lastUnits", p.stock)
+                    : T("pdp.inStock");
+  const checkIcon = p.stock>0
+    ? `<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg></span>`
+    : "";
+
+  // Miniatura para el thumb strip (estructura lista para múltiples ángulos)
+  const thumbContent = p.image
+    ? `<img src="${VUI.esc(p.image)}" alt="${VUI.esc(T("pdp.mainView"))}">`
+    : `<span style="font-size:26px">${p.emoji||"📦"}</span>`;
+
+  // ── HTML de las tres columnas del PDP ──────────────────────────────────
+  root.innerHTML = `
+    <div>
+      <div class="pdp-gallery-wrap">
+        <div class="pdp-gallery" style="${VUI.thumbStyle(p)}">
+          ${VUI.thumbImg(p)}
+          ${p.oldPrice ? `<span class="discount-badge">−${discountPct}%</span>` : ""}
+        </div>
+        <div class="pdp-thumb-strip">
+          <div class="pdp-thumb-item active" data-gallery-idx="0" aria-label="${VUI.esc(T("pdp.mainView"))}">
+            ${thumbContent}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h1 class="pdp-title">${VUI.esc(productTitle)}</h1>
+      <p class="pdp-seller">${T("pdp.soldBy")}
+        <a href="buscar.html?q=${encodeURIComponent(VDB.db.settings.storeName)}">ElectroHogar Habana</a>
+      </p>
+      <a class="pdp-brand" href="buscar.html?q=${encodeURIComponent(p.brand)}">${VUI.esc(p.brand)}</a>
+      <div class="pdp-rating">
+        ${VUI.stars(p.rating||0)}
+        <span style="font-size:12.5px;color:var(--muted-fg)">${TP("pdp.reviews", p.reviewCount||0, {n:VI18N.fmtNum(p.reviewCount||0)})}</span>
+        ${p.prime ? `<span class="prime-badge">${T("filter.delivery24")}</span>` : ""}
+      </div>
+      <p class="desc-block">${VUI.esc(p.description)}</p>
+    </div>
+
+    <aside class="buy-box">
+      <!-- Precio único aquí, eliminado del bloque central -->
+      <div class="buy-box-price">
+        <span class="price">${currency}${priceInt}<small>.${priceDec}</small></span>
+        ${p.oldPrice ? `
+          <div style="margin-top:4px;display:flex;align-items:center;gap:8px;">
+            <span class="price-old">${VUI.money(p.oldPrice)}</span>
+            <span class="price-badge">−${discountPct}%</span>
+          </div>` : ""}
+      </div>
+
+      <!-- Disponibilidad con ícono de check -->
+      <div class="stock-row ${stockStatus}">
+        ${checkIcon}
+        <span>${stockLabel}</span>
+      </div>
+
+      <!-- Entrega con ícono de camión -->
+      ${p.stock>0 ? `
+      <div class="eta-row">
+        <span class="ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1.5 6.5h11v10h-11z"/>
+            <path d="M12.5 10.5h4l3 3v3h-7z"/>
+            <circle cx="6" cy="18.5" r="1.8"/>
+            <circle cx="16.5" cy="18.5" r="1.8"/>
+          </svg>
+        </span>
+        <div><b>${T("pdp.eta")}</b><span>${eta}</span></div>
+      </div>` : ""}
+
+      <!-- Selector de cantidad con botones +/- -->
+      <div class="qty-row">
+        <label>${T("pdp.qty")}</label>
+        <div class="qty-stepper" ${p.stock===0 ? 'style="opacity:.4;pointer-events:none;"' : ""}>
+          <button type="button" id="qty-dec" aria-label="${VUI.esc(T("pdp.qtyDec"))}" disabled>−</button>
+          <span class="qty-display" id="qty-display" aria-live="polite">1</span>
+          <button type="button" id="qty-inc" aria-label="${VUI.esc(T("pdp.qtyInc"))}" ${maxQty<=1 ? "disabled" : ""}>+</button>
+        </div>
+        <input type="hidden" id="qty" value="1">
+      </div>
+
+      <!-- Botones de acción con jerarquía clara -->
+      <div class="action-stack">
+        <!-- Primario: azul sólido -->
+        <button class="btn btn-add-cart btn-block" data-add-cart="${p.id}" ${p.stock===0 ? "disabled" : ""}>
+          ${VUI.icon("cart")}${p.stock===0 ? T("card.outOfStock") : T("card.addToCart")}
+        </button>
+        <!-- Secundario: outline azul -->
+        <button class="btn btn-buy-now btn-block" data-buy-now ${p.stock===0 ? "disabled" : ""}>
+          ${VUI.icon("bolt")}${T("pdp.buyNow")}
+        </button>
+        <!-- Terciario: discreta, estado claro del favorito -->
+        <button class="btn btn-wish btn-block" data-pdp-wish="${p.id}" aria-pressed="${!!wished}">
+          ${VUI.icon(wished ? "heartFill" : "heart")}${wished ? T("card.removeFromFav") : T("pdp.saveToFav")}
+        </button>
+      </div>
+    </aside>`;
+
+  // ── Zoom de la foto al pasar el cursor (estilo Amazon, dentro del mismo marco) ──
+  const gallery = document.querySelector(".pdp-gallery");
+  const galleryImg = gallery && gallery.querySelector("img");
+  if(galleryImg){
+    const ZOOM = 2.5;
+    gallery.addEventListener("mousemove", (e)=>{
+      const r = gallery.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      galleryImg.style.transformOrigin = `${x}% ${y}%`;
+      galleryImg.style.transform = `scale(${ZOOM})`;
+      gallery.classList.add("is-zooming");
+    });
+    gallery.addEventListener("mouseleave", ()=>{
+      galleryImg.style.transform = "";
+      galleryImg.style.transformOrigin = "";
+      gallery.classList.remove("is-zooming");
+    });
+  }
+
+  // ── Lógica del stepper de cantidad ────────────────────────────────────
+  let qty = 1;
+  const elDec     = document.getElementById("qty-dec");
+  const elInc     = document.getElementById("qty-inc");
+  const elDisplay = document.getElementById("qty-display");
+  const elInput   = document.getElementById("qty");
+
+  function setQty(n){
+    qty = Math.max(1, Math.min(maxQty, n));
+    elDisplay.textContent = qty;
+    elInput.value = qty;
+    if(elDec) elDec.disabled = qty <= 1;
+    if(elInc) elInc.disabled = qty >= maxQty;
+  }
+  setQty(1);
+  elDec?.addEventListener("click", ()=>setQty(qty-1));
+  elInc?.addEventListener("click", ()=>setQty(qty+1));
+
+  // ── Favoritos: handler local para mantener ícono + texto ──────────────
+  // Usa data-pdp-wish para no interferir con el handler global de tarjetas
+  document.querySelector("[data-pdp-wish]")?.addEventListener("click", ()=>{
+    const btn = document.querySelector("[data-pdp-wish]");
+    const u   = VDB.currentUser();
+    if(!u){ VUI.toast(T("toast.loginToFav")); return; }
+    const nowOn = VDB.toggleWishlist(u.id, p.id);
+    btn.setAttribute("aria-pressed", String(nowOn));
+    btn.innerHTML = `${VUI.icon(nowOn ? "heartFill" : "heart")}${nowOn ? T("card.removeFromFav") : T("pdp.saveToFav")}`;
+  });
+
+  // ── Comprar ahora ─────────────────────────────────────────────────────
+  document.querySelector("[data-buy-now]")?.addEventListener("click", ()=>{
+    const u = VUI.requireAuth(); if(!u) return;
+    VDB.addToCart(u.id, p.id, Number(elInput.value||1));
+    location.href = "checkout.html";
+  });
+
+  // ── Añadir al carrito ─────────────────────────────────────────────────
+  document.querySelector("[data-add-cart]")?.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const u = VUI.requireAuth(); if(!u) return;
+    VDB.addToCart(u.id, p.id, Number(elInput.value||1));
+    VUI.updateCartBadge();
+    VUI.toast(T("toast.addedToCart"));
+  });
+
+  // ── Contenido de pestañas ─────────────────────────────────────────────
+
+  // Descripción
+  document.querySelector("[data-tab-panel='desc']").innerHTML =
+    `<div class="tab-panel-body">
+       <p class="desc-block" style="margin:0;max-width:none;">${VUI.esc(p.description)}</p>
+     </div>`;
+
+  // Especificaciones: tabla etiqueta → valor con líneas sutiles
+  document.querySelector("[data-tab-panel='specs']").innerHTML =
+    `<div class="tab-panel-body">
+       <table class="specs-table">
+         ${Object.entries(p.specs||{}).map(([k,v])=>
+           `<tr><td>${VUI.esc(k)}</td><td>${VUI.esc(v)}</td></tr>`
+         ).join("")}
+       </table>
+     </div>`;
+
+  // ── Switch de pestañas ────────────────────────────────────────────────
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b => b.setAttribute("aria-selected","false"));
+    btn.setAttribute("aria-selected","true");
+    document.querySelectorAll("[data-tab-panel]").forEach(pnl => {
+      pnl.hidden = pnl.dataset.tabPanel !== btn.dataset.tab;
+    });
+  }));
+
+  // ── Comprados juntos habitualmente: manual vía p.frequentlyBoughtWith ──
+  const fbwIds      = Array.isArray(p.frequentlyBoughtWith) ? p.frequentlyBoughtWith : [];
+  const fbwProducts = fbwIds.map(fid => VDB.getProduct(fid)).filter(Boolean);
+  const fbwSection  = document.querySelector("[data-fbw]");
+
+  if(fbwProducts.length){
+    const fbwAll = [p, ...fbwProducts];
+    fbwSection.hidden = false;
+    fbwSection.querySelector("[data-fbw-row]").innerHTML = fbwAll.map((fp, i) => `
+      <label class="fbw-item${i===0 ? " fbw-main" : ""}">
+        <a href="producto.html?id=${fp.id}" class="fbw-thumb" style="${VUI.thumbStyle(fp)}" tabindex="-1">
+          ${VUI.thumbImg(fp)}
+          ${fp.oldPrice ? `<span class="discount-badge">−${Math.round((1-fp.price/fp.oldPrice)*100)}%</span>` : ""}
+        </a>
+        <span class="fbw-check-row">
+          <input type="checkbox" data-fbw-check="${fp.id}" data-fbw-price="${fp.price}" ${i===0 ? "checked disabled" : "checked"}>
+          <a href="producto.html?id=${fp.id}" class="fbw-title">${VUI.esc(VUI.titleCase(fp.title))}</a>
+        </span>
+        <span class="fbw-tag-slot">${i===0 ? `<span class="fbw-tag">${T("pdp.thisProduct")}</span>` : ""}</span>
+        <span class="fbw-price-row">
+          <span class="fbw-price">${VUI.money(fp.price)}</span>
+          ${fp.oldPrice ? `<span class="fbw-price-old">${VUI.money(fp.oldPrice)}</span>` : ""}
+        </span>
+      </label>`
+    ).join("");
+
+    fbwSection.querySelector(".fbw-add-label").innerHTML = T("pdp.fbwAdd");
+    const fbwTotalEl = fbwSection.querySelector("[data-fbw-total]");
+    const fbwCountEl = fbwSection.querySelector("[data-fbw-count]");
+
+    function recalcFbw(){
+      const checked = fbwSection.querySelectorAll("[data-fbw-check]:checked");
+      const total = Array.from(checked).reduce((sum, c) => sum + Number(c.dataset.fbwPrice), 0);
+      fbwTotalEl.textContent = VUI.money(total);
+      fbwCountEl.textContent = checked.length;
+    }
+    recalcFbw();
+    fbwSection.querySelectorAll("[data-fbw-check]").forEach(cb => cb.addEventListener("change", recalcFbw));
+
+    fbwSection.querySelector("[data-fbw-add]").addEventListener("click", () => {
+      const u = VUI.requireAuth(); if(!u) return;
+      const checked = fbwSection.querySelectorAll("[data-fbw-check]:checked");
+      checked.forEach(c => VDB.addToCart(u.id, c.dataset.fbwCheck, 1));
+      VUI.updateCartBadge();
+      VUI.toast(TP("pdp.nAdded", checked.length));
+    });
+  }
+
+  // ── Productos relacionados: 8 productos → 2 filas completas de 4 ──────
+  document.querySelector("[data-related]").innerHTML =
+    VDB.relatedProducts(p, 8).map(rp => VUI.productCard(rp)).join("") ||
+    `<p style='color:var(--muted-fg)'>${T("pdp.noRelated")}</p>`;
+})();
+</script>
+</body>
+</html>

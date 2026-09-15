@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="adm.dash.title">Panel — Admin Electro Hogar</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/i18n.js"></script>
+<link rel="stylesheet" href="../assets/admin.css">
+<style>
+  .low-stock-list{ display:flex; flex-direction:column; }
+  .low-stock-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .low-stock-row:last-child{ border-bottom:0; }
+  .two-cols{ display:grid; grid-template-columns:1.5fr 1fr; gap:0; margin-top:0; border:1px solid var(--border); }
+  .two-cols > *{ border:0; border-right:1px solid var(--border); }
+  .two-cols > *:last-child{ border-right:0; }
+  @media (max-width: 900px){ .two-cols{ grid-template-columns:1fr; } .two-cols > *{ border-right:0; border-bottom:1px solid var(--border); } }
+.cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
+.check-circle{border-radius:50%;}
+
+</style>
+</head>
+<body>
+<script src="../assets/products-data.js"></script>
+<script src="../assets/data.js"></script>
+<script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
+<script src="../assets/app.js"></script>
+<script src="../assets/admin.js"></script>
+<script>
+(function(){
+  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
+  const content = VADMIN.mountAdmin("index.html", T("adm.nav.dashboard"), T("adm.dash.sub"));
+  const s = VDB.stats();
+  content.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="label">${T("adm.kpi.revenue")}</div><div class="value">${VUI.money(s.revenue)}</div><div class="delta up">${TP("adm.kpi.nOrders",s.orderCount)}</div></div>
+      <div class="kpi-card"><div class="label">${T("adm.kpi.avgTicket")}</div><div class="value">${VUI.money(s.avgTicket)}</div><div class="delta">${T("adm.kpi.perOrder")}</div></div>
+      <div class="kpi-card"><div class="label">${T("adm.kpi.products")}</div><div class="value">${s.productCount}</div><div class="delta ${s.outOfStock?'warn':''}">${TP("adm.kpi.nOutOfStock",s.outOfStock)}</div></div>
+      <div class="kpi-card"><div class="label">${T("adm.kpi.customers")}</div><div class="value">${s.userCount}</div><div class="delta">${TP("adm.kpi.nReviews",s.reviewCount)}</div></div>
+    </div>
+    <div class="two-cols">
+      <div class="chart-box"><h3 style="font-size:13px;margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em;">${T("adm.chart.sales")}</h3><div class="bar-chart" data-chart></div></div>
+      <div class="chart-box"><h3 style="font-size:13px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">${T("adm.chart.lowStock")}</h3><div class="low-stock-list" data-low-stock></div></div>
+    </div>`;
+  const sales = VDB.salesByDay(30); const max = Math.max(1, ...sales.map(d=>d.total));
+  document.querySelector("[data-chart]").innerHTML = sales.map(d=>{ const h=Math.round((d.total/max)*136); return `<div class="bar" ${d.total===0?'data-empty="1"':''} style="height:${Math.max(h,2)}px" title="${d.date}: ${VUI.money(d.total)}"></div>`; }).join("");
+  const low = VDB.db.products.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock).slice(0,8);
+  document.querySelector("[data-low-stock]").innerHTML = low.map(p=>`<div class="low-stock-row"><div class="thumb-cell" style="${VUI.thumbStyle(p)}">${VUI.thumbImg(p)}</div><div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(p.title)}</div><span class="${p.stock===0?'stock-note out':'stock-note'}">${p.stock===0?T("card.outOfStock"):T("adm.units",{n:p.stock})}</span></div>`).join("") || `<p style="color:var(--muted-fg);font-size:13px;">${T("adm.stockHealthy")}</p>`;
+})();
+</script>
+</body>
+</html>

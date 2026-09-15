@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Lab — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  body{ background:var(--background); }
+  .lab-nav{ position:sticky; top:0; z-index:200; background:var(--card); border-bottom:1px solid var(--border); display:flex; gap:2px; overflow-x:auto; padding:8px 16px; scrollbar-width:none; }
+  .lab-nav::-webkit-scrollbar{ display:none; }
+  .lab-nav a{ flex-shrink:0; font-size:12px; font-weight:600; padding:7px 12px; border-radius:var(--radius); color:var(--muted-fg); white-space:nowrap; }
+  .lab-nav a:hover{ background:var(--muted); color:var(--foreground); }
+  .lab-nav span{ align-self:center; font-size:11px; color:var(--border); padding:0 2px; }
+
+  .lab-section{ border-bottom:1px solid var(--border); padding:56px 0; position:relative; }
+  .lab-label{ max-width:1240px; margin:0 auto 20px; padding-inline:24px; display:flex; align-items:center; gap:10px; }
+  .lab-label .tag{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:3px 9px; border-radius:999px; background:var(--accent-tint); color:var(--accent); }
+  .lab-label h2{ font-size:14px; font-weight:600; color:var(--muted-fg); }
+  .lab-label .pick{ margin-left:auto; }
+
+  /* ============ shared hero primitives ============ */
+  .hwrap{ max-width:1240px; margin:0 auto; padding-inline:24px; }
+  .badge-outline{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; padding:3px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted-fg); }
+
+  /* ---- I1: command hero ---- */
+  .h-i1{ text-align:center; }
+  .h-i1 h1{ font-size:38px; font-weight:800; letter-spacing:-.02em; margin-bottom:22px; }
+  .h-i1-search{ max-width:640px; margin:0 auto; display:flex; align-items:center; gap:10px; height:56px; padding:0 10px 0 20px; border:1px solid var(--border); border-radius:12px; background:var(--card); box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); }
+  .h-i1-search svg{ width:18px; height:18px; color:var(--muted-fg); flex-shrink:0; }
+  .h-i1-search input{ flex:1; border:0; background:transparent; font-size:15px; color:var(--foreground); }
+  .h-i1-search input:focus{ outline:none; }
+  .h-i1-search kbd{ font-size:11px; font-weight:600; color:var(--muted-fg); border:1px solid var(--border); border-radius:5px; padding:2px 6px; background:var(--muted); }
+  .h-i1-chips{ display:flex; gap:8px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+
+  /* ---- I2: catalog wall ---- */
+  .h-i2{ display:grid; grid-template-columns:1fr 1.1fr; gap:36px; align-items:center; }
+  .h-i2 h1{ font-size:36px; font-weight:800; letter-spacing:-.02em; line-height:1.08; }
+  .h-i2 p{ margin-top:14px; color:var(--muted-fg); max-width:36ch; }
+  .h-i2-cta{ margin-top:22px; display:flex; gap:10px; }
+  .h-i2-wall{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .h-i2-wall div{ aspect-ratio:1; border-radius:8px; display:grid; place-items:center; font-size:20px; background:var(--muted); }
+
+  /* ---- I3: manifesto split ---- */
+  .h-i3{ padding:0; margin-top:-56px; margin-bottom:-56px; }
+  .h-i3-grid{ display:grid; grid-template-columns:1fr 1fr; min-height:380px; }
+  .h-i3-ink{ background:var(--foreground); color:var(--background); display:flex; flex-direction:column; justify-content:center; padding:48px; }
+  .h-i3-white{ background:var(--card); display:flex; flex-direction:column; justify-content:center; padding:48px; border-left:1px solid var(--border); }
+  .h-i3 h1{ font-size:42px; font-weight:800; letter-spacing:-.02em; line-height:1.05; }
+  .h-i3-white p{ color:var(--muted-fg); max-width:32ch; margin-bottom:20px; }
+
+  /* ---- F1: ticker ---- */
+  .h-f1{ text-align:center; }
+  .h-f1 h1{ font-size:38px; font-weight:800; letter-spacing:-.02em; }
+  .h-f1 p{ color:var(--muted-fg); margin-top:12px; }
+  .h-f1-cta{ margin-top:22px; display:flex; gap:10px; justify-content:center; }
+  .ticker-mask{ margin-top:36px; overflow:hidden; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .ticker-track{ display:flex; gap:0; width:max-content; animation:ticker 32s linear infinite; }
+  @media (prefers-reduced-motion: reduce){ .ticker-track{ animation:none; } }
+  .ticker-item{ display:flex; align-items:center; gap:10px; padding:14px 26px; border-right:1px solid var(--border); font-size:13px; white-space:nowrap; }
+  .ticker-item b{ font-weight:600; }
+  .ticker-item .up{ color:var(--destructive); font-weight:700; }
+  @keyframes ticker{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ---- F2: product spotlight ---- */
+  .h-f2{ display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:center; }
+  .h-f2 span.eyebrow{ font-size:12px; font-weight:600; color:var(--accent); }
+  .h-f2 h1{ font-size:32px; font-weight:800; letter-spacing:-.02em; margin-top:8px; line-height:1.1; }
+  .h-f2 .p-price{ font-size:26px; font-weight:800; margin-top:14px; }
+  .h-f2-cta{ margin-top:20px; display:flex; gap:10px; }
+  .h-f2-art{ aspect-ratio:1/.9; border-radius:16px; background:var(--muted); display:grid; place-items:center; font-size:96px; }
+
+  /* ---- F3: vertical rhythm ---- */
+  .h-f3{ text-align:left; }
+  .h-f3 .kicker{ font-size:12px; color:var(--muted-fg); margin-bottom:18px; }
+  .h-f3-list{ display:flex; flex-direction:column; }
+  .h-f3-list a{ display:flex; justify-content:space-between; align-items:baseline; padding:14px 0; border-bottom:1px solid var(--border); font-weight:700; letter-spacing:-.01em; color:var(--foreground); }
+  .h-f3-list a:first-child{ font-size:44px; }
+  .h-f3-list a:nth-child(2){ font-size:34px; }
+  .h-f3-list a:nth-child(3){ font-size:27px; color:var(--muted-fg); }
+  .h-f3-list a:nth-child(4){ font-size:22px; color:var(--muted-fg); }
+  .h-f3-list a:nth-child(5){ font-size:18px; color:var(--muted-fg); }
+  .h-f3-list a span{ font-size:12px; font-weight:500; color:var(--muted-fg); }
+  .h-f3-list a:hover{ color:var(--accent); }
+
+  /* ---- U1: dashboard hero ---- */
+  .h-u1{ display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center; }
+  .h-u1 h1{ font-size:34px; font-weight:800; letter-spacing:-.02em; }
+  .h-u1 p{ color:var(--muted-fg); margin-top:12px; max-width:34ch; }
+  .h-u1-cta{ margin-top:20px; display:flex; gap:10px; }
+  .u1-card{ border:1px solid var(--border); border-radius:var(--radius); background:var(--card); padding:18px; }
+  .u1-kpis{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+  .u1-kpi .l{ font-size:11px; color:var(--muted-fg); }
+  .u1-kpi .v{ font-size:18px; font-weight:700; margin-top:2px; }
+  .u1-bars{ display:flex; align-items:flex-end; gap:3px; height:70px; }
+  .u1-bars div{ flex:1; background:var(--accent); border-radius:2px 2px 0 0; }
+
+  /* ---- U2: tabs hero ---- */
+  .h-u2{ text-align:center; }
+  .h-u2 h1{ font-size:34px; font-weight:800; letter-spacing:-.02em; }
+  .u2-tabs{ display:inline-flex; gap:2px; margin-top:24px; padding:4px; background:var(--muted); border-radius:var(--radius); }
+  .u2-tabs button{ padding:7px 16px; font-size:13px; font-weight:600; border-radius:calc(var(--radius) - 2px); border:0; background:none; cursor:pointer; color:var(--muted-fg); }
+  .u2-tabs button.active{ background:var(--card); color:var(--foreground); box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .u2-preview{ margin-top:24px; }
+
+  /* ---- U3: command palette hero ---- */
+  .h-u3{ display:flex; justify-content:center; }
+  .u3-cmd{ width:100%; max-width:560px; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); box-shadow:0 8px 30px rgba(0,0,0,.08); overflow:hidden; }
+  .u3-cmd-input{ display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border); }
+  .u3-cmd-input svg{ width:16px; height:16px; color:var(--muted-fg); }
+  .u3-cmd-input input{ flex:1; border:0; font-size:14px; background:transparent; color:var(--foreground); }
+  .u3-cmd-input input:focus{ outline:none; }
+  .u3-group-label{ font-size:11px; font-weight:600; color:var(--muted-fg); padding:10px 16px 4px; text-transform:uppercase; letter-spacing:.04em; }
+  .u3-item{ display:flex; align-items:center; gap:12px; padding:9px 16px; font-size:13.5px; }
+  .u3-item:hover{ background:var(--muted); }
+  .u3-item .ic{ width:28px; height:28px; border-radius:6px; background:var(--muted); display:grid; place-items:center; font-size:14px; }
+  .u3-item .meta{ margin-left:auto; font-size:12px; color:var(--muted-fg); }
+
+  @media (max-width: 800px){
+    .h-i2, .h-i3-grid, .h-f2, .h-u1{ grid-template-columns:1fr; }
+    .h-i2-wall{ display:none; }
+    .h-i3-white{ border-left:0; border-top:1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+
+<nav class="lab-nav" aria-label="Saltar a modelo">
+  <a href="#i1">I · Comando</a><a href="#i2">I · Muro</a><a href="#i3">I · Manifiesto</a><span>·</span>
+  <a href="#f1">F · Ticker</a><a href="#f2">F · Spotlight</a><a href="#f3">F · Ritmo</a><span>·</span>
+  <a href="#u1">U · Dashboard</a><a href="#u2">U · Tabs</a><a href="#u3">U · Comando ⌘K</a>
+</nav>
+
+<main id="main">
+
+<section class="lab-section" id="i1">
+  <div class="lab-label"><span class="tag">Impeccable · 1</span><h2>El buscador es el hero — confianza total en el catálogo</h2></div>
+  <div class="hwrap h-i1">
+    <h1>Todo, sin vueltas.</h1>
+    <div class="h-i1-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input placeholder="Busca entre 4.281 productos…" data-lab-search>
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="h-i1-chips" data-lab-chips></div>
+  </div>
+</section>
+
+<section class="lab-section" id="i2">
+  <div class="lab-label"><span class="tag">Impeccable · 2</span><h2>Muro de catálogo — el volumen se ve, no se cuenta</h2></div>
+  <div class="hwrap h-i2">
+    <div>
+      <h1>Todo, sin vueltas.</h1>
+      <p>Miles de productos con envío rápido, precios claros y devoluciones sencillas.</p>
+      <div class="h-i2-cta"><a href="buscar.html" class="btn btn-buy">Explorar catálogo</a><a href="#" class="btn btn-outline">Ofertas del día</a></div>
+    </div>
+    <div class="h-i2-wall" data-lab-wall></div>
+  </div>
+</section>
+
+<section class="lab-section" id="i3">
+  <div class="lab-label"><span class="tag">Impeccable · 3</span><h2>Manifiesto — alto contraste, un titular que cruza el corte</h2></div>
+  <div class="h-i3">
+    <div class="h-i3-grid">
+      <div class="h-i3-ink"><h1>Todo,</h1><h1>sin vueltas.</h1></div>
+      <div class="h-i3-white">
+        <p>Un catálogo con envío rápido, precios claros y devoluciones sencillas — construido como producto, no como anuncio.</p>
+        <div class="h-i2-cta"><a href="buscar.html" class="btn btn-buy">Explorar catálogo</a><a href="#" class="btn btn-outline">Ver ofertas</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lab-section" id="f1">
+  <div class="lab-label"><span class="tag">Frontend-design · 1</span><h2>Ticker de precios — movimiento con datos reales, no decoración</h2></div>
+  <div class="hwrap h-f1">
+    <h1>Todo, sin vueltas.</h1>
+    <p>Precios que se mueven de verdad. Mira el catálogo en tiempo real.</p>
+    <div class="h-f1-cta"><a href="buscar.html" class="btn btn-buy">Explorar catálogo</a><a href="#" class="btn btn-outline">Ofertas del día</a></div>
+  </div>
+  <div class="ticker-mask"><div class="ticker-track" data-lab-ticker></div></div>
+</section>
+
+<section class="lab-section" id="f2">
+  <div class="lab-label"><span class="tag">Frontend-design · 2</span><h2>Spotlight — un producto real protagoniza, no una foto de stock</h2></div>
+  <div class="hwrap h-f2" data-lab-spotlight></div>
+</section>
+
+<section class="lab-section" id="f3">
+  <div class="lab-label"><span class="tag">Frontend-design · 3</span><h2>Ritmo vertical — la tipografía es el único elemento visual</h2></div>
+  <div class="hwrap h-f3">
+    <div class="kicker">Electro Hogar — todo, sin vueltas</div>
+    <nav class="h-f3-list" data-lab-rhythm></nav>
+  </div>
+</section>
+
+<section class="lab-section" id="u1">
+  <div class="lab-label"><span class="tag">ui-styling · 1</span><h2>Dashboard — el hero se comporta como un panel de datos</h2></div>
+  <div class="hwrap h-u1">
+    <div>
+      <h1>Todo, sin vueltas.</h1>
+      <p>Un catálogo con envío rápido, precios claros y devoluciones sencillas.</p>
+      <div class="h-u1-cta"><a href="buscar.html" class="btn btn-buy">Explorar catálogo</a><a href="#" class="btn btn-outline">Ver ofertas</a></div>
+    </div>
+    <div class="u1-card">
+      <div class="u1-kpis">
+        <div class="u1-kpi"><div class="l">Ingresos</div><div class="v" data-lab-kpi-rev>—</div></div>
+        <div class="u1-kpi"><div class="l">Pedidos</div><div class="v" data-lab-kpi-orders>—</div></div>
+        <div class="u1-kpi"><div class="l">Valoración</div><div class="v">4,6★</div></div>
+      </div>
+      <div class="u1-bars" data-lab-bars></div>
+    </div>
+  </div>
+</section>
+
+<section class="lab-section" id="u2">
+  <div class="lab-label"><span class="tag">ui-styling · 2</span><h2>Tabs — el hero cambia según lo que el usuario quiere ver</h2></div>
+  <div class="hwrap h-u2">
+    <h1>Todo, sin vueltas.</h1>
+    <div class="u2-tabs" role="tablist">
+      <button class="active" data-lab-tab="deals">Ofertas</button>
+      <button data-lab-tab="new">Nuevos</button>
+      <button data-lab-tab="top">Más vendidos</button>
+    </div>
+    <div class="product-grid u2-preview" data-lab-tab-preview style="grid-template-columns:repeat(5,1fr);max-width:1000px;margin-inline:auto;"></div>
+  </div>
+</section>
+
+<section class="lab-section" id="u3" style="border-bottom:0;">
+  <div class="lab-label"><span class="tag">ui-styling · 3</span><h2>Command palette — busca como en una app de verdad, no como en una tienda</h2></div>
+  <div class="hwrap h-u3">
+    <div class="u3-cmd">
+      <div class="u3-cmd-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Escribe un producto, marca o categoría…">
+      </div>
+      <div class="u3-group-label">Categorías</div>
+      <div data-lab-cmd-cats></div>
+      <div class="u3-group-label">Sugerido</div>
+      <div data-lab-cmd-products></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<div data-footer-mount></div>
+
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+
+  // I1 chips
+  document.querySelector("[data-lab-chips]").innerHTML = VDB.CATEGORIES.slice(0,5).map(c=>`<span class="badge-outline">${c.name}</span>`).join("");
+
+  // I2 wall
+  const wallProducts = VDB.db.products.slice(0,15);
+  document.querySelector("[data-lab-wall]").innerHTML = wallProducts.map(p=>`<div style="background:${p.hue1}22;color:${p.hue1}">${p.emoji}</div>`).join("");
+
+  // F1 ticker (duplicated for seamless loop)
+  const tickerProducts = VDB.db.products.slice(0,14);
+  const tickerHTML = tickerProducts.map(p=>`<div class="ticker-item">${p.emoji} <b>${VUI.esc(p.title)}</b> <span>${VUI.money(p.price)}</span> ${p.oldPrice?'<span class="up">↓ oferta</span>':''}</div>`).join("");
+  document.querySelector("[data-lab-ticker]").innerHTML = tickerHTML + tickerHTML;
+
+  // F2 spotlight — best rated product with a discount
+  const spot = VDB.db.products.filter(p=>p.oldPrice).sort((a,b)=>b.rating-a.rating)[0] || VDB.db.products[0];
+  document.querySelector("[data-lab-spotlight]").innerHTML = `
+    <div class="h-f2-art" style="background:${spot.hue1}1A;">${spot.emoji}</div>
+    <div>
+      <span class="eyebrow">Producto destacado de hoy</span>
+      <h1>${VUI.esc(spot.title)}</h1>
+      <div class="p-price">${VUI.money(spot.price)} <span class="price-old" style="font-size:16px;">${spot.oldPrice?VUI.money(spot.oldPrice):''}</span></div>
+      <div class="h-f2-cta"><a href="producto.html?id=${spot.id}" class="btn btn-buy">Ver producto</a><a href="buscar.html" class="btn btn-outline">Ver todo el catálogo</a></div>
+    </div>`;
+
+  // F3 vertical rhythm — top categories by product count, sized by rank
+  const catCounts = VDB.CATEGORIES.map(c=>({...c, n: VDB.db.products.filter(p=>p.category===c.id).length})).sort((a,b)=>b.n-a.n).slice(0,5);
+  document.querySelector("[data-lab-rhythm]").innerHTML = catCounts.map(c=>`<a href="buscar.html?cat=${c.id}">${c.name} <span>${c.n} productos</span></a>`).join("");
+
+  // U1 dashboard
+  const stats = VDB.stats();
+  document.querySelector("[data-lab-kpi-rev]").textContent = VUI.money(stats.revenue);
+  document.querySelector("[data-lab-kpi-orders]").textContent = stats.orderCount;
+  const sales = VDB.salesByDay(20); const max = Math.max(1, ...sales.map(d=>d.total));
+  document.querySelector("[data-lab-bars]").innerHTML = sales.map(d=>`<div style="height:${Math.max(Math.round((d.total/max)*70),2)}px"></div>`).join("");
+
+  // U2 tabs
+  function paintTab(kind){
+    let list;
+    if(kind==="deals") list = VDB.db.products.filter(p=>p.oldPrice).slice(0,5);
+    else if(kind==="new") list = VDB.db.products.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+    else list = VDB.db.products.slice().sort((a,b)=>b.reviewCount-a.reviewCount).slice(0,5);
+    document.querySelector("[data-lab-tab-preview]").innerHTML = list.map(p=>VUI.productCard(p)).join("");
+  }
+  paintTab("deals");
+  document.querySelectorAll("[data-lab-tab]").forEach(btn=>btn.addEventListener("click",()=>{
+    document.querySelectorAll("[data-lab-tab]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); paintTab(btn.dataset.labTab);
+  }));
+
+  // U3 command palette
+  document.querySelector("[data-lab-cmd-cats]").innerHTML = VDB.CATEGORIES.slice(0,4).map(c=>`<div class="u3-item"><span class="ic">${c.emoji}</span>${c.name}<span class="meta">Categoría</span></div>`).join("");
+  document.querySelector("[data-lab-cmd-products]").innerHTML = VDB.db.products.slice().sort((a,b)=>b.reviewCount-a.reviewCount).slice(0,4).map(p=>`<div class="u3-item"><span class="ic">${p.emoji}</span>${VUI.esc(p.title)}<span class="meta">${VUI.money(p.price)}</span></div>`).join("");
+})();
+</script>
+</body>
+</html>

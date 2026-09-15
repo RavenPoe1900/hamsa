@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="adm.ord.title">Pedidos — Admin Electro Hogar</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/i18n.js"></script>
+<link rel="stylesheet" href="../assets/admin.css">
+<style>.status-select{ min-height:32px; padding:4px 8px; font-size:12px; border:1px solid var(--border); border-radius:calc(var(--radius) - 2px); font-family:inherit; }.cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
+.check-circle{border-radius:50%;}
+
+</style>
+</head>
+<body>
+<script src="../assets/products-data.js"></script>
+<script src="../assets/data.js"></script>
+<script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
+<script src="../assets/app.js"></script>
+<script src="../assets/admin.js"></script>
+<script>
+(function(){
+  const T = VI18N.t.bind(VI18N);
+  const content = VADMIN.mountAdmin("pedidos.html", T("adm.nav.orders"), T("adm.ord.sub"));
+  const STATUSES = ["pending","paid","shipped","delivered","cancelled"];
+  const LABEL = Object.fromEntries(STATUSES.map(s=>[s, T("adm.status."+s)]));
+  content.innerHTML = `
+    <div class="toolbar"><div class="toolbar-left">
+      <input class="input" type="search" placeholder="${T("adm.ord.searchPh")}" data-search style="min-width:260px;">
+      <select class="input" data-status-filter><option value="">${T("adm.ord.allStatus")}</option>${STATUSES.map(s=>`<option value="${s}">${LABEL[s]}</option>`).join("")}</select>
+    </div></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>${T("adm.th.order")}</th><th>${T("adm.th.customer")}</th><th>${T("adm.th.date")}</th><th class="num">${T("adm.th.items")}</th><th class="num">${T("sum.total")}</th><th>${T("adm.th.status")}</th></tr></thead><tbody data-rows></tbody></table></div>`;
+  function render(){
+    const q = document.querySelector("[data-search]").value.trim().toLowerCase();
+    const statusFilter = document.querySelector("[data-status-filter]").value;
+    const list = VDB.db.orders.filter(o=>{ if(statusFilter && o.status!==statusFilter) return false; if(!q) return true; const buyer=VDB.db.users.find(u=>u.id===o.userId); return o.id.toLowerCase().includes(q) || (buyer && buyer.name.toLowerCase().includes(q)); });
+    document.querySelector("[data-rows]").innerHTML = list.map(o=>{
+      const buyer = VDB.db.users.find(u=>u.id===o.userId);
+      return `<tr data-order-row="${o.id}"><td class="mono-tag">${o.id}</td><td>${buyer?VUI.esc(buyer.name):'—'}</td><td>${VI18N.fmtDate(o.createdAt,{day:'numeric',month:'short'})}</td>
+        <td class="num">${o.items.reduce((s,i)=>s+i.qty,0)}</td><td class="num">${VUI.money(o.total)}</td>
+        <td><select class="status-select" data-status-select>${STATUSES.map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${LABEL[s]}</option>`).join("")}</select></td></tr>`;
+    }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted-fg);padding:32px;">${T("adm.noResults")}</td></tr>`;
+    document.querySelectorAll("[data-status-select]").forEach(sel=>sel.addEventListener("change",(e)=>{ VDB.setOrderStatus(e.target.closest("tr").dataset.orderRow, e.target.value); VUI.toast(T("adm.statusUpdated")); }));
+  }
+  render();
+  document.querySelector("[data-search]").addEventListener("input", render);
+  document.querySelector("[data-status-filter]").addEventListener("change", render);
+})();
+</script>
+</body>
+</html>

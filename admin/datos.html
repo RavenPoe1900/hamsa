@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="adm.data.title">Generador de datos — Admin Electro Hogar</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/i18n.js"></script>
+<link rel="stylesheet" href="../assets/admin.css">
+</style>
+</head>
+<body>
+<script src="../assets/products-data.js"></script>
+<script src="../assets/data.js"></script>
+<script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
+<script src="../assets/app.js"></script>
+<script src="../assets/admin.js"></script>
+<script>
+(function(){
+  const T = VI18N.t.bind(VI18N);
+  const content = VADMIN.mountAdmin("datos.html", T("adm.nav.data"), T("adm.data.sub"));
+  content.innerHTML = `
+    <div class="gen-grid">
+      <div class="gen-card"><h3>${T("adm.data.genProducts")}</h3><p>${T("adm.data.genProductsP")}</p>
+        <div style="display:flex; gap:10px;"><button class="btn btn-primary btn-sm" data-gen-products="20">${T("adm.data.nProducts",{n:20})}</button><button class="btn btn-outline btn-sm" data-gen-products="50">${T("adm.data.nProducts",{n:50})}</button></div></div>
+      <div class="gen-card"><h3>${T("adm.data.genUsers")}</h3><p>${T("adm.data.genUsersP")}</p><button class="btn btn-primary btn-sm" data-gen-users="10">${T("adm.data.nUsers",{n:10})}</button></div>
+      <div class="gen-card"><h3>${T("adm.data.genOrders")}</h3><p>${T("adm.data.genOrdersP")}</p><button class="btn btn-primary btn-sm" data-gen-orders="15">${T("adm.data.nOrders",{n:15})}</button></div>
+      <div class="gen-card"><h3>${T("adm.data.io")}</h3><p>${T("adm.data.ioP")}</p>
+        <button class="btn btn-outline btn-sm" data-export style="margin-bottom:10px;">${T("adm.data.copyJson")}</button>
+        <textarea class="input" data-import-box placeholder="${T("adm.data.importPh")}" style="min-height:80px;font-size:12px;"></textarea>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;" data-import>${T("adm.data.import")}</button></div>
+    </div>
+    <div class="gen-card" style="margin-top:0; border-color:var(--accent);">
+      <h3 style="color:var(--accent);">${T("adm.data.resetZone")}</h3><p>${T("adm.data.resetZoneP")}</p>
+      <div style="display:flex; gap:10px;"><button class="btn btn-danger btn-sm" data-reset>${T("adm.data.restore")}</button><button class="btn btn-danger btn-sm" data-wipe>${T("adm.data.wipe")}</button></div>
+    </div>
+    <div class="gen-card" style="margin-top:0;"><h3>${T("adm.data.current")}</h3><p data-current-state style="margin-bottom:0;"></p></div>`;
+  function paintState(){ const s=VDB.stats(); document.querySelector("[data-current-state]").textContent = T("adm.data.stateLine",{p:s.productCount,u:s.userCount,o:s.orderCount,r:s.reviewCount}); }
+  paintState();
+  document.querySelectorAll("[data-gen-products]").forEach(b=>b.addEventListener("click",()=>{ VDB.generateProducts(Number(b.dataset.genProducts)); VUI.toast(T("adm.data.productsDone",{n:b.dataset.genProducts})); paintState(); }));
+  document.querySelector("[data-gen-users]").addEventListener("click",(e)=>{ VDB.generateUsers(Number(e.target.dataset.genUsers)); VUI.toast(T("adm.data.usersDone")); paintState(); });
+  document.querySelector("[data-gen-orders]").addEventListener("click",(e)=>{ const n=VDB.generateOrders(Number(e.target.dataset.genOrders)); VUI.toast(n?T("adm.data.ordersDone"):T("adm.data.needFirst")); paintState(); });
+  document.querySelector("[data-export]").addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(VDB.db)); VUI.toast(T("adm.data.jsonCopied")); }catch(e){ document.querySelector("[data-import-box]").value = JSON.stringify(VDB.db,null,2); VUI.toast(T("adm.data.copiedBelow")); } });
+  document.querySelector("[data-import]").addEventListener("click",()=>{
+    const raw = document.querySelector("[data-import-box]").value.trim(); if(!raw) return;
+    try{ const parsed = JSON.parse(raw); if(!parsed.products||!parsed.users) throw new Error("shape"); Object.assign(VDB.db, parsed); VDB.save(); VUI.toast(T("adm.data.imported")); paintState(); }
+    catch(e){ VUI.toast(T("adm.data.badJson")); }
+  });
+  document.querySelector("[data-reset]").addEventListener("click",()=>{ if(!confirm(T("adm.data.confirmReset"))) return; VDB.reset(); VUI.toast(T("adm.data.resetDone")); paintState(); });
+  document.querySelector("[data-wipe]").addEventListener("click",()=>{ if(!confirm(T("adm.data.confirmWipe"))) return; VDB.wipe(); VUI.toast(T("adm.data.wipeDone")); paintState(); });
+})();
+</script>
+</body>
+</html>

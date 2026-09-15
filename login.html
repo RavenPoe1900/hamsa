@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="auth.title">Iniciar sesión — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  .auth-wrap{ max-width:380px; margin:56px auto 90px; }
+  .auth-card{ border:1.5px solid var(--foreground); padding:32px; }
+  .auth-card h1{ font-size:22px; text-align:center; margin-bottom:24px; }
+  .auth-switch{ text-align:center; font-size:13px; margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+  .demo-note{ background:var(--card); border:1px solid var(--border); font-size:12px; padding:11px 12px; margin-bottom:20px; }
+  .demo-note button{ background:none; border:0; color:var(--accent); font-weight:700; text-decoration:underline; cursor:pointer; padding:0; }
+.cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
+.check-circle{border-radius:50%;}
+
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page container">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h1 data-form-title>Identifícate</h1>
+      <div class="demo-note"><span data-i18n="auth.demo">Demo:</span> <button type="button" data-fill-demo data-i18n="auth.demoCustomer">cliente demo</button> · <button type="button" data-fill-admin>admin</button></div>
+      <form id="login-form">
+        <div class="field"><label for="email" data-i18n="auth.email">Correo electrónico</label><input class="input" id="email" type="email" required><span class="error" data-i18n="auth.errEmail">Email no válido.</span></div>
+        <div class="field"><label for="password" data-i18n="auth.password">Contraseña</label><input class="input" id="password" type="password" required minlength="1"><span class="error" data-i18n="auth.errPassword">Introduce tu contraseña.</span></div>
+        <div id="name-field" class="field" hidden><label for="name" data-i18n="auth.name">Nombre</label><input class="input" id="name"><span class="error" data-i18n="auth.errName">Introduce tu nombre.</span></div>
+        <button class="btn btn-primary btn-block" type="submit" data-submit-label>Iniciar sesión</button>
+      </form>
+      <div class="auth-switch"><span data-switch-prompt>¿No tienes cuenta?</span> <button type="button" data-switch-mode style="background:none;border:0;color:var(--accent);font-weight:700;cursor:pointer;">Crear cuenta</button></div>
+    </div>
+  </div>
+</main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+  if(VDB.currentUser()){ location.href = new URLSearchParams(location.search).get("next") || "cuenta.html"; return; }
+  const T = VI18N.t.bind(VI18N);
+  let mode = "login";
+  const form = document.getElementById("login-form"); const nameField = document.getElementById("name-field");
+  function setMode(m){
+    mode=m;
+    document.querySelector("[data-form-title]").textContent = m==="login"?T("auth.signinH1"):T("auth.register");
+    document.querySelector("[data-submit-label]").textContent = m==="login"?T("auth.signin"):T("auth.register");
+    document.querySelector("[data-switch-prompt]").textContent = m==="login"?T("auth.noAccount"):T("auth.hasAccount");
+    document.querySelector("[data-switch-mode]").textContent = m==="login"?T("auth.register"):T("auth.signin");
+    nameField.hidden = m==="login"; document.getElementById("name").required = m!=="login";
+  }
+  setMode("login");   // pinta los cuatro textos del formulario en el idioma activo
+  document.querySelector("[data-switch-mode]").addEventListener("click",()=>setMode(mode==="login"?"register":"login"));
+  document.querySelector("[data-fill-demo]").addEventListener("click",()=>{ document.getElementById("email").value="demo@vasto.mock"; document.getElementById("password").value="demo"; });
+  document.querySelector("[data-fill-admin]").addEventListener("click",()=>{ document.getElementById("email").value="admin@vasto.mock"; document.getElementById("password").value="admin"; });
+  form.addEventListener("submit",(e)=>{
+    e.preventDefault(); let ok=true;
+    form.querySelectorAll(".input[required]").forEach(i=>{ const v=i.checkValidity(); i.closest(".field").classList.toggle("has-error", !v); if(!v) ok=false; });
+    if(!ok) return;
+    const email=document.getElementById("email").value, password=document.getElementById("password").value;
+    const result = mode==="login" ? VDB.login(email,password) : VDB.register(document.getElementById("name").value, email, password);
+    if(!result.ok){ VUI.toast(result.error); return; }
+    VUI.toast(mode==="login"?T("auth.signedIn"):T("auth.created"));
+    location.href = new URLSearchParams(location.search).get("next") || "cuenta.html";
+  });
+})();
+</script>
+</body>
+</html>

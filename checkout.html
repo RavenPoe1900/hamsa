@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="co.title">Finalizar compra — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  .checkout-layout{ display:grid; grid-template-columns:1fr 320px; gap:0; border-top:1px solid var(--foreground); margin:24px 0 60px; }
+  .checkout-form-col{ padding:28px; border-inline-end:1px solid var(--border); }
+  .checkout-steps{ display:flex; gap:8px; margin-bottom:20px; font-size:11.5px; color:var(--muted-fg); text-transform:uppercase; letter-spacing:.05em; }
+  .checkout-steps b{ color:var(--foreground); }
+  fieldset{ border:0; padding:0; margin:0 0 30px; }
+  legend{ font-family:var(--font-display); font-size:19px; margin-bottom:16px; padding:0; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .field .hint{ font-size:11.5px; color:var(--muted-fg); }
+  .mini-line{ display:flex; gap:10px; font-size:13px; padding:9px 0; }
+  .mini-thumb{ width:38px; height:38px; display:grid; place-items:center; font-size:16px; flex-shrink:0; }
+  .summary-card{ padding:22px; }
+  .summary-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; font-size:13.5px; color:var(--muted-fg); }
+  .summary-row > span:last-child{ color:var(--foreground); font-weight:600; }
+  .summary-row.total{ margin-top:6px; padding-top:16px; border-top:1px solid var(--border); font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--foreground); }
+  .summary-row.total > span:last-child{ font-size:19px; }
+
+  /* ---- selector de método de pago ---- */
+  .pay-method-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .pay-method-card{ display:flex; flex-direction:column; align-items:center; gap:9px; border:1.5px solid var(--border); border-radius:var(--radius); padding:18px 12px; cursor:pointer; text-align:center; position:relative; background:none; font-family:inherit; transition:border-color .12s ease, background .12s ease; }
+  .pay-method-card:hover, .pay-method-card:focus-visible{ border-color:var(--accent); background:var(--accent-tint); outline:none; }
+  .pay-method-card.wa:hover, .pay-method-card.wa:focus-visible{ border-color:#25D366; background:rgba(37,211,102,.08); }
+  .pmc-icon{ width:30px; height:30px; color:var(--muted-fg); }
+  .pmc-icon svg{ width:100%; height:100%; }
+  .pay-method-card:hover .pmc-icon, .pay-method-card:focus-visible .pmc-icon{ color:var(--accent); }
+  .pay-method-card.wa:hover .pmc-icon, .pay-method-card.wa:focus-visible .pmc-icon{ color:#25D366; }
+  .pmc-label{ font-size:13px; font-weight:700; }
+  .wa-note{ font-size:12.5px; color:var(--muted-fg); margin:0 0 22px; line-height:1.5; }
+  @media (max-width:480px){ .pay-method-grid{ grid-template-columns:1fr; } }
+
+  /* ---- número de tarjeta con logos de referencia ---- */
+  .cardnum-wrap{ position:relative; }
+  .cardnum-wrap .input{ padding-inline-end:92px; }
+  .card-logos{ position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; pointer-events:none; }
+  .card-logo{ opacity:.28; transition:opacity .15s ease; }
+  .card-logo.active{ opacity:1; }
+  .card-logo-visa{ font-family:var(--font-display); font-weight:800; font-style:italic; font-size:13px; color:#1A1F71; letter-spacing:-.02em; }
+  .card-logo-mc{ display:flex; align-items:center; }
+  .card-logo-mc i{ width:14px; height:14px; border-radius:50%; display:inline-block; }
+  .card-logo-mc i:first-child{ background:#EB001B; }
+  .card-logo-mc i:last-child{ background:#F79E1B; margin-inline-start:-5px; }
+
+  /* ---- diálogo emergente de pago con tarjeta ---- */
+  .card-dialog{ border:1px solid var(--border); border-radius:var(--radius); padding:0; width:min(440px, calc(100vw - 32px)); background:var(--card); color:var(--foreground); box-shadow:0 20px 50px -12px rgba(0,0,0,.35); }
+  .card-dialog::backdrop{ background:rgba(0,0,0,.5); }
+  .card-dialog-form{ padding:24px; }
+  .card-dialog-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .card-dialog-head h2{ font-family:var(--font-display); font-size:18px; }
+  .card-dialog-close{ background:none; border:0; color:var(--muted-fg); font-size:15px; cursor:pointer; width:30px; height:30px; border-radius:var(--radius); }
+  .card-dialog-close:hover{ background:var(--muted); color:var(--foreground); }
+
+  /* ---- pantalla de pago simulado ---- */
+  .pay-processing{ display:flex; align-items:center; gap:10px; justify-content:center; }
+  .spinner{ width:16px; height:16px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:cko-spin .6s linear infinite; flex-shrink:0; }
+  @keyframes cko-spin{ to{ transform:rotate(360deg); } }
+  .pay-success{ max-width:420px; margin:60px auto; text-align:center; }
+  .pay-success .check-circle{ width:64px; height:64px; border-radius:50%; background:var(--success-tint); color:var(--success); display:grid; place-items:center; margin:0 auto 18px; }
+  .pay-success h2{ font-size:20px; margin-bottom:8px; }
+  .pay-success p{ font-size:13px; color:var(--muted-fg); }
+
+  @media (max-width: 900px){ .checkout-layout{ grid-template-columns:1fr; } .checkout-form-col{ border-inline-end:0; border-bottom:1px solid var(--border); } .grid-2, .grid-3{ grid-template-columns:1fr; } }
+.cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
+.check-circle{border-radius:50%;}
+
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page container" data-checkout-root><p style="padding-top:20px;" data-i18n="co.loading">Cargando…</p></main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+  const T = VI18N.t.bind(VI18N);
+  const root = document.querySelector("[data-checkout-root]");
+  const user = VUI.requireAuth(); if(!user) return;
+  const lines = VDB.cartLines(user.id);
+  if(!lines.length){ root.innerHTML = `<div class="empty-state" style="padding-top:40px;"><h2>${T("co.nothingTitle")}</h2><p>${T("co.nothingMsg")}</p><a class="btn btn-primary btn-sm" href="buscar.html">${T("common.goToCatalog")}</a></div>`; return; }
+
+  const PROVINCIAS = ["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Cienfuegos","Villa Clara","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"];
+
+  const CARD_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>`;
+  const WA_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.24-.12-1.41-.7-1.63-.77-.22-.08-.38-.12-.54.12-.16.23-.62.77-.76.93-.14.16-.28.18-.52.06a6.6 6.6 0 0 1-3.3-2.89c-.25-.43.25-.4.7-1.33.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.41H9.6c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.65.58.25 1.03.4 1.38.51.58.18 1.1.16 1.52.1.46-.07 1.41-.58 1.61-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28zM12 2a10 10 0 0 1 8.66 15l1.28 4.67-4.83-1.27A10 10 0 1 1 12 2z"/></svg>`;
+  const CHECK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M20 6L9 17l-5-5"/></svg>`;
+
+  const totals = VDB.cartTotals(user.id);
+  const savedAddr = user.addresses[0] || {};
+  const STORAGE_KEY = "checkout_contact_" + user.id;
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ saved = {}; }
+  const f = (key, fallback="") => VUI.esc(saved[key] ?? fallback);
+
+  root.innerHTML = `
+    <div class="checkout-steps"><a href="carrito.html">${T("crumb.cart")}</a> ${T("common.arrow")} <b>${T("co.step2")}</b> ${T("common.arrow")} ${T("co.step3")}</div>
+    <h1 class="section-title">${T("co.h1")}</h1>
+    <div class="checkout-layout">
+      <form id="checkout-form" class="checkout-form-col" novalidate>
+
+        <fieldset><legend>${T("co.contact")}</legend>
+          <div class="grid-2">
+            <div class="field"><label for="fullname">${T("co.fullname")}</label><input class="input" id="fullname" required value="${f('fullname', user.name||'')}"><span class="error">${T("co.errFullname")}</span></div>
+            <div class="field"><label for="phone">${T("co.phone")}</label><input class="input" id="phone" type="tel" required placeholder="+53 5XXX XXXX" value="${f('phone')}"><span class="error">${T("co.errPhone")}</span></div>
+          </div>
+        </fieldset>
+
+        <fieldset><legend>${T("co.address")}</legend>
+          <div class="grid-3">
+            <div class="field"><label for="street">${T("co.street")}</label><input class="input" id="street" required placeholder="Calle 23" value="${f('street', savedAddr.calle||'')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="cross1">${T("co.cross1")}</label><input class="input" id="cross1" required placeholder="Entre 10" value="${f('cross1')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="cross2">${T("co.cross2")}</label><input class="input" id="cross2" required placeholder="y 12" value="${f('cross2')}"><span class="error">${T("co.required")}</span></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label for="houseno">${T("co.houseno")}</label><input class="input" id="houseno" required placeholder="Nº 456, apto 3" value="${f('houseno')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="reparto">${T("co.district")}</label><input class="input" id="reparto" required placeholder="Vedado" value="${f('reparto')}"><span class="error">${T("co.required")}</span></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label for="municipio">${T("co.municipality")}</label><input class="input" id="municipio" required placeholder="Plaza de la Revolución" value="${f('municipio')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="provincia">${T("co.province")}</label>
+              <select class="input" id="provincia" required>
+                <option value="">${T("co.selectPh")}</option>
+                ${PROVINCIAS.map(p=>`<option value="${p}" ${saved.provincia===p?'selected':''}>${p}</option>`).join("")}
+              </select>
+              <span class="error">${T("co.errProvince")}</span>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset><legend>${T("co.payMethod")}</legend>
+          <div class="pay-method-grid">
+            <button type="button" class="pay-method-card" data-card-trigger>
+              <span class="pmc-icon">${CARD_ICON}</span>
+              <span class="pmc-label">${T("co.payCard")}</span>
+            </button>
+            <button type="button" class="pay-method-card wa" data-wa-trigger>
+              <span class="pmc-icon">${WA_ICON}</span>
+              <span class="pmc-label">${T("co.payWa")}</span>
+            </button>
+          </div>
+          <p class="wa-note">${T("co.payNote")}</p>
+        </fieldset>
+      </form>
+
+      <dialog id="card-dialog" class="card-dialog">
+        <form method="dialog" class="card-dialog-form">
+          <div class="card-dialog-head">
+            <h2>${T("co.payCard")}</h2>
+            <button type="submit" class="card-dialog-close" aria-label="${VUI.esc(T("co.close"))}">✕</button>
+          </div>
+          <div class="field">
+            <label for="cardnum">${T("co.cardNum")}</label>
+            <div class="cardnum-wrap">
+              <input class="input" id="cardnum" inputmode="numeric" required placeholder="4242 4242 4242 4242" maxlength="19">
+              <span class="card-logos">
+                <span class="card-logo card-logo-visa" data-logo-visa>VISA</span>
+                <span class="card-logo card-logo-mc" data-logo-mc><i></i><i></i></span>
+              </span>
+            </div>
+            <span class="error">${T("co.errCardNum")}</span>
+          </div>
+          <div class="field"><label for="cardname">${T("co.cardName")}</label><input class="input" id="cardname" required value="${VUI.esc(user.name||'')}"><span class="error">${T("co.errCardName")}</span></div>
+          <div class="grid-2">
+            <div class="field"><label for="cardexp">${T("co.cardExp")}</label><input class="input" id="cardexp" required placeholder="${T("co.cardExpPh")}" maxlength="5"><span class="error">${T("co.errCardExp")}</span></div>
+            <div class="field"><label for="cardcvv">CVV</label><input class="input" id="cardcvv" inputmode="numeric" required placeholder="123" maxlength="4"><span class="error">${T("co.errCvv")}</span></div>
+          </div>
+          <p class="hint" style="margin:-6px 0 16px;">${T("co.simNote")}</p>
+          <button class="btn btn-buy btn-block" type="button" data-submit-card><span data-btn-label>${T("co.pay",{amount:VUI.money(totals.total)})}</span></button>
+        </form>
+      </dialog>
+      <aside class="summary-card">
+        <h2 style="font-size:15px;margin-bottom:12px;">${T("co.yourOrder")}</h2>
+        ${lines.map(l=>`<div class="mini-line"><div class="mini-thumb" style="${VUI.thumbStyle(l.product)}">${VUI.thumbImg(l.product)}</div><div class="mini-line-name" style="flex:1;">${VUI.esc(l.product.title)} <span style="color:var(--muted-fg);">×${l.qty}</span></div><div>${VUI.money(l.product.price*l.qty)}</div></div>`).join("")}
+        <hr class="divider">
+        <div class="summary-row"><span>${T("sum.subtotal")}</span><span>${VUI.money(totals.subtotal)}</span></div>
+        <div class="summary-row"><span>${T("sum.shipping")}</span><span>${totals.shipping===0?T("sum.free"):VUI.money(totals.shipping)}</span></div>
+        <div class="summary-row"><span>${T("sum.tax")}</span><span>${VUI.money(totals.tax)}</span></div>
+        <div class="summary-row total"><span>${T("sum.total")}</span><span>${VUI.money(totals.total)}</span></div>
+      </aside>
+    </div>`;
+
+  // ── alternar método de pago ─────────────────────────────────────────
+  // ── formato y detección de tarjeta ──────────────────────────────────
+  const cardnumEl = document.getElementById("cardnum");
+  cardnumEl.addEventListener("input", ()=>{
+    const digits = cardnumEl.value.replace(/\D/g,"").slice(0,16);
+    cardnumEl.value = digits.replace(/(.{4})/g,"$1 ").trim();
+    document.querySelector("[data-logo-visa]").classList.toggle("active", digits.startsWith("4"));
+    document.querySelector("[data-logo-mc]").classList.toggle("active", digits.startsWith("5"));
+  });
+  document.getElementById("cardexp").addEventListener("input", (e)=>{
+    let v = e.target.value.replace(/\D/g,"").slice(0,4);
+    if(v.length>2) v = v.slice(0,2)+"/"+v.slice(2);
+    e.target.value = v;
+  });
+
+  // ── validación básica ────────────────────────────────────────────────
+  function validateField(input){ const field=input.closest(".field"); const ok=input.checkValidity(); field.classList.toggle("has-error", !ok); return ok; }
+  function validateGroup(container){
+    let ok = true;
+    container.querySelectorAll(".input[required]").forEach(i=>{ if(!validateField(i)) ok=false; });
+    return ok;
+  }
+
+  function contactAndAddressValid(){
+    const contactOk = validateGroup(document.querySelector('fieldset:has(#fullname)'));
+    const addrOk = validateGroup(document.querySelector('fieldset:has(#street)'));
+    return contactOk && addrOk;
+  }
+
+  function readAddress(){
+    return {
+      label: T("co.addrLabel"), nombre: document.getElementById("fullname").value.trim(), telefono: document.getElementById("phone").value.trim(),
+      calle: document.getElementById("street").value.trim(), entre1: document.getElementById("cross1").value.trim(), entre2: document.getElementById("cross2").value.trim(),
+      numero: document.getElementById("houseno").value.trim(), reparto: document.getElementById("reparto").value.trim(),
+      municipio: document.getElementById("municipio").value.trim(), provincia: document.getElementById("provincia").value,
+    };
+  }
+  function formatAddress(a){ return `${a.calle} entre ${a.entre1} ${a.entre2}, #${a.numero}, ${a.reparto}, ${a.municipio}, ${a.provincia}`; }
+
+  // ── guarda contacto y dirección a medida que se escriben, para no repetirlos la próxima vez ──
+  const SAVE_FIELD_IDS = ["fullname","phone","street","cross1","cross2","houseno","reparto","municipio","provincia"];
+  function saveContactFields(){
+    const data = {};
+    SAVE_FIELD_IDS.forEach(id=>{ data[id] = document.getElementById(id).value; });
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+  }
+  SAVE_FIELD_IDS.forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener(el.tagName==="SELECT" ? "change" : "input", saveContactFields);
+  });
+
+  function buildWhatsappMessage(order, address){
+    const rule = "-----------------------------";
+    let msg = `🧾 *${T("co.waOrder")} #${order.id}*\n${rule}\n\n`;
+    msg += `👤 *${T("co.waName")}* ${address.nombre}\n📱 *${T("co.waPhone")}* ${address.telefono}\n📍 *${T("co.waAddress")}* ${formatAddress(address)}\n\n`;
+    msg += `🛒 *${T("co.waItems")}*\n`;
+    order.items.forEach(it=>{ msg += `• ${it.title} ×${it.qty} — ${VUI.money(it.priceAtPurchase*it.qty)}\n`; });
+    msg += `\n${rule}\n`;
+    msg += `${T("sum.subtotal")}: ${VUI.money(order.subtotal)}\n`;
+    msg += `${T("sum.shipping")}: ${order.shipping===0?T("sum.free"):VUI.money(order.shipping)}\n`;
+    if(order.tax>0) msg += `${T("sum.tax")}: ${VUI.money(order.tax)}\n`;
+    msg += `${rule}\n`;
+    msg += `💰 *${T("co.waTotal")} ${VUI.money(order.total)}*`;
+    return encodeURIComponent(msg);
+  }
+
+  function showSuccessAndRedirect(orderId, title, subtitle){
+    root.innerHTML = `
+      <div class="pay-success">
+        <div class="check-circle">${CHECK_ICON}</div>
+        <h2>${title}</h2>
+        <p>${subtitle}</p>
+      </div>`;
+    setTimeout(()=>{ location.href = "pedido-confirmado.html?id=" + orderId; }, 1100);
+  }
+
+  document.getElementById("checkout-form").addEventListener("submit", e=>e.preventDefault());
+
+  document.querySelector("[data-wa-trigger]").addEventListener("click", ()=>{
+    if(!contactAndAddressValid()){ VUI.toast(T("co.checkFields")); return; }
+    const address = readAddress();
+    const result = VDB.placeOrder(user.id, address, "0000");
+    if(!result.ok){ VUI.toast(result.error); return; }
+    const msg = buildWhatsappMessage(result.order, address);
+    window.open(`https://wa.me/5355555555?text=${msg}`, "_blank");
+    setTimeout(()=>{ location.href = "pedido-confirmado.html?id=" + result.order.id; }, 300);
+  });
+
+  // ── diálogo de pago con tarjeta: solo se abre al tocar "Pagar con tarjeta" ──
+  const cardDialog = document.getElementById("card-dialog");
+  document.querySelector("[data-card-trigger]").addEventListener("click", ()=>{
+    if(!contactAndAddressValid()){ VUI.toast(T("co.checkFields")); return; }
+    cardDialog.showModal();
+  });
+
+  document.querySelector("[data-submit-card]").addEventListener("click", ()=>{
+    const cardFieldsOk = validateGroup(cardDialog);
+    if(!cardFieldsOk){ VUI.toast(T("co.checkCard")); return; }
+    const address = readAddress();
+    const last4 = cardnumEl.value.replace(/\s/g,"").slice(-4) || "0000";
+    const btn = document.querySelector("[data-submit-card]"), label = btn.querySelector("[data-btn-label]");
+    btn.disabled = true;
+    label.innerHTML = `<span class="pay-processing"><span class="spinner"></span>${T("co.processing")}</span>`;
+    setTimeout(()=>{
+      const result = VDB.placeOrder(user.id, address, last4);
+      if(!result.ok){ VUI.toast(result.error); btn.disabled=false; label.textContent = T("co.pay",{amount:VUI.money(totals.total)}); return; }
+      cardDialog.close();
+      showSuccessAndRedirect(result.order.id, T("co.paySuccess"), T("co.paySuccessSub"));
+    }, 1400);
+  });
+})();
+</script>
+</body>
+</html>

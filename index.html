@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="home.title">Electro Hogar — Panel de catálogo</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  .badge-outline{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; padding:3px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted-fg); }
+  a.badge-outline:hover{ border-color:var(--accent); color:var(--accent); }
+  .section{ padding:40px 0; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+  .section-head a{ font-size:12.5px; font-weight:600; color:var(--accent); }
+  .section-head a:hover{ text-decoration:underline; }
+
+  .hero{ border-bottom:1px solid var(--border); background:var(--card); }
+  /* columnas balanceadas: la tarjeta destacada ya no flota lejos del texto */
+  .hero-inner{ max-width:1240px; margin-inline:auto; padding:56px 24px; display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,400px); gap:40px; align-items:center; }
+  .hero-copy h1{ font-size:42px; font-weight:800; letter-spacing:-.025em; line-height:1.05; margin-top:14px; }
+  .hero-copy h1 em{ font-style:normal; color:var(--conversion); }
+  .hero-copy p{ margin-top:14px; max-width:52ch; font-size:15px; line-height:1.65; color:var(--muted-fg); }
+
+  .hero-search{ margin-top:24px; display:flex; height:50px; max-width:600px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--background); box-shadow:0 1px 2px rgba(15,23,42,.04); transition:border-color .15s ease, box-shadow .15s ease; }
+  .hero-search:focus-within{ border-color:var(--ring); box-shadow:0 0 0 3px var(--accent-tint); }
+  .hero-search select{ flex:0 0 110px; width:110px; border:0; border-inline-end:1px solid var(--border); background:transparent; padding:0 10px; font-size:13px; color:var(--muted-fg); font-family:inherit; text-overflow:ellipsis; }
+  .hero-search input{ flex:1; min-width:0; border:0; background:transparent; padding:0 14px; font-size:14px; color:var(--foreground); font-family:inherit; }
+  .hero-search input:focus{ outline:none; }
+  .hero-search button{ display:inline-flex; align-items:center; gap:7px; border:0; padding:0 22px; background:var(--accent); color:var(--accent-fg); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .12s ease; }
+  .hero-search button .ic{ width:16px; height:16px; }
+  .hero-search button:hover{ background:var(--accent-hover); }
+
+  /* señales de confianza: pastillas independientes, un ícono distinto por beneficio */
+  .trust-bar{ margin-top:22px; display:flex; flex-wrap:wrap; gap:10px; }
+  .trust-pill{ display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px; background:var(--muted); border:1px solid var(--border); font-size:12.5px; color:var(--muted-fg); }
+  .trust-pill .ic{ width:16px; height:16px; color:var(--accent); }
+  .trust-pill b{ color:var(--foreground); font-weight:700; }
+
+  .hero-feature{ border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--background); padding:16px; display:flex; flex-direction:column; gap:10px; align-self:center; }
+  .hero-feature .tag{ display:inline-flex; width:fit-content; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); background:var(--accent-tint); padding:4px 10px; border-radius:999px; }
+  .hero-feature .shot{ aspect-ratio:16/10; border-radius:var(--radius); display:grid; place-items:center; background-color:var(--muted); background-image:radial-gradient(circle at 50% 38%, var(--thumb-tone, var(--accent-tint)) 0%, transparent 62%); }
+  .hero-feature .shot img{ padding:2%; }
+  .hero-feature h2{ font-size:15px; font-weight:600; line-height:1.35; margin-top:2px; }
+  .hero-feature .meta{ font-size:12px; color:var(--muted-fg); margin-bottom:2px; }
+  .hero-feature .btn{ min-height:40px; }
+
+  /* carrusel circular de categorías: ícono arriba, texto debajo, flechas laterales */
+  .cat-carousel{ display:flex; align-items:center; gap:6px; }
+  .cat-nav{ flex-shrink:0; width:36px; height:36px; border-radius:999px; border:1px solid var(--border); background:var(--card); display:grid; place-items:center; color:var(--foreground); cursor:pointer; transition:opacity .15s ease, border-color .15s ease, color .15s ease; }
+  .cat-nav:hover{ border-color:var(--accent); color:var(--accent); }
+  .cat-nav .ic{ width:18px; height:18px; }
+  .cat-nav[disabled]{ opacity:.35; pointer-events:none; }
+  .cat-track{ overflow:hidden; padding:6px 24px 10px 24px; }
+  .cat-track-inner{ display:flex; gap:22px; width:max-content; }
+  .cat-item{ display:flex; flex-direction:column; align-items:center; gap:9px; flex:0 0 84px; text-align:center; }
+  .cat-circle{ width:72px; height:72px; border-radius:50%; background:var(--muted); border:1px solid var(--border); display:grid; place-items:center; color:var(--foreground); transition:background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease; }
+  .cat-circle .ic{ width:28px; height:28px; }
+  .cat-item:hover .cat-circle{ background:var(--accent-tint); border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
+  .cat-label{ font-size:12px; line-height:1.3; color:var(--muted-fg); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .cat-item:hover .cat-label{ color:var(--foreground); }
+
+  @media (max-width: 860px){ .hero-inner{ grid-template-columns:minmax(0,1fr); gap:32px; padding:40px 20px; } .hero-copy h1{ font-size:32px; } .hero-search{ max-width:100%; } }
+  @media (max-width: 640px){ .cat-nav{ display:none; } .cat-track{ padding-inline-start:14px; } }
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page">
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <a class="badge-outline" href="buscar.html?onSale=1" data-i18n="home.dealsBadge">Ofertas activas hoy</a>
+        <h1 data-i18n-html="home.h1">Lo que buscas, <em>al precio de hoy.</em></h1>
+        <p data-i18n="home.sub">Descuentos reales sobre stock disponible, con envío en 24 horas y devoluciones en 30 días, sin preguntas.</p>
+        <form class="hero-search" role="search" action="buscar.html" method="get">
+          <label class="visually-hidden" for="hero-q" data-i18n="search.label">Buscar productos</label>
+          <select name="cat" data-i18n-aria="search.catAria" data-hero-cats><option value="" data-i18n="search.all">Todas</option></select>
+          <input id="hero-q" name="q" type="search" data-i18n-ph="search.placeholder" autocomplete="off" data-hero-input>
+          <button type="submit" data-search-btn data-i18n="search.submit">Buscar</button>
+        </form>
+      </div>
+      <aside class="hero-feature" data-hero-feature data-i18n-aria="home.featuredAria"></aside>
+    </div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2 class="section-title" data-i18n="home.categories">Categorías</h2></div>
+    <div class="cat-carousel">
+      <button type="button" class="cat-nav" data-cat-prev data-i18n-aria="home.catPrev"></button>
+      <nav class="cat-track" data-i18n-aria="home.categories" data-cat-track></nav>
+      <button type="button" class="cat-nav" data-cat-next data-i18n-aria="home.catNext"></button>
+    </div>
+  </section>
+
+  <section class="section container" id="ofertas">
+    <div class="section-head"><h2 class="section-title" data-i18n="home.deals">Ofertas del día</h2><a href="buscar.html?onSale=1&sort=discount" data-i18n="home.seeAllF">Ver todas →</a></div>
+    <div class="rail" data-deals></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2 class="section-title" data-i18n="home.bestsellers">Más vendidos</h2><a href="buscar.html?sort=new" data-i18n="home.seeAllM">Ver todos →</a></div>
+    <div class="product-grid" data-bestsellers></div>
+  </section>
+
+  <section class="section container" data-recent-section hidden>
+    <div class="section-head"><h2 class="section-title" data-i18n="home.recent">Visto recientemente</h2></div>
+    <div class="rail" data-recent></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2 class="section-title" data-i18n="home.newArrivals">Recién llegados</h2><a href="buscar.html?sort=new" data-i18n="home.seeAllM">Ver todos →</a></div>
+    <div class="product-grid" data-new></div>
+  </section>
+</main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+
+  const CAT_ICON = {
+    "celulares-y-accesorios-tfan":"laptop", "clima-2z74":"fan", "energia-de-respaldo":"battery",
+    "ferreteria-8jrs":"wrench", "juguetes-y-articulos-para-ninos-f45h":"blocks", "lavadoras-y-secadoras-jmgr":"washer",
+    "ollas-batidoras-cafeteras-y-mas":"blender", "otros-electrodomesticos":"box", "refrigeradores-41ef":"fridge",
+    "salud-y-bienestar-y5f6c":"pulse", "tecnologia-9kw9":"laptop", "televisores-0w8l":"tv",
+    "transporte-kdri":"scooter", "utiles-del-hogar-99a9":"home",
+  };
+  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
+  const RTL = VI18N.isRTL;
+  const track = document.querySelector("[data-cat-track]");
+  const catItemsHTML = VDB.CATEGORIES.map(c=>`
+    <a href="buscar.html?cat=${c.id}" class="cat-item">
+      <span class="cat-circle">${VUI.icon(CAT_ICON[c.id]||"box")}</span>
+      <span class="cat-label">${VUI.esc(c.name)}</span>
+    </a>`).join("");
+  // Duplicado una vez: permite un loop infinito sin salto visible (mismo diseño, sin tocar CSS).
+  // El movimiento se hace con transform en un wrapper interno, no con scrollLeft — así no
+  // depende en absoluto del sistema de scroll del navegador (sin snap, sin scroll-behavior).
+  const inner = document.createElement("div");
+  inner.className = "cat-track-inner";
+  inner.innerHTML = catItemsHTML + catItemsHTML;
+  track.innerHTML = "";
+  track.appendChild(inner);
+  const catPrev = document.querySelector("[data-cat-prev]"), catNext = document.querySelector("[data-cat-next]");
+  // En RTL "anterior" apunta a la derecha: los chevrons se intercambian, no se giran.
+  catPrev.innerHTML = VUI.icon(RTL ? "chevronRight" : "chevronLeft");
+  catNext.innerHTML = VUI.icon(RTL ? "chevronLeft" : "chevronRight");
+  // Con loop infinito los botones siempre pueden avanzar/retroceder.
+  catPrev.disabled = false; catNext.disabled = false;
+
+  // ── Auto-scroll tipo carrusel: velocidad media, se pausa con cualquier
+  // interacción y retoma sola a los 2.5s de inactividad. Se mueve siempre. ──
+  const CAT_SPEED = 45; // px/s
+  const RESUME_DELAY = 2500; // ms
+  let paused = false, resumeTimer = null, lastTs = null, halfWidth = 0, offset = 0;
+
+  function measure(){ halfWidth = inner.scrollWidth / 2; }
+  measure();
+  window.addEventListener("resize", measure);
+
+  // En RTL la pista se ordena de derecha a izquierda, así que avanzar es
+  // desplazar el contenido en sentido contrario al de LTR.
+  const SIGN = RTL ? 1 : -1;
+  function applyOffset(){ inner.style.transform = `translateX(${SIGN*offset}px)`; }
+
+  function pauseAuto(){
+    paused = true;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(()=>{ paused = false; lastTs = null; }, RESUME_DELAY);
+  }
+  ["pointerenter","pointerdown","wheel","touchstart"].forEach(ev=>
+    track.addEventListener(ev, pauseAuto, {passive:true}));
+  catPrev.addEventListener("click", ()=>{
+    pauseAuto();
+    offset = ((offset - 280) % halfWidth + halfWidth) % halfWidth;
+    applyOffset();
+  });
+  catNext.addEventListener("click", ()=>{
+    pauseAuto();
+    offset = (offset + 280) % halfWidth;
+    applyOffset();
+  });
+
+  function tick(ts){
+    if(lastTs==null) lastTs = ts;
+    const dt = ts - lastTs; lastTs = ts;
+    if(!paused && halfWidth>0){
+      offset += CAT_SPEED * (dt/1000);
+      if(offset >= halfWidth) offset -= halfWidth;
+      applyOffset();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + T("search.submit");
+
+  document.querySelector("[data-hero-cats]").insertAdjacentHTML("beforeend",
+    VDB.CATEGORIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join(""));
+
+  const deals = VDB.db.products.filter(p=>p.oldPrice).sort((a,b)=>(1-a.price/a.oldPrice)<(1-b.price/b.oldPrice)?1:-1).slice(0,10);
+
+  const feat = deals.find(p=>p.stock>0) || VDB.db.products.find(p=>p.stock>0) || VDB.db.products[0];
+  const [fEuros,fCents] = feat.price.toFixed(2).split(".");
+  const featPct = feat.oldPrice ? Math.round((1-feat.price/feat.oldPrice)*100) : 0;
+  document.querySelector("[data-hero-feature]").innerHTML = `
+    <span class="tag">${featPct?T("home.dealOfDay"):T("home.featured")}</span>
+    <a class="shot" href="producto.html?id=${feat.id}" style="${VUI.thumbStyle(feat)}" aria-hidden="true" tabindex="-1">${VUI.thumbImg(feat)}</a>
+    <a href="producto.html?id=${feat.id}"><h2>${VUI.esc(feat.title)}</h2></a>
+    <p class="meta">${VUI.esc(feat.brand)}${feat.stock<5?` · <span class="stock-note">${VUI.icon('bolt')}${TP("card.lastUnits",feat.stock)}</span>`:""}</p>
+    <div class="price-row">
+      <span class="price">${VDB.db.settings.currency}${fEuros}<small>.${fCents}</small></span>
+      ${feat.oldPrice?`<span class="price-old">${VUI.money(feat.oldPrice)}</span><span class="price-badge">−${featPct}%</span>`:""}
+    </div>
+    <button class="btn btn-buy btn-block" data-add-cart="${feat.id}">${VUI.icon('cart')}${T("card.addToCart")}</button>`;
+  document.querySelector("[data-deals]").innerHTML = deals.map(p=>VUI.productCard(p)).join("") || `<p style='color:var(--muted-fg)'>${T("home.noDeals")}</p>`;
+  document.querySelector("[data-bestsellers]").innerHTML = VDB.db.products.slice().sort((a,b)=>b.reviewCount-a.reviewCount).slice(0,10).map(p=>VUI.productCard(p)).join("");
+  document.querySelector("[data-new]").innerHTML = VDB.db.products.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,10).map(p=>VUI.productCard(p)).join("");
+  try{ const recent=JSON.parse(localStorage.getItem("vasto_recent")||"[]").map(id=>VDB.getProduct(id)).filter(Boolean);
+    if(recent.length){ document.querySelector("[data-recent-section]").hidden=false; document.querySelector("[data-recent]").innerHTML = recent.map(p=>VUI.productCard(p)).join(""); } }catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="adm.prod.title">Productos — Admin Electro Hogar</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/i18n.js"></script>
+<link rel="stylesheet" href="../assets/admin.css">
+<style>.inline-edit{ width:74px; border:1px solid transparent; padding:4px 6px; font-size:13px; background:transparent; font-family:inherit; } .inline-edit:hover{ border-color:var(--border); } .inline-edit:focus{ border-color:var(--foreground); background:var(--card); outline:none; }.cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
+.check-circle{border-radius:50%;}
+
+</style>
+</head>
+<body>
+<script src="../assets/products-data.js"></script>
+<script src="../assets/data.js"></script>
+<script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
+<script src="../assets/app.js"></script>
+<script src="../assets/admin.js"></script>
+<script>
+(function(){
+  const T = VI18N.t.bind(VI18N);
+  const content = VADMIN.mountAdmin("productos.html", T("adm.nav.products"), T("adm.prod.sub"));
+  content.innerHTML = `
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input class="input" type="search" placeholder="${T("adm.prod.searchPh")}" data-search style="min-width:240px;">
+        <select class="input" data-cat-filter><option value="">${T("adm.prod.allCats")}</option>${VDB.CATEGORIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}</select>
+      </div>
+      <a class="btn btn-primary btn-sm" href="producto-editar.html">${T("adm.prod.new")}</a>
+    </div>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th></th><th>${T("adm.th.product")}</th><th>${T("adm.th.category")}</th><th class="num">${T("adm.th.price")}</th><th class="num">${T("adm.th.stock")}</th><th class="num">${T("adm.th.rating")}</th><th></th></tr></thead>
+      <tbody data-rows></tbody></table></div>
+    <div class="pagination" data-pagination style="margin-top:16px;"></div>`;
+  const PAGE_SIZE = 15; let page = 1;
+  function currentList(){
+    const q = document.querySelector("[data-search]").value.trim().toLowerCase();
+    const cat = document.querySelector("[data-cat-filter]").value;
+    return VDB.db.products.filter(p=>{ if(cat && p.category!==cat) return false; if(q && !(p.title.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q))) return false; return true; });
+  }
+  function render(){
+    const list = currentList(); const pages = Math.max(1, Math.ceil(list.length/PAGE_SIZE)); page = Math.min(page, pages);
+    const slice = list.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+    document.querySelector("[data-rows]").innerHTML = slice.map(p=>`
+      <tr data-row="${p.id}">
+        <td><div class="thumb-cell" style="${VUI.thumbStyle(p)}">${VUI.thumbImg(p)}</div></td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(p.title)}<div class="mono-tag">${p.id}</div></td>
+        <td>${VUI.esc(VDB.catName(p))}</td>
+        <td class="num"><input class="inline-edit num" data-edit-price type="number" step="0.01" min="0" value="${p.price}"></td>
+        <td class="num"><input class="inline-edit num" data-edit-stock type="number" min="0" value="${p.stock}"></td>
+        <td class="num">${p.rating?p.rating.toFixed(1):'—'}</td>
+        <td class="row-actions"><a href="producto-editar.html?id=${p.id}">${T("acct.edit")}</a><button class="danger" data-delete="${p.id}">${T("acct.delete")}</button></td>
+      </tr>`).join("") || `<tr><td colspan="7" style="text-align:center;color:var(--muted-fg);padding:32px;">${T("adm.noResults")}</td></tr>`;
+    document.querySelector("[data-pagination]").innerHTML = Array.from({length:pages},(_,i)=>`<button aria-current="${i+1===page}" data-page="${i+1}">${i+1}</button>`).join("");
+    document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{ page=Number(b.dataset.page); render(); }));
+    document.querySelectorAll("[data-edit-price]").forEach(inp=>inp.addEventListener("change",(e)=>{ VDB.updateProduct(e.target.closest("tr").dataset.row,{price:Number(e.target.value)||0}); VUI.toast(T("adm.priceUpdated")); }));
+    document.querySelectorAll("[data-edit-stock]").forEach(inp=>inp.addEventListener("change",(e)=>{ VDB.updateProduct(e.target.closest("tr").dataset.row,{stock:Math.max(0,Number(e.target.value)||0)}); VUI.toast(T("adm.stockUpdated")); }));
+    document.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>{
+      if(!confirm(T("adm.confirmDelProduct"))) return;
+      const res = VDB.deleteProduct(b.dataset.delete); if(!res.ok){ VUI.toast(res.error); return; } VUI.toast(T("adm.productDeleted")); render();
+    }));
+  }
+  render();
+  document.querySelector("[data-search]").addEventListener("input",()=>{ page=1; render(); });
+  document.querySelector("[data-cat-filter]").addEventListener("change",()=>{ page=1; render(); });
+})();
+</script>
+</body>
+</html>

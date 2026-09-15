@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="cart.title">Tu carrito — Electro Hogar</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  /* ---------- Cabecera del carrito ---------- */
+  .cart-head{ padding:32px 0 22px; margin-bottom:26px; border-bottom:1px solid var(--border); }
+  .cart-head .breadcrumbs{ margin-bottom:16px; }
+  .cart-head .breadcrumbs .sep{ color:var(--border); }
+  .cart-head-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px 24px; flex-wrap:wrap; }
+  .cart-h1{ font-size:36px; line-height:1.05; letter-spacing:-.025em; }
+  .cart-h1 .count{ display:inline-block; margin-inline-start:10px; font-family:var(--font-ui); font-weight:600; font-size:18px; letter-spacing:0; color:var(--muted-fg); }
+  .keep-shopping{ display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+  .keep-shopping svg{ width:16px; height:16px; }
+
+  /* ---------- Layout ---------- */
+  .cart-layout{ display:grid; grid-template-columns:1fr 360px; gap:36px; align-items:start; margin:0 0 8px; }
+  .cart-lines{ display:flex; flex-direction:column; }
+
+  /* ---------- Fila de producto ---------- */
+  .cart-line{ display:grid; grid-template-columns:108px 1fr auto; grid-template-areas:"thumb info price"; gap:24px; padding:28px 4px; align-items:start; }
+  .cart-line + .cart-line{ border-top:1px solid var(--border); }
+  .cart-thumb{ grid-area:thumb; width:108px; height:108px; padding:10px; background:var(--muted); border:1px solid var(--border); border-radius:var(--radius); display:grid; place-items:center; overflow:hidden; }
+  .cart-thumb img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .cart-thumb span{ font-size:34px; }
+
+  .cart-info{ grid-area:info; min-width:0; }
+  .cart-title{ display:block; font-family:var(--font-display); font-weight:700; font-size:16px; line-height:1.3; color:var(--foreground); letter-spacing:-.01em; }
+  .cart-title:hover{ color:var(--accent); }
+  .cart-model{ font-size:12px; color:var(--muted-fg); margin-top:3px; letter-spacing:.02em; }
+  .stock-line{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:12.5px; font-weight:600; color:var(--success); }
+  .stock-line.out{ color:var(--destructive); }
+  .stock-line svg{ width:16px; height:16px; }
+
+  .qty-controls{ display:inline-flex; align-items:stretch; margin-top:16px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--card); }
+  .qty-controls button{ width:42px; height:40px; border:0; background:none; cursor:pointer; font-size:19px; line-height:1; color:var(--foreground); display:grid; place-items:center; transition:background .12s ease, color .12s ease; }
+  .qty-controls button:hover{ background:var(--muted); }
+  .qty-controls button:active{ background:var(--accent-tint); color:var(--accent); }
+  .qty-controls span{ min-width:46px; padding:0 6px; display:grid; place-items:center; font-size:14px; font-weight:700; border-left:1px solid var(--border); border-right:1px solid var(--border); }
+
+  .line-actions{ display:flex; flex-wrap:wrap; gap:20px; margin-top:18px; padding-bottom:2px; }
+  .line-actions button{ display:inline-flex; align-items:center; gap:7px; padding:4px 0; background:none; border:0; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; transition:color .12s ease; }
+  .line-actions button svg{ width:15px; height:15px; }
+  .line-actions .act-remove{ color:var(--destructive); }
+  .line-actions .act-remove:hover{ color:#B91C1C; }
+  .line-actions .act-save{ color:var(--muted-fg); }
+  .line-actions .act-save:hover{ color:var(--foreground); }
+
+  .cart-price-col{ grid-area:price; display:flex; flex-direction:column; align-items:flex-end; gap:3px; text-align:end; }
+  .line-total{ font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em; }
+  .line-unit{ font-size:12px; color:var(--muted-fg); }
+
+  .cart-foot{ display:flex; padding:24px 4px 0; margin-bottom:8px; }
+
+  /* ---------- Resumen del pedido ---------- */
+  .summary-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 6px 24px -8px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.05); padding:26px 24px; position:sticky; top:24px; }
+  .summary-card h2{ font-size:16px; margin-bottom:18px; }
+  .summary-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 0; font-size:14px; color:var(--muted-fg); }
+  .summary-row > span:last-child{ color:var(--foreground); font-weight:600; }
+  .summary-row .sum-free{ color:var(--success); font-weight:700; }
+  .summary-row.total{ margin-top:6px; padding-top:20px; border-top:1px solid var(--border); }
+  .summary-row.total span{ font-family:var(--font-display); }
+  .summary-row.total .t-label{ font-size:18px; font-weight:800; color:var(--foreground); letter-spacing:-.01em; }
+  .summary-row.total .t-value{ font-size:27px; font-weight:800; letter-spacing:-.02em; color:var(--foreground); }
+
+  .freeship{ margin:18px 0; padding:15px 16px; background:var(--accent-tint); border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); border-radius:var(--radius); }
+  .freeship-top{ display:flex; align-items:flex-start; gap:11px; font-size:12.8px; line-height:1.45; color:var(--foreground); }
+  .freeship-top svg{ width:22px; height:22px; flex-shrink:0; color:var(--accent); margin-top:1px; }
+  .freeship-top b{ color:var(--accent); }
+  .freeship-bar{ height:7px; margin-top:12px; border-radius:999px; background:color-mix(in srgb, var(--accent) 16%, var(--card)); overflow:hidden; }
+  .freeship-bar i{ display:block; height:100%; border-radius:999px; background:var(--accent); transition:width .45s cubic-bezier(.4,0,.2,1); }
+  .freeship.ok{ background:var(--success-tint); border-color:color-mix(in srgb, var(--success) 26%, transparent); }
+  .freeship.ok .freeship-top svg, .freeship.ok .freeship-top b{ color:var(--success); }
+  .freeship.ok .freeship-bar i{ background:var(--success); }
+
+  .btn-checkout{ width:100%; margin-top:4px; min-height:50px; font-size:15px; font-weight:700; box-shadow:0 3px 10px -3px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .btn-checkout svg{ width:17px; height:17px; }
+  .btn-checkout:hover{ transform:translateY(-2px); box-shadow:0 10px 22px -6px color-mix(in srgb, var(--accent) 60%, transparent); }
+  .secure-note{ display:flex; align-items:center; justify-content:center; gap:6px; margin-top:14px; font-size:11.5px; color:var(--muted-fg); }
+  .secure-note svg{ width:14px; height:14px; }
+  .pay-methods{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
+  .pay-methods svg{ height:24px; width:auto; box-shadow:0 1px 2px rgba(0,0,0,.12); border-radius:4px; }
+
+  /* ---------- Relacionados ---------- */
+  .related-sec{ margin-top:44px; padding-top:40px; border-top:1px solid var(--border); }
+  .related-sec h2{ font-size:20px; margin-bottom:20px; }
+  .related-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    .cart-layout{ grid-template-columns:1fr; gap:26px; }
+    .summary-card{ position:static; }
+  }
+  @media (max-width:560px){
+    .cart-h1{ font-size:27px; }
+    .cart-h1 .count{ display:block; margin:8px 0 0; }
+    .cart-line{ grid-template-columns:78px 1fr; grid-template-areas:"thumb info" "price price"; gap:14px 16px; padding:24px 2px; }
+    .cart-thumb{ width:78px; height:78px; padding:7px; }
+    .cart-price-col{ flex-direction:row; align-items:baseline; gap:10px; text-align:start; }
+    .related-grid{ grid-template-columns:1fr 1fr; gap:12px; }
+  }
+  @media (max-width:420px){ .related-grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div data-header-mount></div>
+<main id="main" class="page container">
+  <div data-cart-root></div>
+</main>
+<div data-footer-mount></div>
+<script src="assets/products-data.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  VUI.mountChrome();
+  const root = document.querySelector("[data-cart-root]");
+  const user = VDB.currentUser();
+  const money = VUI.money, esc = VUI.esc, I = VUI.icons;
+  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
+
+  // Íconos locales (no incluidos en el set compartido)
+  const SVG = {
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V5.5a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5V7M6.6 7l.8 12a2 2 0 0 0 2 1.9h5.2a2 2 0 0 0 2-1.9l.8-12M10 11v6M14 11v6"/></svg>',
+    bookmark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5h12v16l-6-4-6 4z"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.4 12.2l2.4 2.4 4.7-5.1"/></svg>',
+    alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>'
+  };
+  const PAY = [
+    '<svg viewBox="0 0 38 24" role="img" aria-label="Visa"><rect width="38" height="24" rx="4" fill="#1A1F71"/><text x="19" y="16" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" letter-spacing="1" fill="#fff">VISA</text></svg>',
+    '<svg viewBox="0 0 38 24" role="img" aria-label="Mastercard"><rect width="38" height="24" rx="4" fill="#F4F4F5"/><circle cx="16" cy="12" r="6.4" fill="#EB001B"/><circle cx="23" cy="12" r="6.4" fill="#F79E1B" fill-opacity=".9"/></svg>',
+    '<svg viewBox="0 0 38 24" role="img" aria-label="American Express"><rect width="38" height="24" rx="4" fill="#2E77BC"/><text x="19" y="15" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="6.4" font-weight="700" letter-spacing=".3" fill="#fff">AMEX</text></svg>',
+    '<svg viewBox="0 0 38 24" role="img" aria-label="PayPal"><rect width="38" height="24" rx="4" fill="#F4F4F5"/><text x="19" y="15.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="7.6" font-weight="700">Pay<tspan fill="#003087">Pal</tspan></text><rect width="38" height="24" rx="4" fill="none"/></svg>'
+  ].join("");
+
+  // --- Formato de nombre: capitalización tipo título + código de modelo aparte ---
+  const SMALL = new Set(['de','del','a','al','con','para','y','o','u','e','en','por','la','el','los','las','un','una','sin','sobre']);
+  const ACR = new Set(['USB','USK','HP','TV','PC','AC','DC','LED','RGB','SSD','HDD','HDMI','LCD','OLED','QLED','KWH','KW','WH','W','V','A','GPS','BT','LFP','PVC','ABS','ML','MM','CM','HZ']);
+  const SPECIAL = { iphone:'iPhone', ipad:'iPad', ipod:'iPod', airpods:'AirPods', macbook:'MacBook', imac:'iMac', usb:'USB' };
+  function capWord(w, first){
+    if(!w) return w;
+    if(/\d/.test(w)) return w;                       // tokens con dígitos: se conservan (12W, 5KWh…)
+    const low = w.toLowerCase();
+    if(SPECIAL[low]) return SPECIAL[low];
+    if(!first && SMALL.has(low)) return low;
+    if(w.length<=4 && ACR.has(w.toUpperCase())) return w.toUpperCase();
+    return low.replace(/^[a-záéíóúüñ]/, c=>c.toUpperCase());
+  }
+  function titleCase(str){
+    return str.trim().split(/\s+/).map((w,i)=>
+      w.split('-').map((p,j)=>capWord(p, i===0 && j===0)).join('-')
+    ).join(' ');
+  }
+  function isSku(t){ return /[A-Za-zÁÉÍÓÚÑ]/.test(t) && /\d/.test(t); }
+  function codeish(t){ return isSku(t) || /^[+/\-–—]$/.test(t) || /^\d+([.,]\d+)?(["'”]{0,2})$/.test(t) || (t.length<=4 && ACR.has(t.toUpperCase())); }
+  function splitName(title){
+    const toks = String(title||"").trim().split(/\s+/);
+    let i = toks.length;
+    while(i>0 && codeish(toks[i-1])) i--;
+    const tail = toks.slice(i);
+    if(i===0 || !tail.some(isSku)) return { name: titleCase(title), model: "" };
+    const name = titleCase(toks.slice(0,i).join(' ')).replace(/[\s+/\-–—]+$/,'').trim();
+    const model = tail.join(' ').replace(/^[\s+/\-–—]+/,'').trim();
+    return { name, model };
+  }
+
+  function stateBox(title, msg, href, cta){
+    root.innerHTML = `
+      <nav class="breadcrumbs" style="padding-top:28px;"><a href="index.html">${T("crumb.home")}</a><span class="sep">›</span><span>${T("crumb.cart")}</span></nav>
+      <h1 class="cart-h1" style="padding:22px 0;">${T("cart.h1")}</h1>
+      <div class="empty-state card" style="padding:56px 24px; text-align:center;">
+        <h2 style="font-size:20px; margin-bottom:8px;">${title}</h2>
+        <p style="color:var(--muted-fg); margin:0 0 20px;">${msg}</p>
+        <a class="btn btn-primary" href="${href}">${cta}</a>
+      </div>`;
+  }
+
+  function render(){
+    if(!user){ stateBox(T("cart.loginTitle"), T("cart.loginMsg"), "login.html?next=carrito.html", T("auth.signin")); return; }
+    const lines = VDB.cartLines(user.id);
+    if(!lines.length){ stateBox(T("cart.emptyTitle"), T("cart.emptyMsg"), "buscar.html", T("common.goToCatalog")); return; }
+
+    const totals = VDB.cartTotals(user.id);
+    const threshold = VDB.db.settings.freeShippingFrom;
+    const qualifies = totals.subtotal >= threshold;
+    const pct = Math.max(0, Math.min(100, Math.round(totals.subtotal/threshold*100)));
+    const nProd = lines.length;
+
+    // Relacionados: misma categoría del primer artículo, sin repetir lo que ya está en el carrito
+    const inCart = new Set(lines.map(l=>l.productId));
+    const related = VDB.relatedProducts(lines[0].product, 8).filter(p=>!inCart.has(p.id)).slice(0,3);
+
+    root.innerHTML = `
+      <div class="cart-head">
+        <nav class="breadcrumbs"><a href="index.html">${T("crumb.home")}</a><span class="sep">›</span><span>${T("crumb.cart")}</span></nav>
+        <div class="cart-head-row">
+          <h1 class="cart-h1">${T("cart.h1")}<span class="count">${TP("cart.count", nProd)}</span></h1>
+          <a class="btn btn-outline btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}${T("common.keepShopping")}</a>
+        </div>
+      </div>
+
+      <div class="cart-layout">
+        <section class="cart-lines">${lines.map(l=>{
+          const {name, model} = splitName(l.product.title);
+          const unit = l.product.price, lineTotal = unit*l.qty, inStock = l.product.stock>0;
+          return `
+          <div class="cart-line" data-line="${l.productId}">
+            <a href="producto.html?id=${l.productId}" class="cart-thumb">${VUI.thumbImg(l.product)}</a>
+            <div class="cart-info">
+              <a class="cart-title" href="producto.html?id=${l.productId}">${esc(name)}</a>
+              ${model?`<div class="cart-model">${esc(T("cart.model",{m:model}))}</div>`:''}
+              <div class="stock-line ${inStock?'':'out'}">${inStock?SVG.check+T("cart.inStock"):SVG.alert+T("cart.outStock")}</div>
+              <div class="qty-controls"><button type="button" data-qty-dec aria-label="${esc(T("cart.qtyDec"))}">−</button><span data-qty-val>${l.qty}</span><button type="button" data-qty-inc aria-label="${esc(T("cart.qtyInc"))}">+</button></div>
+              <div class="line-actions">
+                <button type="button" class="act-remove" data-remove-line>${SVG.trash}${T("cart.remove")}</button>
+                <button type="button" class="act-save" data-save-later>${SVG.bookmark}${T("cart.saveLater")}</button>
+              </div>
+            </div>
+            <div class="cart-price-col">
+              <div class="line-total">${money(lineTotal)}</div>
+              ${l.qty>1?`<div class="line-unit">${l.qty} × ${money(unit)} ${T("common.each")}</div>`:''}
+            </div>
+          </div>`;
+        }).join("")}
+          <div class="cart-foot"><a class="btn btn-ghost btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}${T("common.keepShopping")}</a></div>
+        </section>
+
+        <aside class="summary-card">
+          <h2>${T("cart.summary")}</h2>
+          <div class="summary-row"><span>${TP("cart.subtotalN", totals.count)}</span><span>${money(totals.subtotal)}</span></div>
+          <div class="summary-row"><span>${T("sum.shipping")}</span><span class="${totals.shipping===0?'sum-free':''}">${totals.shipping===0?T("sum.free"):money(totals.shipping)}</span></div>
+          <div class="summary-row"><span>${T("sum.tax")}</span><span>${money(totals.tax)}</span></div>
+          <div class="summary-row total"><span class="t-label">${T("sum.total")}</span><span class="t-value">${money(totals.total)}</span></div>
+
+          <div class="freeship ${qualifies?'ok':''}">
+            <div class="freeship-top">${I.truck}<div>${qualifies?T("cart.freeshipOk"):T("cart.freeshipMore",{amount:`<b class="amt">${money(threshold-totals.subtotal)}</b>`})}</div></div>
+            <div class="freeship-bar"><i style="width:${qualifies?100:pct}%"></i></div>
+          </div>
+
+          <a class="btn btn-buy btn-checkout" href="checkout.html">${I.lock}${T("cart.checkout")}</a>
+          <div class="secure-note">${I.shield}${T("cart.secure")}</div>
+          <div class="pay-methods">${PAY}</div>
+        </aside>
+      </div>
+
+      ${related.length?`
+      <section class="related-sec">
+        <h2>${T("cart.related")}</h2>
+        <div class="related-grid">${related.map(p=>VUI.productCard(p)).join("")}</div>
+      </section>`:''}
+    `;
+
+    root.querySelectorAll("[data-line]").forEach(lineEl=>{
+      const pid = lineEl.dataset.line;
+      lineEl.querySelector("[data-qty-inc]").addEventListener("click",()=>{ const l=VDB.cartLines(user.id).find(x=>x.productId===pid); VDB.setCartQty(user.id,pid,Math.min(l.qty+1,l.product.stock||l.qty+1)); render(); VUI.updateCartBadge(); });
+      lineEl.querySelector("[data-qty-dec]").addEventListener("click",()=>{ const l=VDB.cartLines(user.id).find(x=>x.productId===pid); VDB.setCartQty(user.id,pid,l.qty-1); render(); VUI.updateCartBadge(); });
+      lineEl.querySelector("[data-remove-line]").addEventListener("click",()=>{ VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast(T("cart.removed")); render(); });
+      lineEl.querySelector("[data-save-later]").addEventListener("click",()=>{ VDB.toggleWishlist(user.id,pid); VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast(T("cart.savedLater")); render(); });
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>
