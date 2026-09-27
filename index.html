@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="home.title">Electro Hogar — Panel de catálogo</title>
+<title>Electro Hogar — Panel de catálogo</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   .badge-outline{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; padding:3px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted-fg); }
   a.badge-outline:hover{ border-color:var(--accent); color:var(--accent); }
@@ -23,7 +22,7 @@
 
   .hero-search{ margin-top:24px; display:flex; height:50px; max-width:600px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--background); box-shadow:0 1px 2px rgba(15,23,42,.04); transition:border-color .15s ease, box-shadow .15s ease; }
   .hero-search:focus-within{ border-color:var(--ring); box-shadow:0 0 0 3px var(--accent-tint); }
-  .hero-search select{ flex:0 0 110px; width:110px; border:0; border-inline-end:1px solid var(--border); background:transparent; padding:0 10px; font-size:13px; color:var(--muted-fg); font-family:inherit; text-overflow:ellipsis; }
+  .hero-search select{ flex:0 0 110px; width:110px; border:0; border-right:1px solid var(--border); background:transparent; padding:0 10px; font-size:13px; color:var(--muted-fg); font-family:inherit; text-overflow:ellipsis; }
   .hero-search input{ flex:1; min-width:0; border:0; background:transparent; padding:0 14px; font-size:14px; color:var(--foreground); font-family:inherit; }
   .hero-search input:focus{ outline:none; }
   .hero-search button{ display:inline-flex; align-items:center; gap:7px; border:0; padding:0 22px; background:var(--accent); color:var(--accent-fg); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .12s ease; }
@@ -60,7 +59,7 @@
   .cat-item:hover .cat-label{ color:var(--foreground); }
 
   @media (max-width: 860px){ .hero-inner{ grid-template-columns:minmax(0,1fr); gap:32px; padding:40px 20px; } .hero-copy h1{ font-size:32px; } .hero-search{ max-width:100%; } }
-  @media (max-width: 640px){ .cat-nav{ display:none; } .cat-track{ padding-inline-start:14px; } }
+  @media (max-width: 640px){ .cat-nav{ display:none; } .cat-track{ padding-left:14px; } }
 </style>
 </head>
 <body>
@@ -70,52 +69,51 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <a class="badge-outline" href="buscar.html?onSale=1" data-i18n="home.dealsBadge">Ofertas activas hoy</a>
-        <h1 data-i18n-html="home.h1">Lo que buscas, <em>al precio de hoy.</em></h1>
-        <p data-i18n="home.sub">Descuentos reales sobre stock disponible, con envío en 24 horas y devoluciones en 30 días, sin preguntas.</p>
+        <a class="badge-outline" href="buscar.html?onSale=1">Ofertas activas hoy</a>
+        <h1>Lo que buscas, <em>al precio de hoy.</em></h1>
+        <p>Descuentos reales sobre stock disponible, con envío en 24 horas y devoluciones en 30 días, sin preguntas.</p>
         <form class="hero-search" role="search" action="buscar.html" method="get">
-          <label class="visually-hidden" for="hero-q" data-i18n="search.label">Buscar productos</label>
-          <select name="cat" data-i18n-aria="search.catAria" data-hero-cats><option value="" data-i18n="search.all">Todas</option></select>
-          <input id="hero-q" name="q" type="search" data-i18n-ph="search.placeholder" autocomplete="off" data-hero-input>
-          <button type="submit" data-search-btn data-i18n="search.submit">Buscar</button>
+          <label class="visually-hidden" for="hero-q">Buscar productos</label>
+          <select name="cat" aria-label="Categoría" data-hero-cats><option value="">Todas</option></select>
+          <input id="hero-q" name="q" type="search" placeholder="Buscar entre miles de productos…" autocomplete="off" data-hero-input>
+          <button type="submit" data-search-btn>Buscar</button>
         </form>
       </div>
-      <aside class="hero-feature" data-hero-feature data-i18n-aria="home.featuredAria"></aside>
+      <aside class="hero-feature" data-hero-feature aria-label="Producto destacado"></aside>
     </div>
   </section>
 
   <section class="section container">
-    <div class="section-head"><h2 class="section-title" data-i18n="home.categories">Categorías</h2></div>
+    <div class="section-head"><h2 class="section-title">Categorías</h2></div>
     <div class="cat-carousel">
-      <button type="button" class="cat-nav" data-cat-prev data-i18n-aria="home.catPrev"></button>
-      <nav class="cat-track" data-i18n-aria="home.categories" data-cat-track></nav>
-      <button type="button" class="cat-nav" data-cat-next data-i18n-aria="home.catNext"></button>
+      <button type="button" class="cat-nav" data-cat-prev aria-label="Categorías anteriores"></button>
+      <nav class="cat-track" aria-label="Categorías" data-cat-track></nav>
+      <button type="button" class="cat-nav" data-cat-next aria-label="Categorías siguientes"></button>
     </div>
   </section>
 
   <section class="section container" id="ofertas">
-    <div class="section-head"><h2 class="section-title" data-i18n="home.deals">Ofertas del día</h2><a href="buscar.html?onSale=1&sort=discount" data-i18n="home.seeAllF">Ver todas →</a></div>
+    <div class="section-head"><h2 class="section-title">Ofertas del día</h2><a href="buscar.html?onSale=1&sort=discount">Ver todas →</a></div>
     <div class="rail" data-deals></div>
   </section>
 
   <section class="section container">
-    <div class="section-head"><h2 class="section-title" data-i18n="home.bestsellers">Más vendidos</h2><a href="buscar.html?sort=new" data-i18n="home.seeAllM">Ver todos →</a></div>
+    <div class="section-head"><h2 class="section-title">Más vendidos</h2><a href="buscar.html?sort=new">Ver todos →</a></div>
     <div class="product-grid" data-bestsellers></div>
   </section>
 
   <section class="section container" data-recent-section hidden>
-    <div class="section-head"><h2 class="section-title" data-i18n="home.recent">Visto recientemente</h2></div>
+    <div class="section-head"><h2 class="section-title">Visto recientemente</h2></div>
     <div class="rail" data-recent></div>
   </section>
 
   <section class="section container">
-    <div class="section-head"><h2 class="section-title" data-i18n="home.newArrivals">Recién llegados</h2><a href="buscar.html?sort=new" data-i18n="home.seeAllM">Ver todos →</a></div>
+    <div class="section-head"><h2 class="section-title">Recién llegados</h2><a href="buscar.html?sort=new">Ver todos →</a></div>
     <div class="product-grid" data-new></div>
   </section>
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -129,8 +127,6 @@
     "salud-y-bienestar-y5f6c":"pulse", "tecnologia-9kw9":"laptop", "televisores-0w8l":"tv",
     "transporte-kdri":"scooter", "utiles-del-hogar-99a9":"home",
   };
-  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
-  const RTL = VI18N.isRTL;
   const track = document.querySelector("[data-cat-track]");
   const catItemsHTML = VDB.CATEGORIES.map(c=>`
     <a href="buscar.html?cat=${c.id}" class="cat-item">
@@ -146,9 +142,7 @@
   track.innerHTML = "";
   track.appendChild(inner);
   const catPrev = document.querySelector("[data-cat-prev]"), catNext = document.querySelector("[data-cat-next]");
-  // En RTL "anterior" apunta a la derecha: los chevrons se intercambian, no se giran.
-  catPrev.innerHTML = VUI.icon(RTL ? "chevronRight" : "chevronLeft");
-  catNext.innerHTML = VUI.icon(RTL ? "chevronLeft" : "chevronRight");
+  catPrev.innerHTML = VUI.icon("chevronLeft"); catNext.innerHTML = VUI.icon("chevronRight");
   // Con loop infinito los botones siempre pueden avanzar/retroceder.
   catPrev.disabled = false; catNext.disabled = false;
 
@@ -162,10 +156,7 @@
   measure();
   window.addEventListener("resize", measure);
 
-  // En RTL la pista se ordena de derecha a izquierda, así que avanzar es
-  // desplazar el contenido en sentido contrario al de LTR.
-  const SIGN = RTL ? 1 : -1;
-  function applyOffset(){ inner.style.transform = `translateX(${SIGN*offset}px)`; }
+  function applyOffset(){ inner.style.transform = `translateX(${-offset}px)`; }
 
   function pauseAuto(){
     paused = true;
@@ -197,7 +188,7 @@
   }
   requestAnimationFrame(tick);
 
-  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + T("search.submit");
+  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + "Buscar";
 
   document.querySelector("[data-hero-cats]").insertAdjacentHTML("beforeend",
     VDB.CATEGORIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join(""));
@@ -208,16 +199,16 @@
   const [fEuros,fCents] = feat.price.toFixed(2).split(".");
   const featPct = feat.oldPrice ? Math.round((1-feat.price/feat.oldPrice)*100) : 0;
   document.querySelector("[data-hero-feature]").innerHTML = `
-    <span class="tag">${featPct?T("home.dealOfDay"):T("home.featured")}</span>
+    <span class="tag">${featPct?"Oferta del día":"Destacado"}</span>
     <a class="shot" href="producto.html?id=${feat.id}" style="${VUI.thumbStyle(feat)}" aria-hidden="true" tabindex="-1">${VUI.thumbImg(feat)}</a>
     <a href="producto.html?id=${feat.id}"><h2>${VUI.esc(feat.title)}</h2></a>
-    <p class="meta">${VUI.esc(feat.brand)}${feat.stock<5?` · <span class="stock-note">${VUI.icon('bolt')}${TP("card.lastUnits",feat.stock)}</span>`:""}</p>
+    <p class="meta">${VUI.esc(feat.brand)}${feat.stock<5?` · <span class="stock-note">${VUI.icon('bolt')}Últimas ${feat.stock} unidades</span>`:""}</p>
     <div class="price-row">
       <span class="price">${VDB.db.settings.currency}${fEuros}<small>.${fCents}</small></span>
       ${feat.oldPrice?`<span class="price-old">${VUI.money(feat.oldPrice)}</span><span class="price-badge">−${featPct}%</span>`:""}
     </div>
-    <button class="btn btn-buy btn-block" data-add-cart="${feat.id}">${VUI.icon('cart')}${T("card.addToCart")}</button>`;
-  document.querySelector("[data-deals]").innerHTML = deals.map(p=>VUI.productCard(p)).join("") || `<p style='color:var(--muted-fg)'>${T("home.noDeals")}</p>`;
+    <button class="btn btn-buy btn-block" data-add-cart="${feat.id}">${VUI.icon('cart')}Añadir al carrito</button>`;
+  document.querySelector("[data-deals]").innerHTML = deals.map(p=>VUI.productCard(p)).join("") || "<p style='color:var(--muted-fg)'>Sin ofertas activas.</p>";
   document.querySelector("[data-bestsellers]").innerHTML = VDB.db.products.slice().sort((a,b)=>b.reviewCount-a.reviewCount).slice(0,10).map(p=>VUI.productCard(p)).join("");
   document.querySelector("[data-new]").innerHTML = VDB.db.products.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,10).map(p=>VUI.productCard(p)).join("");
   try{ const recent=JSON.parse(localStorage.getItem("vasto_recent")||"[]").map(id=>VDB.getProduct(id)).filter(Boolean);

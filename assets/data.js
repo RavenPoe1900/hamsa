@@ -20,8 +20,7 @@
   }
 
   const CATEGORIES = window.REAL_CATEGORIES;
-  // El nombre visible sale del diccionario; el scrapeado en MAYÚSCULAS queda de reserva.
-  CATEGORIES.forEach(c=>{ c.nameEs = titleCase(c.name); c.name = window.VI18N.cat(c.id, c.nameEs); });
+  CATEGORIES.forEach(c=>{ c.name = titleCase(c.name); });
 
   const BRANDS = ["Norlyn","Kaido","Halvern","Fjorn","Ostra","Brumel","Talvix","Ferro&Co","Solby","Adurra","Northmark","Quenta"];
 
@@ -200,11 +199,11 @@
     },
     login(email, password){
       const u = db.users.find(u=>u.email.toLowerCase()===String(email).toLowerCase());
-      if(!u || u.password !== password) return {ok:false, error:window.VI18N.t("err.badCredentials")};
+      if(!u || u.password !== password) return {ok:false, error:"Email o contraseña incorrectos."};
       setSession(u.id); return {ok:true, user:u};
     },
     register(name, email, password){
-      if(db.users.some(u=>u.email.toLowerCase()===String(email).toLowerCase())) return {ok:false, error:window.VI18N.t("err.emailExists")};
+      if(db.users.some(u=>u.email.toLowerCase()===String(email).toLowerCase())) return {ok:false, error:"Ya existe una cuenta con ese email."};
       const u = { id:uid("u"), name, email, password, role:"customer", addresses:[], createdAt:Date.now() };
       db.users.push(u); save(db); setSession(u.id); return {ok:true, user:u};
     },
@@ -213,7 +212,7 @@
     // ---- catalog ----
     listProducts({ q, category, minPrice, maxPrice, minRating, primeOnly, inStockOnly, onSaleOnly, brands, sort } = {}){
       let list = db.products.slice();
-      if(q){ const needle=q.toLowerCase(); list = list.filter(p=> p.title.toLowerCase().includes(needle) || VDB.pTitle(p).toLowerCase().includes(needle) || p.brand.toLowerCase().includes(needle) || p.categoryName.toLowerCase().includes(needle) || VDB.catName(p).toLowerCase().includes(needle)); }
+      if(q){ const needle=q.toLowerCase(); list = list.filter(p=> p.title.toLowerCase().includes(needle) || p.brand.toLowerCase().includes(needle) || p.categoryName.toLowerCase().includes(needle)); }
       if(category) list = list.filter(p=>p.category===category);
       if(minPrice!=null) list = list.filter(p=>p.price>=minPrice);
       if(maxPrice!=null) list = list.filter(p=>p.price<=maxPrice);
@@ -287,8 +286,8 @@
     // ---- orders ----
     placeOrder(userId, address, paymentLast4){
       const lines = this.cartLines(userId);
-      if(!lines.length) return {ok:false, error:window.VI18N.t("err.emptyCart")};
-      for(const l of lines){ if(l.product.stock < l.qty) return {ok:false, error:window.VI18N.t("err.noStock",{title:l.product.title})}; }
+      if(!lines.length) return {ok:false, error:"El carrito está vacío."};
+      for(const l of lines){ if(l.product.stock < l.qty) return {ok:false, error:`No hay stock suficiente de "${l.product.title}".`}; }
       const totals = this.cartTotals(userId);
       const order = {
         id: uid("ord").toUpperCase(), userId,
@@ -328,7 +327,7 @@
     },
     deleteProduct(id){
       const hasOrders = db.orders.some(o=>o.items.some(it=>it.productId===id) && !["cancelled"].includes(o.status));
-      if(hasOrders) return {ok:false, error:window.VI18N.t("err.hasOrders")};
+      if(hasOrders) return {ok:false, error:"hasOrders"};
       db.products = db.products.filter(p=>p.id!==id); save(db); return {ok:true};
     },
 
@@ -376,7 +375,9 @@
       const avgTicket = orderCount ? revenue/db.orders.filter(o=>o.status!=="cancelled").length : 0;
       const lowStock = db.products.filter(p=>p.stock>0 && p.stock<=5).length;
       const outOfStock = db.products.filter(p=>p.stock===0).length;
-      return { revenue: round2(revenue), orderCount, avgTicket: round2(avgTicket||0), lowStock, outOfStock,
+      const pendingOrders = db.orders.filter(o=>o.status==="pending").length;
+      const inventoryValue = db.products.reduce((s,p)=>s+p.price*p.stock,0);
+      return { revenue: round2(revenue), orderCount, avgTicket: round2(avgTicket||0), lowStock, outOfStock, pendingOrders, inventoryValue: round2(inventoryValue),
         productCount: db.products.length, userCount: db.users.length, reviewCount: db.reviews.length };
     },
     salesByDay(days=30){
@@ -394,21 +395,6 @@
       return Array.from(buckets.entries()).map(([date,total])=>({date,total:round2(total)}));
     },
 
-    // El categoryName de cada producto viene congelado en español desde el scrapeo.
-    catName(p){ return window.VI18N.cat(p.category, p.categoryName); },
-    // ---- catálogo traducido ----
-    // Sin entrada para el idioma activo se devuelve el texto español original:
-    // preferimos un título sin traducir a un hueco en la página.
-    catalogText(id, field, fallback){
-      const L = window.VI18N.lang;
-      if(L === "es") return fallback;
-      const e = (window.CATALOG_I18N || {})[id];
-      return (e && e[field] && e[field][L]) || fallback;
-    },
-    pTitle(p){ return p ? this.catalogText(p.id, "t", p.title) : ""; },
-    pDesc(p){  return p ? this.catalogText(p.id, "d", p.description) : ""; },
-    // Las líneas de pedido guardan una copia del título del momento de la compra.
-    lineTitle(it){ return this.catalogText(it.productId, "t", it.title); },
     money(n){ return db.settings.currency + Number(n).toFixed(2); },
     uid,
   };

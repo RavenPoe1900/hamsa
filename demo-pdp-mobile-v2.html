@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muestra — PDP móvil estilo Nike con datos reales</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/i18n.js"></script>
+<style>
+  body{ background:#dfe6f0; min-height:100vh; }
+  .stage{ max-width:1000px; margin:0 auto; padding:36px 20px 90px; }
+  .stage-head{ max-width:640px; margin:0 auto 28px; text-align:center; }
+  .stage-head h1{ font-size:20px; margin:0 0 8px; color:#18181B; }
+  .stage-head p{ font-size:13.5px; color:#52525B; line-height:1.6; }
+
+  /* ── marco de teléfono, solo decorativo ── */
+  .phone{
+    width:360px; margin:0 auto; background:#fff; border-radius:44px;
+    box-shadow:0 30px 60px -20px rgba(20,20,30,.35), 0 0 0 10px #0A0A0B;
+    overflow:hidden; position:relative;
+  }
+  .phone-status{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 22px 4px; font-size:14px; font-weight:700; color:#0A0A0B;
+  }
+  .phone-status .signal{ display:flex; align-items:center; gap:8px; }
+  .phone-status .bars{ display:flex; align-items:flex-end; gap:2px; height:10px; }
+  .phone-status .bars i{ width:3px; background:#0A0A0B; border-radius:1px; }
+  .phone-status .bars i:nth-child(1){ height:4px; }
+  .phone-status .bars i:nth-child(2){ height:6px; }
+  .phone-status .bars i:nth-child(3){ height:8px; }
+  .phone-status .bars i:nth-child(4){ height:10px; }
+  .phone-status .batt{ width:22px; height:22px; }
+
+  .phone-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:6px 22px 14px;
+  }
+  .phone-header .logo{ height:22px; display:block; }
+  .phone-header .actions{ display:flex; align-items:center; gap:16px; }
+  .phone-header .actions .ic{ width:21px; height:21px; color:#18181B; display:block; }
+  .phone-header .cart-wrap{ position:relative; }
+  .phone-header .cart-badge{
+    position:absolute; top:-7px; right:-8px; min-width:16px; height:16px; padding:0 4px;
+    background:var(--warning); color:#fff; border-radius:999px; font-size:10px; font-weight:800;
+    display:grid; place-items:center;
+  }
+
+  .phone-body{ padding:0 22px 22px; }
+  .p-eyebrow{
+    font-size:11px; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--warning); margin-bottom:6px;
+  }
+  .p-title-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .p-title{ font-size:22px; font-weight:800; line-height:1.25; color:#0A0A0B; letter-spacing:-.01em; }
+  .p-wish{
+    flex-shrink:0; width:34px; height:34px; border-radius:50%; border:1.5px solid #E4E4E7;
+    display:grid; place-items:center; background:#fff; cursor:pointer; color:#18181B;
+    transition:transform .12s ease;
+  }
+  .p-wish:active{ transform:scale(0.92); }
+  .p-wish[aria-pressed="true"]{ color:var(--destructive); border-color:var(--destructive); }
+  .p-wish .ic{ width:17px; height:17px; }
+  .p-subtitle{ font-size:13.5px; color:#71717A; margin-top:3px; }
+  .p-rating{ display:flex; align-items:center; gap:6px; font-size:13px; color:#18181B; margin-top:10px; }
+  .p-rating .stars svg{ width:14px; height:14px; }
+  .p-rating span{ color:#71717A; }
+  .p-price{ font-size:26px; font-weight:800; color:#0A0A0B; margin-top:8px; letter-spacing:-.01em; }
+
+  /* ── hero: la foto real queda inserta sobre un fondo de color de la categoría (hue1/hue2) ── */
+  .p-hero{
+    margin-top:16px; border-radius:28px; padding:22px;
+    background:linear-gradient(160deg, var(--hue1) 0%, var(--hue2) 100%);
+    display:grid; place-items:center;
+  }
+  .p-hero-tile{
+    width:100%; aspect-ratio:1/1; background:#fff; border-radius:20px;
+    box-shadow:0 18px 30px -14px rgba(0,0,0,.35);
+    display:grid; place-items:center; overflow:hidden;
+  }
+  .p-hero-tile img{ width:88%; height:88%; object-fit:contain; }
+
+  .p-qty-row{ margin-top:20px; }
+  .p-qty-row .label-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .p-qty-row label{ font-size:13px; font-weight:700; color:#18181B; }
+  .p-qty-row .hint{ font-size:12px; color:#A1A1AA; }
+  .p-qty-pills{ display:flex; gap:8px; }
+  .p-qty-pill{
+    flex:1; height:42px; border-radius:12px; border:1.5px solid #E4E4E7; background:#fff;
+    font-size:14px; font-weight:700; color:#18181B; cursor:pointer;
+    transition:background .1s ease, color .1s ease, border-color .1s ease;
+  }
+  .p-qty-pill[aria-pressed="true"]{ background:#0A0A0B; border-color:#0A0A0B; color:#fff; }
+  .p-qty-pill[disabled]{ opacity:.35; cursor:not-allowed; }
+
+  .p-chips-row{ display:flex; gap:8px; margin-top:18px; flex-wrap:wrap; }
+  .p-chip{
+    display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:#3F3F46;
+    background:#F4F4F5; border:1px solid #E4E4E7; border-radius:999px; padding:7px 12px;
+  }
+  .p-chip .ic{ width:13px; height:13px; }
+
+  .p-cta{
+    margin-top:20px; height:56px; border-radius:16px; background:#0A0A0B; color:#fff;
+    border:0; width:100%; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; padding:0 18px;
+    font-size:15px; font-weight:700; transition:transform .1s ease;
+  }
+  .p-cta:active{ transform:scale(0.98); }
+  .p-cta .left{ display:flex; align-items:center; gap:9px; }
+  .p-cta .ic{ width:19px; height:19px; }
+  .p-cta.is-added{ background:var(--success); }
+
+  .stage-notes{ max-width:640px; margin:26px auto 0; font-size:12.5px; color:#3F3F46; line-height:1.7; background:#fff; border-radius:14px; padding:16px 20px; box-shadow:0 2px 10px -4px rgba(0,0,0,.1); }
+  .stage-notes b{ color:#0A0A0B; }
+  .stage-notes ul{ margin:8px 0 0; padding-inline-start:18px; }
+  .stage-notes li{ margin-bottom:6px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="stage-head">
+    <h1>Muestra: layout de la foto (Nike) aplicado a un producto real</h1>
+    <p>Es una página aislada de prueba — no reemplaza <code>producto.html</code> ni toca el diseño real del sitio en móvil. Usa el casco de ciclismo con su precio, rating y foto reales.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-status">
+      <span>9:41</span>
+      <span class="signal">
+        <span class="bars"><i></i><i></i><i></i><i></i></span>
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><path d="M7.5 10.5c-1.9 0-3.6-.7-5-2l1.4-1.4c1 1 2.3 1.6 3.6 1.6s2.6-.6 3.6-1.6L12.5 8.5c-1.4 1.3-3.1 2-5 2z" fill="#0A0A0B"/><path d="M2.5 5.5C4 4 5.7 3.3 7.5 3.3S11 4 12.5 5.5l-1.4 1.4c-1-1-2.3-1.6-3.6-1.6s-2.6.6-3.6 1.6L2.5 5.5z" fill="#0A0A0B"/></svg>
+        <svg class="batt" viewBox="0 0 24 24" fill="none" stroke="#0A0A0B" stroke-width="1.6"><rect x="2.5" y="7" width="17" height="10" rx="2.4"/><path d="M21.5 10v4" stroke-linecap="round"/><rect x="4.3" y="8.8" width="12" height="6.4" rx="1" fill="#0A0A0B" stroke="none"/></svg>
+      </span>
+    </div>
+
+    <div class="phone-header">
+      <img class="logo" src="assets/logo-electrohogar.png" alt="ElectroHogar Habana">
+      <div class="actions">
+        <span class="ic" id="ic-search"></span>
+        <span class="ic" id="ic-heart"></span>
+        <span class="cart-wrap"><span class="ic" id="ic-cart"></span><span class="cart-badge" data-cart-badge>0</span></span>
+      </div>
+    </div>
+
+    <div class="phone-body">
+      <div class="p-eyebrow" id="f-eyebrow"></div>
+      <div class="p-title-row">
+        <h2 class="p-title" id="f-title"></h2>
+        <button type="button" class="p-wish" id="f-wish" aria-pressed="false" aria-label="Añadir a favoritos"></button>
+      </div>
+      <div class="p-subtitle" id="f-subtitle"></div>
+      <div class="p-rating" id="f-rating"></div>
+      <div class="p-price" id="f-price"></div>
+
+      <div class="p-hero" id="f-hero">
+        <div class="p-hero-tile"><img id="f-image" alt=""></div>
+      </div>
+
+      <div class="p-qty-row">
+        <div class="label-row"><label>Cantidad</label><span class="hint" id="f-stock-hint"></span></div>
+        <div class="p-qty-pills" id="f-qty-pills"></div>
+      </div>
+
+      <div class="p-chips-row" id="f-chips"></div>
+
+      <button type="button" class="p-cta" id="f-cta">
+        <span class="left"><span class="ic" id="ic-cart-cta"></span><span>Agregar al carrito</span></span>
+        <span id="f-cta-price"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stage-notes">
+    <b>Qué es real y qué se adaptó, con este producto (casco-para-ciclismo):</b>
+    <ul>
+      <li><b>Foto, precio ($14), rating (4.9 · 31) y categoría (Transporte):</b> datos reales del catálogo, sin inventar nada.</li>
+      <li><b>Eyebrow "TRANSPORTE"</b> reemplaza a "NEW ARRIVAL": no hay fecha de alta (<code>createdAt</code>) en tus productos para decir cuáles son nuevos de verdad, así que uso la categoría real en su lugar.</li>
+      <li><b>"Size" → "Cantidad":</b> no vendes tallas, pero sí cantidad — es la única selección real que ya existe en tu PDP, aquí en formato de pills en vez de +/−.</li>
+      <li><b>"Color" → chips de envío/garantía:</b> tampoco hay variantes de color en tus datos; los reemplacé por información real (tiempo de entrega calculado igual que en tu PDP actual).</li>
+      <li><b>Fondo de color detrás de la foto:</b> esta sí funciona, a diferencia del primer intento — porque esta foto es un producto aislado sobre blanco (no un flyer con precio/texto incrustado como la mayoría del catálogo). Con fotos tipo flyer este efecto no se va a notar.</li>
+      <li>Los puntos de galería del original no aparecen: cada producto tuyo tiene una sola foto.</li>
+    </ul>
+  </div>
+</div>
+
+<script src="assets/products-data.js"></script>
+<script src="assets/i18n-catalog.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  const p = VDB.getProduct("casco-para-ciclismo");
+  document.getElementById("ic-search").innerHTML = VUI.icons.search;
+  document.getElementById("ic-heart").innerHTML  = VUI.icons.heart;
+  document.getElementById("ic-cart").innerHTML   = VUI.icons.cart;
+  document.getElementById("ic-cart-cta").innerHTML = VUI.icons.cart;
+
+  // nombres en español fijo (no pasan por el traductor del sitio): esta es una
+  // muestra pensada para revisarse en español, sin depender del idioma del navegador
+  const catEs = (window.REAL_CATEGORIES.find(c => c.id === p.category) || {}).nameEs || p.categoryName;
+  const titleEs = VUI.titleCase(p.title);
+  document.getElementById("f-eyebrow").textContent = catEs.toUpperCase();
+  document.getElementById("f-title").textContent = titleEs;
+  document.getElementById("f-subtitle").textContent = catEs;
+  document.getElementById("f-rating").innerHTML = `${VUI.stars(p.rating)}<span>${p.rating.toFixed(1)} (${p.reviewCount})</span>`;
+  const [euros, cents] = p.price.toFixed(2).split(".");
+  document.getElementById("f-price").innerHTML = `${VDB.db.settings.currency}${euros}.${cents}`;
+  document.getElementById("f-cta-price").textContent = `${VDB.db.settings.currency}${euros}.${cents}`;
+
+  document.getElementById("f-hero").style.setProperty("--hue1", p.hue1);
+  document.getElementById("f-hero").style.setProperty("--hue2", p.hue2);
+  const img = document.getElementById("f-image");
+  img.src = p.image; img.alt = titleEs;
+
+  const eta = VUI.etaLabel(p.stock > 0 ? (p.prime ? 1 : 3) : 8);
+  document.getElementById("f-chips").innerHTML = `
+    <span class="p-chip">${VUI.icon("truck")}Entrega: ${eta}</span>
+    <span class="p-chip">${VUI.icon("shield")}Compra protegida</span>`;
+  document.getElementById("f-stock-hint").textContent = p.stock < 5 ? `Quedan ${p.stock}` : "";
+
+  // cantidad como pills (1 a 5, tope real de stock)
+  let qty = 1;
+  const maxQty = Math.min(5, Math.max(1, p.stock));
+  const pillsEl = document.getElementById("f-qty-pills");
+  function renderPills(){
+    pillsEl.innerHTML = Array.from({length:5}, (_,i)=>i+1).map(n => `
+      <button type="button" class="p-qty-pill" data-qty="${n}" aria-pressed="${n===qty}" ${n>maxQty?"disabled":""}>${n}</button>
+    `).join("");
+  }
+  renderPills();
+  pillsEl.addEventListener("click", (e)=>{
+    const btn = e.target.closest("[data-qty]"); if(!btn || btn.disabled) return;
+    qty = Number(btn.dataset.qty); renderPills();
+  });
+
+  // favorito: mismo motor real (VDB.toggleWishlist), mismo comportamiento que el PDP real
+  const wishBtn = document.getElementById("f-wish");
+  const user = VDB.currentUser();
+  wishBtn.setAttribute("aria-pressed", String(!!(user && VDB.isWishlisted(user.id, p.id))));
+  wishBtn.innerHTML = VUI.icon(wishBtn.getAttribute("aria-pressed")==="true" ? "heartFill" : "heart");
+  wishBtn.addEventListener("click", ()=>{
+    const u = VDB.currentUser();
+    if(!u){ VUI.toast("Inicia sesión para guardar favoritos"); return; }
+    const now = VDB.toggleWishlist(u.id, p.id);
+    wishBtn.setAttribute("aria-pressed", String(now));
+    wishBtn.innerHTML = VUI.icon(now ? "heartFill" : "heart");
+  });
+
+  // agregar al carrito: mismo VDB real, con la cantidad elegida arriba
+  document.getElementById("f-cta").addEventListener("click", (e)=>{
+    const u = VUI.requireAuth(); if(!u) return;
+    VDB.addToCart(u.id, p.id, qty);
+    VUI.updateCartBadge();
+    VUI.toast("Añadido al carrito");
+    const btn = e.currentTarget;
+    btn.classList.add("is-added");
+    setTimeout(()=>btn.classList.remove("is-added"), 1200);
+  });
+
+  VUI.updateCartBadge();
+})();
+</script>
+</body>
+</html>

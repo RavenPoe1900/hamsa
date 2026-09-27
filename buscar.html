@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="search.title">Resultados — Electro Hogar</title>
+<title>Resultados — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   .hero-search{ display:flex; height:50px; max-width:600px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--background); box-shadow:0 1px 2px rgba(15,23,42,.04); transition:border-color .15s ease, box-shadow .15s ease; }
   .hero-search:focus-within{ border-color:var(--ring); box-shadow:0 0 0 3px var(--accent-tint); }
@@ -25,60 +24,58 @@
 <body>
 <div data-header-mount></div>
 <main id="main" class="page container">
-  <nav class="breadcrumbs" style="margin-top:16px;"><a href="index.html" data-i18n="crumb.home">Inicio</a><span>/</span><span data-crumb-current>Resultados</span></nav>
+  <nav class="breadcrumbs" style="margin-top:16px;"><a href="index.html">Inicio</a><span>/</span><span data-crumb-current>Resultados</span></nav>
   <form class="hero-search" role="search" data-search-form style="margin:16px 0;">
-    <input type="search" class="input" name="q" data-i18n-ph="search.placeholder" data-i18n-aria="search.label" autocomplete="off" data-search-input>
-    <button type="submit" class="btn btn-primary" data-search-btn data-i18n="search.submit">Buscar</button>
+    <input type="search" class="input" name="q" placeholder="Buscar entre miles de productos…" autocomplete="off" data-search-input>
+    <button type="submit" class="btn btn-primary" data-search-btn>Buscar</button>
   </form>
-  <button class="btn btn-outline filters-toggle" data-toggle-filters aria-expanded="false" data-i18n="filters">Filtros</button>
+  <button class="btn btn-outline filters-toggle" data-toggle-filters aria-expanded="false">Filtros</button>
   <div class="two-col">
-    <aside class="filters-panel" data-i18n-aria="filters">
+    <aside class="filters-panel" aria-label="Filtros">
       <form id="filter-form">
-        <div class="filter-group"><h3 data-i18n="search.catAria">Categoría</h3><div data-filter-categories></div></div>
-        <div class="filter-group"><h3 data-i18n="filter.price">Precio</h3><div style="display:flex; gap:8px;">
-          <input class="input" type="number" min="0" name="minPrice" data-i18n-ph="filter.min" data-i18n-aria="filter.min" style="min-height:40px; flex:1; min-width:0;">
-          <input class="input" type="number" min="0" name="maxPrice" data-i18n-ph="filter.max" data-i18n-aria="filter.max" style="min-height:40px; flex:1; min-width:0;"></div></div>
-        <div class="filter-group"><h3 data-i18n="filter.deals">Ofertas</h3>
-          <label class="filter-option"><input type="checkbox" name="onSaleOnly"> <span data-i18n="filter.onSaleOnly">Solo con rebaja</span></label></div>
-        <div class="filter-group"><h3 data-i18n="filter.availability">Disponibilidad</h3>
-          <label class="filter-option"><input type="checkbox" name="primeOnly"> <span data-i18n="filter.delivery24">Entrega en 24h</span></label>
-          <label class="filter-option"><input type="checkbox" name="inStockOnly"> <span data-i18n="filter.inStockOnly">Solo en stock</span></label></div>
-        <div style="padding:16px 20px;"><button type="button" class="btn btn-ghost btn-sm" data-clear-filters data-i18n="filter.clear">Limpiar filtros</button></div>
+        <div class="filter-group"><h3>Categoría</h3><div data-filter-categories></div></div>
+        <div class="filter-group"><h3>Precio</h3><div style="display:flex; gap:8px;">
+          <input class="input" type="number" min="0" name="minPrice" placeholder="Mín" style="min-height:40px; flex:1; min-width:0;">
+          <input class="input" type="number" min="0" name="maxPrice" placeholder="Máx" style="min-height:40px; flex:1; min-width:0;"></div></div>
+        <div class="filter-group"><h3>Ofertas</h3>
+          <label class="filter-option"><input type="checkbox" name="onSaleOnly"> Solo con rebaja</label></div>
+        <div class="filter-group"><h3>Disponibilidad</h3>
+          <label class="filter-option"><input type="checkbox" name="primeOnly"> Entrega en 24h</label>
+          <label class="filter-option"><input type="checkbox" name="inStockOnly"> Solo en stock</label></div>
+        <div style="padding:16px 20px;"><button type="button" class="btn btn-ghost btn-sm" data-clear-filters>Limpiar filtros</button></div>
       </form>
     </aside>
     <section>
       <div class="results-bar">
-        <p class="results-count"><strong data-result-count>0</strong> <span data-result-noun>resultados</span></p>
+        <p class="results-count"><strong data-result-count>0</strong> resultados</p>
         <select id="sort" class="input" style="min-height:38px;">
-          <option value="relevance" data-i18n="sort.relevance">Más relevantes</option><option value="price-asc" data-i18n="sort.priceAsc">Precio: menor a mayor</option>
-          <option value="price-desc" data-i18n="sort.priceDesc">Precio: mayor a menor</option><option value="new" data-i18n="sort.new">Más recientes</option>
-          <option value="discount" data-i18n="sort.discount">Mayor descuento</option>
+          <option value="relevance">Más relevantes</option><option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option><option value="new">Más recientes</option>
+          <option value="discount">Mayor descuento</option>
         </select>
       </div>
       <div class="active-chips" data-active-chips></div>
       <div class="product-grid" data-results></div>
       <div class="empty-state" data-empty hidden>
         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <h2 data-i18n="empty.noResults">No hay resultados</h2><p data-i18n="empty.noResultsHint">Prueba a quitar algún filtro o busca con otras palabras.</p>
-        <button class="btn btn-outline btn-sm" data-clear-filters data-i18n="filter.clear">Limpiar filtros</button>
+        <h2>No hay resultados</h2><p>Prueba a quitar algún filtro o busca con otras palabras.</p>
+        <button class="btn btn-outline btn-sm" data-clear-filters>Limpiar filtros</button>
       </div>
     </section>
   </div>
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function(){
   VUI.mountChrome();
-  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
   const params = new URLSearchParams(location.search);
   document.querySelector("[data-filter-categories]").innerHTML = VDB.CATEGORIES.map(c=>`<label class="filter-option"><input type="checkbox" name="category" value="${c.id}"> ${c.name}</label>`).join("");
   const form = document.getElementById("filter-form"), sortSel = document.getElementById("sort");
   const searchForm = document.querySelector("[data-search-form]"), searchInput = document.querySelector("[data-search-input]");
-  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + T("search.submit");
+  document.querySelector("[data-search-btn]").innerHTML = VUI.icon("search") + "Buscar";
   let currentQ = params.get("q")||"";
   searchInput.value = currentQ;
 
@@ -106,18 +103,17 @@
     const s = readState();
     let list = VDB.listProducts({ q:s.q, sort:s.sort==="relevance"?undefined:s.sort, minPrice:s.minPrice, maxPrice:s.maxPrice, primeOnly:s.primeOnly, inStockOnly:s.inStockOnly, onSaleOnly:s.onSaleOnly });
     if(s.categories.length) list = list.filter(p=>s.categories.includes(p.category));
-    document.querySelector("[data-result-count]").textContent = VI18N.fmtNum(list.length);
-    document.querySelector("[data-result-noun]").textContent = TP("results.count", list.length);
-    document.querySelector("[data-crumb-current]").textContent = s.q ? `“${s.q}”` : (s.categories.length===1 ? VDB.CATEGORIES.find(c=>c.id===s.categories[0]).name : T("search.results"));
+    document.querySelector("[data-result-count]").textContent = list.length.toLocaleString('es-ES');
+    document.querySelector("[data-crumb-current]").textContent = s.q ? `“${s.q}”` : (s.categories.length===1 ? VDB.CATEGORIES.find(c=>c.id===s.categories[0]).name : "Resultados");
     const grid = document.querySelector("[data-results]"), empty = document.querySelector("[data-empty]");
     if(list.length===0){ grid.innerHTML=""; empty.hidden=false; } else { empty.hidden=true; grid.innerHTML = list.map(p=>VUI.productCard(p)).join(""); }
     const chips = [];
     if(s.q) chips.push({label:`“${s.q}”`, clear:()=>{ currentQ=""; searchInput.value=""; history.replaceState(null,"",location.pathname); markCategoriesFromQuery(); render(); }});
     s.categories.forEach(c=>{ const def=VDB.CATEGORIES.find(x=>x.id===c); chips.push({label:def.name, clear:()=>{ form.querySelector(`[name="category"][value="${c}"]`).checked=false; render(); }}); });
-    if(s.onSaleOnly) chips.push({label:T("chip.onSale"), clear:()=>{ form.onSaleOnly.checked=false; render(); }});
-    if(s.primeOnly) chips.push({label:T("card.delivery24"), clear:()=>{ form.primeOnly.checked=false; render(); }});
-    if(s.inStockOnly) chips.push({label:T("chip.inStock"), clear:()=>{ form.inStockOnly.checked=false; render(); }});
-    document.querySelector("[data-active-chips]").innerHTML = chips.map((c,i)=>`<span class="chip" data-chip-idx="${i}">${VUI.esc(c.label)}<button aria-label="${VUI.esc(T("filter.removeAria",{label:c.label}))}">✕</button></span>`).join("");
+    if(s.onSaleOnly) chips.push({label:"En oferta", clear:()=>{ form.onSaleOnly.checked=false; render(); }});
+    if(s.primeOnly) chips.push({label:"Entrega 24h", clear:()=>{ form.primeOnly.checked=false; render(); }});
+    if(s.inStockOnly) chips.push({label:"En stock", clear:()=>{ form.inStockOnly.checked=false; render(); }});
+    document.querySelector("[data-active-chips]").innerHTML = chips.map((c,i)=>`<span class="chip" data-chip-idx="${i}">${VUI.esc(c.label)}<button aria-label="Quitar filtro ${VUI.esc(c.label)}">✕</button></span>`).join("");
     document.querySelectorAll("[data-chip-idx]").forEach(el=> el.querySelector("button").addEventListener("click", ()=> chips[Number(el.dataset.chipIdx)].clear()));
   }
   applyUrlToForm();

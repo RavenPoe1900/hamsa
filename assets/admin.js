@@ -1,31 +1,40 @@
 /* Admin shell chrome shared by admin/*.html — systemic/shadcn direction */
 (function(){
   "use strict";
-  const T = (k,v)=>window.VI18N.t(k,v);
-  // Las etiquetas se resuelven al pintar, no al cargar el módulo.
   const NAV = [
     { href:"index.html", key:"adm.nav.dashboard" }, { href:"productos.html", key:"adm.nav.products" },
-    { href:"pedidos.html", key:"adm.nav.orders" },   { href:"usuarios.html", key:"adm.nav.users" },
-    { href:"resenas.html", key:"adm.nav.reviews" },  { href:"datos.html", key:"adm.nav.data" },
+    { href:"pedidos.html", key:"adm.nav.orders" }, { href:"usuarios.html", key:"adm.nav.users" },
+    { href:"datos.html", key:"adm.nav.data" },
   ];
-  function renderSidebar(active){
+  function renderTopHeader(){
     const user = window.VDB.currentUser();
+    const t = window.VI18N ? VI18N.t : (k=>k);
+    return `
+    <header class="admin-topheader">
+      <a href="../index.html" class="brand admin-brand">
+        <span class="brand-mark" aria-hidden="true">${window.VUI.icon("bolt")}</span>
+        <span class="brand-text"><span class="brand-name">ElectroHogar</span><span class="brand-city">Admin</span></span>
+      </a>
+      <div class="admin-utility-bar">
+        <a href="../index.html">${t("adm.backToStore")}</a>
+        <button type="button" data-theme-toggle="text"></button>
+        ${window.VI18N ? VI18N.switcherHTML() : ''}
+        <span class="user-name">${user?window.VUI.esc(user.name):''}</span>
+        <span class="bar-divider" aria-hidden="true"></span>
+        <button type="button" class="danger" data-admin-logout>${t("acct.logout")}</button>
+      </div>
+    </header>`;
+  }
+  function renderSidebar(active){
+    const t = window.VI18N ? VI18N.t : (k=>k);
     return `
     <aside class="admin-side">
-      <a href="../index.html" class="admin-brand"><img src="../assets/logo-electrohogar.png" alt="Electro Hogar Vid Habana"><span>Admin</span></a>
-      <nav class="admin-nav">${NAV.map(n=>`<a href="${n.href}" ${active===n.href?'aria-current="page"':''}>${T(n.key)}</a>`).join("")}</nav>
-      <div class="admin-side-foot">
-        <a href="../index.html">${T("adm.backToStore")}</a>
-        <button type="button" data-theme-toggle="text" style="display:flex;align-items:center;gap:8px;"></button>
-        <div style="padding:7px 10px;font-size:11.5px;color:var(--muted-fg);">${user?window.VUI.esc(user.name):''}</div>
-        <button type="button" data-admin-logout>${T("acct.logout")}</button>
-        <div style="padding:8px 10px 2px;">${window.VI18N.switcherHTML()}</div>
-      </div>
+      <nav class="admin-nav">${NAV.map(n=>`<a href="${n.href}" ${active===n.href?'aria-current="page"':''}>${t(n.key)}</a>`).join("")}</nav>
     </aside>`;
   }
   function mountAdmin(active, title, subtitle){
     const shell = document.createElement("div"); shell.className = "admin-shell";
-    shell.innerHTML = `${renderSidebar(active)}<main class="admin-main" id="main"><div class="admin-topbar"><div><h1>${title}</h1><p>${subtitle||''}</p></div></div><div data-admin-content></div></main>`;
+    shell.innerHTML = `${renderTopHeader()}<div class="admin-body">${renderSidebar(active)}<main class="admin-main" id="main"><div class="admin-topbar"><div><h1>${title}</h1><p>${subtitle||''}</p></div></div><div data-admin-content></div></main></div>`;
     document.body.appendChild(shell);
     document.querySelector("[data-admin-logout]").addEventListener("click", ()=>{ window.VDB.logout(); location.href="../index.html"; });
     window.VUI.wireGlobalActions();

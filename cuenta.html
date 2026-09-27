@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="acct.title">Mi cuenta — Electro Hogar</title>
+<title>Mi cuenta — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   /* ---- Wrapper centrado ---- */
   .account-wrap{ max-width:1100px; margin-inline:auto; padding-bottom:60px; }
@@ -25,7 +24,7 @@
   /* ---- Sidebar ---- */
   .account-nav{
     background:var(--card);
-    border-inline-end:1px solid var(--border);
+    border-right:1px solid var(--border);
     display:flex;
     flex-direction:column;
   }
@@ -135,7 +134,7 @@
   .addr-label{ font-weight:700; font-size:14px; }
   .addr-default{
     display:inline-flex; align-items:center;
-    padding:2px 8px; margin-inline-start:4px;
+    padding:2px 8px; margin-left:4px;
     background:var(--accent-tint); color:var(--accent);
     border-radius:999px; font-size:10.5px; font-weight:700;
   }
@@ -169,7 +168,7 @@
   /* ---- Responsive ---- */
   @media (max-width:820px){
     .account-shell{ grid-template-columns:1fr; border-radius:var(--radius); }
-    .account-nav{ border-inline-end:0; border-bottom:1px solid var(--border); flex-direction:column; }
+    .account-nav{ border-right:0; border-bottom:1px solid var(--border); flex-direction:column; }
     .nav-links{ display:flex; flex-direction:row; overflow-x:auto; padding:4px 12px; gap:4px; -webkit-overflow-scrolling:touch; }
     .nav-link{ padding:8px 14px; border-radius:var(--radius); white-space:nowrap; }
     .nav-link.is-active{ background:var(--accent-tint); }
@@ -192,14 +191,13 @@
 <main id="main" class="page container">
   <div class="account-wrap">
     <nav class="breadcrumbs account-breadcrumb">
-      <a href="index.html" data-i18n="crumb.home">Inicio</a><span class="sep">›</span><span data-i18n="nav.account">Mi cuenta</span>
+      <a href="index.html">Inicio</a><span class="sep">›</span><span>Mi cuenta</span>
     </nav>
     <div class="account-shell" data-root></div>
   </div>
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -208,7 +206,6 @@
   const user = VUI.requireAuth(); if(!user) return;
   const root = document.querySelector("[data-root]");
   const esc = VUI.esc, I = VUI.icons;
-  const T = VI18N.t.bind(VI18N);
 
   const SVG_LOGOUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
   const SVG_HOME  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7"/><path d="M6 10v9.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V10"/><path d="M10 20.5V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5.5"/></svg>';
@@ -219,7 +216,7 @@
   function initials(name){ return (name||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
   const avatarLetters = initials(user.name);
   const firstName = esc(user.name.split(" ")[0]);
-  const joinDate  = VI18N.fmtDate(user.createdAt,{month:"long",year:"numeric"});
+  const joinDate  = new Date(user.createdAt).toLocaleDateString("es-ES",{month:"long",year:"numeric"});
   const isAdmin   = user.role === "admin";
 
   root.innerHTML = `
@@ -229,18 +226,18 @@
         <div class="nav-avatar" aria-hidden="true">${avatarLetters}</div>
         <div>
           <div class="nav-profile-name">${esc(user.name)}</div>
-          ${isAdmin ? `<div class="nav-profile-role">${T("acct.admin")}</div>` : ""}
+          ${isAdmin ? `<div class="nav-profile-role">Administrador</div>` : ""}
         </div>
       </div>
       <div class="nav-links">
-        <a class="nav-link is-active" href="cuenta.html">${I.user}${T("nav.account")}</a>
-        <a class="nav-link" href="pedidos.html">${I.box}${T("orders.h1")}</a>
-        <a class="nav-link" href="favoritos.html">${I.heart}${T("acct.wishlist")}</a>
-        ${isAdmin ? `<a class="nav-link is-admin" href="admin/index.html">${I.shield}${T("acct.adminLink")}</a>` : ""}
+        <a class="nav-link is-active" href="cuenta.html">${I.user}Mi cuenta</a>
+        <a class="nav-link" href="pedidos.html">${I.box}Tus pedidos</a>
+        <a class="nav-link" href="favoritos.html">${I.heart}Lista de favoritos</a>
+        ${isAdmin ? `<a class="nav-link is-admin" href="admin/index.html">${I.shield}Administración →</a>` : ""}
       </div>
       <div class="nav-footer">
         <button class="nav-logout" data-logout>
-          <span class="ic" aria-hidden="true">${SVG_LOGOUT}</span>${T("acct.logout")}
+          <span class="ic" aria-hidden="true">${SVG_LOGOUT}</span>Cerrar sesión
         </button>
       </div>
     </nav>
@@ -252,35 +249,35 @@
       <div class="account-welcome">
         <div class="welcome-avatar" aria-hidden="true">${avatarLetters}</div>
         <div class="welcome-text">
-          <h1 class="welcome-h1">${T("acct.hello",{name:firstName})}</h1>
-          <p class="welcome-meta">${esc(T("acct.since",{email:user.email, date:joinDate}))}</p>
+          <h1 class="welcome-h1">Hola, ${firstName}</h1>
+          <p class="welcome-meta">${esc(user.email)} · cliente desde ${joinDate}</p>
         </div>
       </div>
 
       <!-- DIRECCIONES -->
       <div class="sec-block">
-        <p class="sec-title">${T("acct.addresses")}</p>
+        <p class="sec-title">Direcciones</p>
         <div class="addr-grid" data-addr-list></div>
         <button class="btn btn-outline btn-sm" data-add-addr>
-          <span class="ic" aria-hidden="true">${SVG_PLUS}</span>${T("acct.addAddress")}
+          <span class="ic" aria-hidden="true">${SVG_PLUS}</span>Añadir dirección
         </button>
       </div>
 
       <!-- DATOS DE LA CUENTA -->
       <div class="sec-block">
-        <p class="sec-title">${T("acct.data")}</p>
+        <p class="sec-title">Datos de la cuenta</p>
         <div class="account-card">
           <div class="field">
-            <label for="acct-name">${T("auth.name")}</label>
+            <label for="acct-name">Nombre</label>
             <input id="acct-name" class="input" value="${esc(user.name)}" autocomplete="name">
           </div>
           <div class="field">
-            <label for="acct-email">${T("auth.email")}</label>
+            <label for="acct-email">Email</label>
             <input id="acct-email" class="input input-readonly" value="${esc(user.email)}" readonly autocomplete="email" tabindex="-1">
-            <span class="field hint">${T("acct.emailHint")}</span>
+            <span class="field hint">El email no puede modificarse directamente. Contacta con soporte si necesitas cambiarlo.</span>
           </div>
           <button class="btn btn-primary btn-sm" style="margin-top:8px;" data-save-account>
-            ${SVG_SAVE} ${T("acct.saveChanges")}
+            ${SVG_SAVE} Guardar cambios
           </button>
         </div>
       </div>
@@ -291,55 +288,54 @@
   function renderAddresses(){
     const box = document.querySelector("[data-addr-list]");
     if(!user.addresses.length){
-      box.innerHTML = `<p style="color:var(--muted-fg);font-size:13.5px;margin-bottom:4px;">${T("acct.noAddresses")}</p>`;
+      box.innerHTML = `<p style="color:var(--muted-fg);font-size:13.5px;margin-bottom:4px;">No tienes direcciones guardadas.</p>`;
       return;
     }
     box.innerHTML = user.addresses.map((a,i)=>`
       <div class="addr-card" data-addr-card="${a.id}">
         <div class="addr-head">
           <span class="ic" aria-hidden="true">${SVG_HOME}</span>
-          <span class="addr-label">${esc(a.label||T("acct.address"))}</span>
-          ${i===0?`<span class="addr-default">${T("acct.default")}</span>`:''}
+          <span class="addr-label">${esc(a.label||"Dirección")}</span>
+          ${i===0?'<span class="addr-default">Predeterminada</span>':''}
         </div>
         <p class="addr-text">${esc(a.line1)}, ${esc(a.city)} ${esc(a.zip)}, ${esc(a.country)}</p>
         <div class="addr-actions">
-          <button class="btn btn-outline btn-sm" data-edit-addr="${a.id}">${SVG_EDIT} ${T("acct.edit")}</button>
-          <button class="btn btn-danger btn-sm" data-del-addr="${a.id}">${T("acct.delete")}</button>
+          <button class="btn btn-outline btn-sm" data-edit-addr="${a.id}">${SVG_EDIT} Editar</button>
+          <button class="btn btn-danger btn-sm" data-del-addr="${a.id}">Eliminar</button>
         </div>
         <form class="addr-edit-form" data-edit-form="${a.id}" novalidate>
           <div class="addr-edit-row">
-            <div class="field" style="margin:0;"><label>${T("acct.label")}</label><input class="input" name="label" value="${esc(a.label||"")}" placeholder="${esc(T("acct.labelPh"))}"></div>
-            <div class="field" style="margin:0;"><label>${T("acct.streetNo")}</label><input class="input" name="line1" value="${esc(a.line1)}" required></div>
+            <div class="field" style="margin:0;"><label>Etiqueta</label><input class="input" name="label" value="${esc(a.label||"")}" placeholder="Casa, Trabajo…"></div>
+            <div class="field" style="margin:0;"><label>Calle y número</label><input class="input" name="line1" value="${esc(a.line1)}" required></div>
           </div>
           <div class="addr-edit-row">
-            <div class="field" style="margin:0;"><label>${T("acct.city")}</label><input class="input" name="city" value="${esc(a.city)}"></div>
-            <div class="field" style="margin:0;"><label>${T("acct.zip")}</label><input class="input" name="zip" value="${esc(a.zip)}"></div>
+            <div class="field" style="margin:0;"><label>Ciudad</label><input class="input" name="city" value="${esc(a.city)}"></div>
+            <div class="field" style="margin:0;"><label>Código postal</label><input class="input" name="zip" value="${esc(a.zip)}"></div>
           </div>
-          <div class="field" style="margin:0;"><label>${T("acct.country")}</label><input class="input" name="country" value="${esc(a.country)}"></div>
+          <div class="field" style="margin:0;"><label>País</label><input class="input" name="country" value="${esc(a.country)}"></div>
           <div style="display:flex;gap:8px;margin-top:4px;">
-            <button class="btn btn-primary btn-sm" type="submit">${SVG_SAVE} ${T("acct.save")}</button>
-            <button class="btn btn-ghost btn-sm" type="button" data-cancel-edit="${a.id}">${T("acct.cancel")}</button>
+            <button class="btn btn-primary btn-sm" type="submit">${SVG_SAVE} Guardar</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-cancel-edit="${a.id}">Cancelar</button>
           </div>
         </form>
       </div>`).join("");
 
     box.querySelectorAll("[data-del-addr]").forEach(b=>b.addEventListener("click",()=>{
       user.addresses = user.addresses.filter(a=>a.id!==b.dataset.delAddr);
-      VDB.save(); renderAddresses(); VUI.toast(T("acct.addrDeleted"));
+      VDB.save(); renderAddresses(); VUI.toast("Dirección eliminada");
     }));
 
     box.querySelectorAll("[data-edit-addr]").forEach(b=>b.addEventListener("click",()=>{
       const form = box.querySelector(`[data-edit-form="${b.dataset.editAddr}"]`);
       form.classList.toggle("is-open");
-      if(form.classList.contains("is-open")) b.textContent = T("acct.cancel");
-      else b.innerHTML = `${SVG_EDIT} ${T("acct.edit")}`;
+      b.textContent = form.classList.contains("is-open") ? "Cancelar" : `${SVG_EDIT} Editar`;
     }));
 
     box.querySelectorAll("[data-cancel-edit]").forEach(b=>b.addEventListener("click",()=>{
       const form = box.querySelector(`[data-edit-form="${b.dataset.cancelEdit}"]`);
       const editBtn = box.querySelector(`[data-edit-addr="${b.dataset.cancelEdit}"]`);
       form.classList.remove("is-open");
-      editBtn.innerHTML = `${SVG_EDIT} ${T("acct.edit")}`;
+      editBtn.innerHTML = `${SVG_EDIT} Editar`;
     }));
 
     box.querySelectorAll("[data-edit-form]").forEach(form=>form.addEventListener("submit",e=>{
@@ -353,32 +349,32 @@
       addr.city    = fd.get("city").trim()    || addr.city;
       addr.zip     = fd.get("zip").trim()     || addr.zip;
       addr.country = fd.get("country").trim() || addr.country;
-      VDB.save(); renderAddresses(); VUI.toast(T("acct.addrUpdated"));
+      VDB.save(); renderAddresses(); VUI.toast("Dirección actualizada");
     }));
   }
 
   renderAddresses();
 
   document.querySelector("[data-add-addr]").addEventListener("click",()=>{
-    const line1 = prompt(T("acct.promptStreet")); if(!line1) return;
-    const city    = prompt(T("acct.promptCity")) || "";
-    const zip     = prompt(T("acct.promptZip"))  || "";
-    const country = prompt(T("acct.promptCountry")) || T("acct.defaultCountry");
-    const label   = prompt(T("acct.promptLabel"))   || T("acct.newAddress");
+    const line1 = prompt("Dirección (calle y número):"); if(!line1) return;
+    const city    = prompt("Ciudad:")           || "";
+    const zip     = prompt("Código postal:")    || "";
+    const country = prompt("País (ej. España):") || "España";
+    const label   = prompt("Etiqueta (ej. Casa, Trabajo):")  || "Nueva dirección";
     user.addresses.push({ id:VDB.uid("addr"), label, line1, city, zip, country });
-    VDB.save(); renderAddresses(); VUI.toast(T("acct.addrAdded"));
+    VDB.save(); renderAddresses(); VUI.toast("Dirección añadida");
   });
 
   /* ---- Guardar nombre ---- */
   document.querySelector("[data-save-account]").addEventListener("click",()=>{
     const newName = document.getElementById("acct-name").value.trim();
-    if(!newName){ VUI.toast(T("acct.nameEmpty")); return; }
+    if(!newName){ VUI.toast("El nombre no puede estar vacío"); return; }
     user.name = newName;
     VDB.save();
     // Actualiza UI sin recargar
     document.querySelector(".nav-profile-name").textContent = newName;
-    document.querySelector(".welcome-h1").textContent = T("acct.hello",{name:newName.split(" ")[0]});
-    VUI.toast(T("acct.nameUpdated"));
+    document.querySelector(".welcome-h1").textContent = "Hola, " + newName.split(" ")[0];
+    VUI.toast("Nombre actualizado");
   });
 
   /* ---- Cerrar sesión ---- */

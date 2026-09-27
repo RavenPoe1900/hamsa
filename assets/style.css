@@ -5,7 +5,6 @@
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap');
 
 :root{
   --background:  #FAFAFA;
@@ -90,7 +89,7 @@ p{ margin:0; }
 
 .container{ max-width:1240px; margin-inline:auto; padding-inline:24px; }
 .visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-.skip-link{ position:absolute; inset-inline-start:8px; top:-48px; background:var(--primary); color:var(--primary-fg); padding:10px 16px; border-radius:var(--radius); z-index:1000; transition:top .15s ease; }
+.skip-link{ position:absolute; left:8px; top:-48px; background:var(--primary); color:var(--primary-fg); padding:10px 16px; border-radius:var(--radius); z-index:1000; transition:top .15s ease; }
 .skip-link:focus{ top:8px; }
 
 /* ================= header: 2 filas (fila superior + menú de categorías) ================= */
@@ -124,7 +123,7 @@ p{ margin:0; }
 
 /* carrito: badge numérico anclado a la esquina del ícono, siempre centrado sobre él */
 .header-link.cart{ position:relative; }
-.cart-badge{ position:absolute; top:2px; inset-inline-end:2px; background:var(--conversion); color:var(--conversion-fg); font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:999px; display:grid; place-items:center; padding:0 4px; line-height:1; }
+.cart-badge{ position:absolute; top:2px; right:2px; background:var(--conversion); color:var(--conversion-fg); font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:999px; display:grid; place-items:center; padding:0 4px; line-height:1; }
 
 /* botón hamburguesa: solo existe visualmente <768px (ver media query) */
 .cat-toggle{ display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:var(--radius); background:none; border:1px solid var(--border); cursor:pointer; color:var(--foreground); }
@@ -134,11 +133,11 @@ p{ margin:0; }
 .subnav-row{ max-width:1240px; margin-inline:auto; padding-inline:var(--header-pad-x); height:44px; display:flex; align-items:center; gap:4px; overflow-x:auto; scrollbar-width:none; }
 .subnav-row::-webkit-scrollbar{ display:none; }
 .subnav-row a{ color:var(--muted-fg); font-size:12.5px; font-weight:500; padding:7px 14px; white-space:nowrap; flex-shrink:0; transition:color .12s ease; }
-.subnav-row a:not(:last-child){ border-inline-end:1px solid var(--border); }
+.subnav-row a:not(:last-child){ border-right:1px solid var(--border); }
 .subnav-row a:hover{ color:var(--accent); text-decoration:underline; text-underline-offset:4px; }
 .subnav-row a.all{ font-weight:700; color:var(--foreground); }
 /* pista de que hay más categorías fuera de vista, sin flechas ni JS */
-.subnav::after{ content:""; position:absolute; top:0; inset-inline-end:0; width:28px; height:100%; background:linear-gradient(to var(--fade-to, right), transparent, var(--card)); pointer-events:none; }
+.subnav::after{ content:""; position:absolute; top:0; right:0; width:28px; height:100%; background:linear-gradient(to right, transparent, var(--card)); pointer-events:none; }
 
 /* --- responsive <768px: logo más chico, categorías colapsan tras hamburguesa --- */
 @media (max-width:768px){
@@ -149,7 +148,7 @@ p{ margin:0; }
   .cat-toggle{ display:flex; }
   .subnav-row{ display:none; height:auto; flex-direction:column; align-items:stretch; overflow:visible; padding-block:8px; }
   .subnav.is-open .subnav-row{ display:flex; }
-  .subnav-row a{ padding:10px var(--header-pad-x); border-radius:0; border-inline-end:0 !important; border-bottom:1px solid var(--border); }
+  .subnav-row a{ padding:10px var(--header-pad-x); border-radius:0; border-right:0 !important; border-bottom:1px solid var(--border); }
   .subnav-row a:last-child{ border-bottom:0; }
   .subnav::after{ display:none; }
 }
@@ -197,13 +196,13 @@ p{ margin:0; }
 /* badge de descuento: esquina superior izquierda de la imagen, condicional (solo con oldPrice)
    selector calificado con el contenedor de miniatura: ".product-thumb span" (más específico) si no, gana y pisa el position/z-index */
 .product-thumb .discount-badge, .fbw-thumb .discount-badge, .pdp-gallery .discount-badge{
-  position:absolute; top:8px; inset-inline-start:8px; z-index:2;
+  position:absolute; top:8px; left:8px; z-index:2;
   background:var(--destructive); color:#fff; font-size:11.5px; font-weight:800;
   letter-spacing:-.01em; padding:3px 7px; border-radius:var(--radius-tag);
   box-shadow:0 2px 6px -1px rgba(0,0,0,.35);
 }
 .wish-btn{
-  position:absolute; top:8px; inset-inline-end:8px; z-index:2; width:32px; height:32px; border-radius:999px;
+  position:absolute; top:8px; right:8px; z-index:2; width:32px; height:32px; border-radius:999px;
   background:color-mix(in srgb, var(--card) 92%, transparent); border:1px solid var(--border);
   box-shadow:0 1px 4px -1px rgba(0,0,0,.2);
   display:grid; place-items:center; cursor:pointer; color:var(--muted-fg);
@@ -261,8 +260,8 @@ p{ margin:0; }
 .seg{ display:flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--card); }
 .seg label{ flex:1; position:relative; display:block; }
 .seg input{ position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; }
-.seg span{ display:block; text-align:center; padding:7px 6px; font-size:12px; font-weight:500; color:var(--muted-fg); cursor:pointer; border-inline-start:1px solid var(--border); }
-.seg label:first-child span{ border-inline-start:0; }
+.seg span{ display:block; text-align:center; padding:7px 6px; font-size:12px; font-weight:500; color:var(--muted-fg); cursor:pointer; border-left:1px solid var(--border); }
+.seg label:first-child span{ border-left:0; }
 .seg input:checked + span{ background:var(--accent-tint); color:var(--accent); font-weight:600; }
 .seg input:focus-visible + span{ outline:2px solid var(--ring); outline-offset:-2px; }
 
@@ -301,12 +300,12 @@ select option:checked{ background:var(--accent); color:var(--accent-fg); }
 /* ---------------- table ---------------- */
 .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); }
 table.data-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
-table.data-table th{ text-align:start; padding:10px 14px; font-weight:600; color:var(--muted-fg); font-size:11.5px; border-bottom:1px solid var(--border); background:var(--muted); position:sticky; top:0; }
+table.data-table th{ text-align:left; padding:10px 14px; font-weight:600; color:var(--muted-fg); font-size:11.5px; border-bottom:1px solid var(--border); background:var(--muted); position:sticky; top:0; }
 table.data-table td{ padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
 table.data-table tr:last-child td{ border-bottom:0; }
 table.data-table tr:hover td{ background:var(--muted); }
 /* números comparables entre filas: alineados a la derecha y sin baile de dígitos */
-table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
+table.data-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
 /* dot + texto: el estado no depende solo del color */
 .status-pill{ display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; }
 .status-pill::before{ content:""; width:6px; height:6px; border-radius:999px; background:currentColor; flex-shrink:0; }
@@ -317,7 +316,7 @@ table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
 .status-cancelled{ background:var(--destructive-tint); color:var(--destructive); }
 
 /* ---------------- toast ---------------- */
-#toast-root{ position:fixed; bottom:20px; inset-inline-end:20px; z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+#toast-root{ position:fixed; bottom:20px; right:20px; z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
 .toast{ background:var(--card); color:var(--foreground); border:1px solid var(--border); padding:11px 16px; border-radius:var(--radius); font-size:13px; font-weight:500; box-shadow:0 4px 16px rgba(0,0,0,.1); }
 
 /* ---------------- footer ---------------- */
@@ -331,7 +330,7 @@ table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
 .footer-social-link{ display:grid; place-items:center; width:34px; height:34px; border-radius:999px; color:var(--muted-fg); border:1px solid var(--border); transition:color .12s ease, border-color .12s ease, background .12s ease; }
 .footer-social-link:hover{ color:var(--accent); border-color:var(--accent); background:var(--accent-tint); }
 /* Botón flotante volver arriba */
-.back-to-top{ position:fixed; bottom:24px; inset-inline-end:24px; z-index:200; width:46px; height:46px; border-radius:999px; background:var(--accent); color:#fff; border:0; cursor:pointer; display:grid; place-items:center; box-shadow:0 4px 16px -4px color-mix(in srgb,var(--accent) 60%,transparent); transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease; }
+.back-to-top{ position:fixed; bottom:24px; right:24px; z-index:200; width:46px; height:46px; border-radius:999px; background:var(--accent); color:#fff; border:0; cursor:pointer; display:grid; place-items:center; box-shadow:0 4px 16px -4px color-mix(in srgb,var(--accent) 60%,transparent); transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease; }
 .back-to-top[hidden]{ display:none; }
 .back-to-top:hover{ transform:translateY(-3px); box-shadow:0 8px 22px -6px color-mix(in srgb,var(--accent) 70%,transparent); }
 
@@ -355,13 +354,13 @@ table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
    entre los productos que haya (1 a 4) — nunca deja espacio vacío sin usar */
 .fbw-row{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; align-items:start; flex:1; min-width:0; }
 .fbw-item{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:0 12px; cursor:pointer; }
-.fbw-item:not(:last-child){ border-inline-end:1px solid var(--border); }
+.fbw-item:not(:last-child){ border-right:1px solid var(--border); }
 .fbw-thumb{ width:88px; height:88px; border-radius:var(--radius); background:var(--muted); display:grid; place-items:center; overflow:hidden; flex-shrink:0; position:relative; }
 .fbw-thumb img{ width:100%; height:100%; object-fit:contain; }
 /* el badge de descuento (.discount-badge) se reutiliza aquí, en una miniatura más chica */
-.fbw-thumb .discount-badge{ top:4px; inset-inline-start:4px; font-size:10px; padding:2px 6px; }
+.fbw-thumb .discount-badge{ top:4px; left:4px; font-size:10px; padding:2px 6px; }
 /* altura FIJA (no mínima) calculada para 3 líneas: el nombre más largo no puede desalinear el precio */
-.fbw-check-row{ display:flex; align-items:flex-start; gap:6px; text-align:start; height:51px; width:100%; }
+.fbw-check-row{ display:flex; align-items:flex-start; gap:6px; text-align:left; height:51px; width:100%; }
 .fbw-check-row input{ margin-top:3px; flex-shrink:0; accent-color:var(--accent); }
 .fbw-check-row input:disabled{ opacity:1; accent-color:var(--muted-fg); cursor:not-allowed; }
 .fbw-title{
@@ -401,125 +400,4 @@ table.data-table .num{ text-align:end; font-variant-numeric:tabular-nums; }
   .subnav-row{ padding-inline:14px; }
   .container{ padding-inline:14px; } .footer-grid{ grid-template-columns:1fr 1fr; padding:24px 14px; }
   .product-grid{ grid-template-columns:repeat(2,1fr); gap:10px; } .rail > *{ flex-basis:150px; }
-}
-
-
-/* ============================================================
-   Idiomas: español · inglés · árabe
-   El grueso del RTL ya lo resuelven las propiedades lógicas de
-   arriba; aquí queda solo lo que ninguna propiedad lógica cubre.
-   ============================================================ */
-
-/* Inter va primero a propósito: cubre dígitos, $ y latín, y el árabe
-   cae por fallback de glifo a Noto (o a la fuente árabe del sistema si
-   no hay red, así la página sigue legible abierta desde el disco). */
-:root[lang="ar"]{
-  --font-ui:      'Inter', 'Noto Sans Arabic', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, 'Geeza Pro', sans-serif;
-  --font-display: 'Inter', 'Noto Sans Arabic', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, 'Geeza Pro', sans-serif;
-}
-/* El tracking negativo rompe la unión de las letras árabes: se anula. */
-:root[lang="ar"] body{ line-height:1.7; letter-spacing:normal; }
-:root[lang="ar"] h1,
-:root[lang="ar"] h2,
-:root[lang="ar"] h3,
-:root[lang="ar"] h4,
-:root[lang="ar"] .section-title,
-:root[lang="ar"] .price,
-:root[lang="ar"] .brand-name,
-:root[lang="ar"] .fbw-tag,
-:root[lang="ar"] .prime-badge,
-:root[lang="ar"] .discount-badge{ letter-spacing:normal; }
-/* Las versalitas en caja alta no existen en árabe: sin transform ni tracking. */
-:root[lang="ar"] .fbw-tag,
-:root[lang="ar"] .hero-feature .tag,
-:root[lang="ar"] .sec-title,
-:root[lang="ar"] .addr-default{ text-transform:none; }
-
-[dir="rtl"]{ --fade-to: left; }
-
-/* Precios, códigos de pedido y SKU son secuencias latinas dentro de texto
-   árabe: se aíslan para que el $ no salte al otro extremo del número. */
-[dir="rtl"] :is(.price, .price-old, .price-badge, .discount-badge, .line-total, .line-unit,
-  .t-value, .fbw-price, .fbw-price-old, .p-total, .p-unit, .mini-price, .cart-model,
-  .order-id-chip, .mono-tag, .summary-row > span:last-child, .specs-table td:last-child, .amt,
-  .fbw-total strong){
-  direction:ltr; unicode-bidi:isolate;
-}
-/* El precio grande de la ficha es display:block: al forzarlo a LTR se iría
-   al margen izquierdo, así que se vuelve a anclar al lado de inicio. */
-[dir="rtl"] .buy-box-price .price{ text-align:right; }
-
-/* El catálogo sigue en español (títulos, descripciones, marcas y fichas
-   técnicas). Dentro de una página en árabe ese texto latino se rompía: los
-   puntos finales saltaban al principio del párrafo. `plaintext` es el
-   equivalente CSS de dir="auto": cada párrafo elige su propia dirección
-   según su primera letra fuerte, y se alinea en consecuencia. */
-[dir="rtl"] :is(.product-title, .pdp-title, .desc-block, .cart-title, .cart-model,
-  .fbw-title, .mini-line-title, .mini-title, .product-seller, .pdp-brand,
-  .product-meta, .specs-table td, .addr-text, .order-id-chip,
-  .hero-feature h2, .hero-feature .meta, .mini-line-name){
-  unicode-bidi:plaintext; text-align:start;
-}
-/* …pero el precio se sigue alineando al lado que le toca en RTL. */
-[dir="rtl"] :is(.line-total, .line-unit, .p-total, .p-unit, .t-value, .summary-row > span:last-child){ text-align:left; }
-
-/* Flechas e íconos que apuntan: se reflejan, no se traducen. */
-[dir="rtl"] :is(.keep-shopping, .cat-nav) .ic svg,
-[dir="rtl"] .keep-shopping > svg{ transform:scaleX(-1); }
-
-/* El zoom de la galería usa transformOrigin en %: con dir=rtl el origen
-   se invierte, así que la imagen se fija a LTR y el marco no. */
-[dir="rtl"] .pdp-gallery img{ direction:ltr; }
-
-/* ---------------- selector de idioma ---------------- */
-/* Un disparador —bandera + código del idioma activo— que despliega la
-   lista de los tres. Es la forma característica de un selector de
-   idioma (Amazon, entre otros): un botón compacto y un menú flotante,
-   no tres opciones siempre a la vista. */
-.lang-switch{ position:relative; display:inline-flex; flex-shrink:0; }
-
-.lang-trigger{
-  appearance:none; border:1px solid var(--border); background:var(--card); cursor:pointer;
-  display:inline-flex; align-items:center; gap:6px;
-  font-family:var(--font-ui); font-size:11.5px; font-weight:700; letter-spacing:.03em;
-  color:var(--foreground); padding:0 10px; height:34px; border-radius:999px;
-  transition:background .12s ease, border-color .12s ease;
-}
-.lang-trigger .flag{ font-size:14px; line-height:1; }
-.lang-trigger .chevron{ color:var(--muted-fg); transition:transform .15s ease; }
-.lang-trigger:hover{ background:var(--muted); }
-.lang-trigger[aria-expanded="true"]{ border-color:var(--ring); }
-.lang-trigger[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
-.lang-trigger:focus-visible{ outline:2px solid var(--ring); outline-offset:1px; }
-
-/* El menú cuelga del borde que cae hacia dentro de la cabecera: con
-   inset-inline-end en vez de right, se abre hacia la izquierda en LTR
-   y hacia la derecha en RTL sin código aparte para cada dirección. */
-.lang-menu{
-  position:absolute; top:calc(100% + 6px); inset-inline-end:0; z-index:60;
-  min-width:168px; margin:0; padding:6px; list-style:none;
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-  box-shadow:0 10px 28px rgba(0,0,0,.16);
-}
-.lang-menu li + li{ margin-top:2px; }
-.lang-menu button{
-  appearance:none; border:0; background:none; cursor:pointer; width:100%;
-  display:flex; align-items:center; gap:9px; text-align:start;
-  padding:8px 9px; border-radius:calc(var(--radius) - 2px);
-  font-family:var(--font-ui); font-size:13px; color:var(--foreground);
-}
-.lang-menu button:hover{ background:var(--muted); }
-.lang-menu button:focus-visible{ outline:2px solid var(--ring); outline-offset:-2px; }
-.lang-menu .flag{ font-size:16px; line-height:1; flex-shrink:0; }
-.lang-menu .name{ flex:1; min-width:0; }
-.lang-menu button.is-active{ color:var(--accent); font-weight:700; }
-.lang-menu .check{ flex-shrink:0; color:var(--accent); }
-
-@media (max-width:640px){
-  .lang-trigger{ height:30px; padding:0 8px; font-size:10.5px; gap:4px; }
-  .lang-trigger .flag{ font-size:12.5px; }
-  .lang-menu{ min-width:152px; }
-  /* El selector suma una pieza más a una fila que en móvil ya iba justa:
-     se deja envolver en lugar de empujar la página a scroll horizontal. */
-  .header-actions{ flex-wrap:wrap; flex-shrink:1; justify-content:flex-end; row-gap:4px; }
 }

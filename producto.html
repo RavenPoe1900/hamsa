@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-title>Producto — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   /* ── Breadcrumb: hover azul para diferencia enlaces del texto plano ── */
   .breadcrumbs a:hover { color: var(--accent) !important; }
@@ -17,8 +16,8 @@
     gap: 0;
     border-top: 1px solid var(--border);
   }
-  .pdp > * { padding: 28px; border-inline-end: 1px solid var(--border); }
-  .pdp > *:last-child { border-inline-end: 0; }
+  .pdp > * { padding: 28px; border-right: 1px solid var(--border); }
+  .pdp > *:last-child { border-right: 0; }
 
   /* ── GALERÍA ─────────────────────────────────────────────────────────── */
   .pdp-gallery-wrap { display: flex; flex-direction: column; gap: 10px; }
@@ -55,7 +54,7 @@
   }
   .pdp-gallery:hover > span { transform: scale(1.05); }
   /* mismo badge de descuento que las tarjetas, escalado a la foto grande del producto */
-  .pdp-gallery .discount-badge { top: 14px; inset-inline-start: 14px; font-size: 15px; padding: 5px 11px; }
+  .pdp-gallery .discount-badge { top: 14px; left: 14px; font-size: 15px; padding: 5px 11px; }
 
   /* Tira de miniaturas — lista para múltiples ángulos */
   .pdp-thumb-strip { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -205,11 +204,11 @@
     text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted-fg);
     border: 0; background: none; cursor: pointer;
-    border-inline-end: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     transition: color 0.1s ease, background 0.1s ease;
   }
   .tab-btn[aria-selected="true"] { color: var(--foreground); background: var(--card); }
-  .tab-btn:last-child { border-inline-end: 0; }
+  .tab-btn:last-child { border-right: 0; }
   .tab-btn:hover:not([aria-selected="true"]) { color: var(--foreground); }
 
   /* ── CONTENIDO DE TABS ───────────────────────────────────────────────── */
@@ -249,7 +248,7 @@
     .pdp { grid-template-columns: 1fr 1fr; }
     .pdp .buy-box {
       grid-column: span 2;
-      border-inline-end: 0;
+      border-right: 0;
       border-top: 1px solid var(--border);
     }
     /* bloque de compra: mismo aumento, algo más compacto en tablet */
@@ -270,7 +269,7 @@
   }
   @media (max-width: 640px) {
     .pdp { grid-template-columns: 1fr; }
-    .pdp > * { border-inline-end: 0; border-bottom: 1px solid var(--border); }
+    .pdp > * { border-right: 0; border-bottom: 1px solid var(--border); }
     .pdp .buy-box { grid-column: auto; border-top: 0; }
     .pdp-section .product-grid { grid-template-columns: repeat(2, 1fr); }
     /* bloque de compra: un paso más compacto en móvil, siempre por encima del tamaño original */
@@ -310,55 +309,53 @@
   <nav class="breadcrumbs" style="margin:16px 28px" data-breadcrumb></nav>
   <div class="pdp" data-pdp-root></div>
   <section class="pdp-section section container fbw-section" data-fbw hidden>
-    <div class="section-head"><h2 class="section-title" data-i18n="pdp.fbw">Comprados juntos habitualmente</h2></div>
+    <div class="section-head"><h2 class="section-title">Comprados juntos habitualmente</h2></div>
     <div class="fbw-body">
       <div class="fbw-row" data-fbw-row></div>
       <div class="fbw-chip">
-        <div class="fbw-total"><span data-i18n="pdp.fbwTotal">Precio total:</span> <strong data-fbw-total></strong></div>
+        <div class="fbw-total">Precio total: <strong data-fbw-total></strong></div>
         <button class="btn btn-primary btn-sm" data-fbw-add><span class="fbw-add-label">Agregar los <span data-fbw-count></span> al carrito</span></button>
       </div>
     </div>
   </section>
   <div class="tabs" role="tablist">
-    <button class="tab-btn" role="tab" aria-selected="true"  data-tab="desc" data-i18n="pdp.tabDesc">Descripción</button>
-    <button class="tab-btn" role="tab" aria-selected="false" data-tab="specs" data-i18n="pdp.tabSpecs">Especificaciones</button>
+    <button class="tab-btn" role="tab" aria-selected="true"  data-tab="desc">Descripción</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="specs">Especificaciones</button>
   </div>
   <div data-tab-panel="desc"></div>
   <div data-tab-panel="specs"    hidden></div>
   <section class="pdp-section section container" style="border-bottom:0;">
-    <div class="section-head"><h2 class="section-title" data-i18n="pdp.alsoLike">También te puede interesar</h2></div>
+    <div class="section-head"><h2 class="section-title">También te puede interesar</h2></div>
     <div class="product-grid" data-related></div>
   </section>
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function(){
   VUI.mountChrome();
-  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
   const id = new URLSearchParams(location.search).get("id");
   const p  = VDB.getProduct(id);
   const root = document.querySelector("[data-pdp-root]");
 
   if(!p){
-    root.style.borderInlineEnd = "0";
+    root.style.borderRight = "0";
     root.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:28px;">
-      <h2>${T("pdp.notFound")}</h2><p>${T("pdp.notFoundHint")}</p>
-      <a class="btn btn-primary btn-sm" href="buscar.html">${T("pdp.backToCatalog")}</a></div>`;
-    document.title = T("pdp.notFound") + T("pdp.suffix");
+      <h2>Producto no encontrado</h2><p>Puede que ya no esté disponible.</p>
+      <a class="btn btn-primary btn-sm" href="buscar.html">Volver al catálogo</a></div>`;
+    document.title = "Producto no encontrado — Electro Hogar";
     return;
   }
 
-  const productTitle = VUI.titleCase(VDB.pTitle(p));
-  document.title = productTitle + T("pdp.suffix");
+  const productTitle = VUI.titleCase(p.title);
+  document.title = productTitle + " — Electro Hogar";
 
   // Breadcrumb: capitalización correcta, sin punto final, hover azul (ver CSS)
   document.querySelector("[data-breadcrumb]").innerHTML =
-    `<a href="index.html">${T("crumb.home")}</a><span>/</span>` +
-    `<a href="buscar.html?cat=${p.category}">${VUI.esc(VDB.catName(p))}</a><span>/</span>` +
+    `<a href="index.html">Inicio</a><span>/</span>` +
+    `<a href="buscar.html?cat=${p.category}">${VUI.esc(p.categoryName)}</a><span>/</span>` +
     `<span>${VUI.esc(productTitle)}</span>`;
 
   try{
@@ -379,16 +376,16 @@
 
   // Estado de stock
   const stockStatus = p.stock===0 ? "out" : p.stock<5 ? "warn" : "ok";
-  const stockLabel  = p.stock===0 ? T("card.outOfStock")
-                    : p.stock<5   ? TP("card.lastUnits", p.stock)
-                    : T("pdp.inStock");
+  const stockLabel  = p.stock===0 ? "Agotado"
+                    : p.stock<5   ? `Últimas ${p.stock} unidades`
+                    : "En stock";
   const checkIcon = p.stock>0
     ? `<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg></span>`
     : "";
 
   // Miniatura para el thumb strip (estructura lista para múltiples ángulos)
   const thumbContent = p.image
-    ? `<img src="${VUI.esc(p.image)}" alt="${VUI.esc(T("pdp.mainView"))}">`
+    ? `<img src="${VUI.esc(p.image)}" alt="Vista principal">`
     : `<span style="font-size:26px">${p.emoji||"📦"}</span>`;
 
   // ── HTML de las tres columnas del PDP ──────────────────────────────────
@@ -400,7 +397,7 @@
           ${p.oldPrice ? `<span class="discount-badge">−${discountPct}%</span>` : ""}
         </div>
         <div class="pdp-thumb-strip">
-          <div class="pdp-thumb-item active" data-gallery-idx="0" aria-label="${VUI.esc(T("pdp.mainView"))}">
+          <div class="pdp-thumb-item active" data-gallery-idx="0" aria-label="Vista principal">
             ${thumbContent}
           </div>
         </div>
@@ -409,16 +406,16 @@
 
     <div>
       <h1 class="pdp-title">${VUI.esc(productTitle)}</h1>
-      <p class="pdp-seller">${T("pdp.soldBy")}
+      <p class="pdp-seller">Vendido por
         <a href="buscar.html?q=${encodeURIComponent(VDB.db.settings.storeName)}">ElectroHogar Habana</a>
       </p>
       <a class="pdp-brand" href="buscar.html?q=${encodeURIComponent(p.brand)}">${VUI.esc(p.brand)}</a>
       <div class="pdp-rating">
         ${VUI.stars(p.rating||0)}
-        <span style="font-size:12.5px;color:var(--muted-fg)">${TP("pdp.reviews", p.reviewCount||0, {n:VI18N.fmtNum(p.reviewCount||0)})}</span>
-        ${p.prime ? `<span class="prime-badge">${T("filter.delivery24")}</span>` : ""}
+        <span style="font-size:12.5px;color:var(--muted-fg)">${(p.reviewCount||0).toLocaleString("es-ES")} reseñas</span>
+        ${p.prime ? '<span class="prime-badge">Entrega en 24h</span>' : ""}
       </div>
-      <p class="desc-block">${VUI.esc(VDB.pDesc(p))}</p>
+      <p class="desc-block">${VUI.esc(p.description)}</p>
     </div>
 
     <aside class="buy-box">
@@ -449,16 +446,16 @@
             <circle cx="16.5" cy="18.5" r="1.8"/>
           </svg>
         </span>
-        <div><b>${T("pdp.eta")}</b><span>${eta}</span></div>
+        <div><b>Entrega estimada</b><span>${eta}</span></div>
       </div>` : ""}
 
       <!-- Selector de cantidad con botones +/- -->
       <div class="qty-row">
-        <label>${T("pdp.qty")}</label>
+        <label>Cantidad</label>
         <div class="qty-stepper" ${p.stock===0 ? 'style="opacity:.4;pointer-events:none;"' : ""}>
-          <button type="button" id="qty-dec" aria-label="${VUI.esc(T("pdp.qtyDec"))}" disabled>−</button>
+          <button type="button" id="qty-dec" aria-label="Disminuir cantidad" disabled>−</button>
           <span class="qty-display" id="qty-display" aria-live="polite">1</span>
-          <button type="button" id="qty-inc" aria-label="${VUI.esc(T("pdp.qtyInc"))}" ${maxQty<=1 ? "disabled" : ""}>+</button>
+          <button type="button" id="qty-inc" aria-label="Aumentar cantidad" ${maxQty<=1 ? "disabled" : ""}>+</button>
         </div>
         <input type="hidden" id="qty" value="1">
       </div>
@@ -467,15 +464,15 @@
       <div class="action-stack">
         <!-- Primario: azul sólido -->
         <button class="btn btn-add-cart btn-block" data-add-cart="${p.id}" ${p.stock===0 ? "disabled" : ""}>
-          ${VUI.icon("cart")}${p.stock===0 ? T("card.outOfStock") : T("card.addToCart")}
+          ${VUI.icon("cart")}${p.stock===0 ? "Agotado" : "Añadir al carrito"}
         </button>
         <!-- Secundario: outline azul -->
         <button class="btn btn-buy-now btn-block" data-buy-now ${p.stock===0 ? "disabled" : ""}>
-          ${VUI.icon("bolt")}${T("pdp.buyNow")}
+          ${VUI.icon("bolt")}Comprar ahora
         </button>
         <!-- Terciario: discreta, estado claro del favorito -->
         <button class="btn btn-wish btn-block" data-pdp-wish="${p.id}" aria-pressed="${!!wished}">
-          ${VUI.icon(wished ? "heartFill" : "heart")}${wished ? T("card.removeFromFav") : T("pdp.saveToFav")}
+          ${VUI.icon(wished ? "heartFill" : "heart")}${wished ? "Quitar de favoritos" : "Guardar en favoritos"}
         </button>
       </div>
     </aside>`;
@@ -523,10 +520,10 @@
   document.querySelector("[data-pdp-wish]")?.addEventListener("click", ()=>{
     const btn = document.querySelector("[data-pdp-wish]");
     const u   = VDB.currentUser();
-    if(!u){ VUI.toast(T("toast.loginToFav")); return; }
+    if(!u){ VUI.toast("Inicia sesión para guardar favoritos"); return; }
     const nowOn = VDB.toggleWishlist(u.id, p.id);
     btn.setAttribute("aria-pressed", String(nowOn));
-    btn.innerHTML = `${VUI.icon(nowOn ? "heartFill" : "heart")}${nowOn ? T("card.removeFromFav") : T("pdp.saveToFav")}`;
+    btn.innerHTML = `${VUI.icon(nowOn ? "heartFill" : "heart")}${nowOn ? "Quitar de favoritos" : "Guardar en favoritos"}`;
   });
 
   // ── Comprar ahora ─────────────────────────────────────────────────────
@@ -542,7 +539,7 @@
     const u = VUI.requireAuth(); if(!u) return;
     VDB.addToCart(u.id, p.id, Number(elInput.value||1));
     VUI.updateCartBadge();
-    VUI.toast(T("toast.addedToCart"));
+    VUI.toast("Añadido al carrito");
   });
 
   // ── Contenido de pestañas ─────────────────────────────────────────────
@@ -550,7 +547,7 @@
   // Descripción
   document.querySelector("[data-tab-panel='desc']").innerHTML =
     `<div class="tab-panel-body">
-       <p class="desc-block" style="margin:0;max-width:none;">${VUI.esc(VDB.pDesc(p))}</p>
+       <p class="desc-block" style="margin:0;max-width:none;">${VUI.esc(p.description)}</p>
      </div>`;
 
   // Especificaciones: tabla etiqueta → valor con líneas sutiles
@@ -588,9 +585,9 @@
         </a>
         <span class="fbw-check-row">
           <input type="checkbox" data-fbw-check="${fp.id}" data-fbw-price="${fp.price}" ${i===0 ? "checked disabled" : "checked"}>
-          <a href="producto.html?id=${fp.id}" class="fbw-title">${VUI.esc(VUI.titleCase(VDB.pTitle(fp)))}</a>
+          <a href="producto.html?id=${fp.id}" class="fbw-title">${VUI.esc(VUI.titleCase(fp.title))}</a>
         </span>
-        <span class="fbw-tag-slot">${i===0 ? `<span class="fbw-tag">${T("pdp.thisProduct")}</span>` : ""}</span>
+        <span class="fbw-tag-slot">${i===0 ? '<span class="fbw-tag">Este producto</span>' : ""}</span>
         <span class="fbw-price-row">
           <span class="fbw-price">${VUI.money(fp.price)}</span>
           ${fp.oldPrice ? `<span class="fbw-price-old">${VUI.money(fp.oldPrice)}</span>` : ""}
@@ -598,7 +595,6 @@
       </label>`
     ).join("");
 
-    fbwSection.querySelector(".fbw-add-label").innerHTML = T("pdp.fbwAdd");
     const fbwTotalEl = fbwSection.querySelector("[data-fbw-total]");
     const fbwCountEl = fbwSection.querySelector("[data-fbw-count]");
 
@@ -616,14 +612,14 @@
       const checked = fbwSection.querySelectorAll("[data-fbw-check]:checked");
       checked.forEach(c => VDB.addToCart(u.id, c.dataset.fbwCheck, 1));
       VUI.updateCartBadge();
-      VUI.toast(TP("pdp.nAdded", checked.length));
+      VUI.toast(`${checked.length} producto${checked.length===1 ? "" : "s"} añadido${checked.length===1 ? "" : "s"} al carrito`);
     });
   }
 
   // ── Productos relacionados: 8 productos → 2 filas completas de 4 ──────
   document.querySelector("[data-related]").innerHTML =
     VDB.relatedProducts(p, 8).map(rp => VUI.productCard(rp)).join("") ||
-    `<p style='color:var(--muted-fg)'>${T("pdp.noRelated")}</p>`;
+    "<p style='color:var(--muted-fg)'>No hay productos relacionados.</p>";
 })();
 </script>
 </body>

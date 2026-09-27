@@ -3,13 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="oc.title">Pedido confirmado — Electro Hogar</title>
+<title>Pedido confirmado — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   .confirm-box{ max-width:600px; margin:48px auto 60px; text-align:center; }
   .check-circle{ width:70px; height:70px; border:1.5px solid var(--foreground); display:grid; place-items:center; margin:0 auto 22px; color:var(--foreground); border-radius:50%; }
-  .order-card{ text-align:start; margin-top:30px; padding:24px; }
+  .order-card{ text-align:left; margin-top:30px; padding:24px; }
   .order-meta{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:12.5px; color:var(--muted-fg); margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:16px; }
   .order-id-chip{ display:inline-block; font-family:ui-monospace,'SF Mono',Consolas,monospace; font-size:11.5px; font-weight:700; padding:3px 9px; background:var(--background); border:1px solid var(--border); border-radius:var(--radius); color:var(--muted-fg); letter-spacing:.04em; }
   .mini-line{ display:flex; align-items:center; gap:10px; font-size:13.5px; padding:9px 0; border-bottom:1px solid var(--border); margin:0 -8px; padding-inline:8px; border-radius:var(--radius); }
@@ -25,7 +24,7 @@
   .summary-row.total .t-label{ font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--foreground); letter-spacing:-.01em; }
   .summary-row.total .t-value{ font-family:var(--font-display); font-size:27px; font-weight:800; letter-spacing:-.02em; color:var(--success); }
   .confirm-actions{ display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
-  .help-box{ text-align:start; margin-top:36px; padding:20px; }
+  .help-box{ text-align:left; margin-top:36px; padding:20px; }
   .help-box h2{ font-size:15px; font-weight:700; margin-bottom:6px; }
   .help-box p{ font-size:13px; color:var(--muted-fg); margin:0; }
   .help-box a{ color:var(--accent); font-weight:600; }
@@ -61,34 +60,32 @@
 <main id="main" class="page container"><div class="confirm-box" data-confirm-root></div></main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function(){
   VUI.mountChrome();
-  const T = VI18N.t.bind(VI18N);
   const order = VDB.getOrder(new URLSearchParams(location.search).get("id"));
   const root = document.querySelector("[data-confirm-root]");
-  if(!order){ root.innerHTML = `<h1 class="section-title">${T("oc.notFound")}</h1><p style="color:var(--muted-fg);margin-top:8px;">${T("oc.notFoundHint")}</p><a class="btn btn-primary btn-sm" style="margin-top:16px;" href="pedidos.html">${T("oc.viewOrders")}</a>`; return; }
+  if(!order){ root.innerHTML = `<h1 class="section-title">Pedido no encontrado</h1><p style="color:var(--muted-fg);margin-top:8px;">Revisa el enlace o consulta tu historial.</p><a class="btn btn-primary btn-sm" style="margin-top:16px;" href="pedidos.html">Ver mis pedidos</a>`; return; }
   root.innerHTML = `
     <div class="check-circle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
-    <h1 class="section-title" style="font-size:26px;">${T("oc.confirmed")}</h1>
-    <p style="color:var(--muted-fg);margin-top:8px;">${T("oc.sent",{eta:`<strong style="color:var(--foreground)">${VUI.etaLabel(order.shipping===0?4:2)}</strong>`})}</p>
+    <h1 class="section-title" style="font-size:26px;">Pedido confirmado</h1>
+    <p style="color:var(--muted-fg);margin-top:8px;">Te hemos enviado la confirmación. Llegará <strong style="color:var(--foreground)">${VUI.etaLabel(order.shipping===0?4:2)}</strong>.</p>
     <div class="card order-card">
-      <div class="order-meta"><span>${T("oc.order")} <span class="order-id-chip">${order.id}</span></span><span>${VI18N.fmtDate(order.createdAt,{day:'numeric',month:'long',year:'numeric'})}</span></div>
-      ${order.items.map(it=>`<a class="mini-line" href="producto.html?id=${encodeURIComponent(it.productId)}"><div class="mini-thumb" style="background:${it.hue1}22;color:${it.hue1}">${VUI.thumbImg(it)}</div><div style="flex:1;"><span class="mini-line-title">${VUI.esc(VDB.lineTitle(it))} <span style="color:var(--muted-fg);">×${it.qty}</span></span>${it.qty>1?`<span class="mini-line-unit">${VUI.money(it.priceAtPurchase)} ${T("common.each")}</span>`:""}</div><div>${VUI.money(it.priceAtPurchase*it.qty)}</div></a>`).join("")}
-      <div class="summary-row"><span>${T("sum.subtotal")}</span><span>${VUI.money(order.subtotal)}</span></div>
-      <div class="summary-row"><span>${T("sum.shipping")}</span><span class="${order.shipping===0?'sum-free':''}">${order.shipping===0?T("sum.free"):VUI.money(order.shipping)}</span></div>
-      <div class="summary-row"><span>${T("sum.tax")}</span><span>${VUI.money(order.tax)}</span></div>
-      <div class="summary-row total"><span class="t-label">${T("oc.totalPaid")}</span><span class="t-value">${VUI.money(order.total)}</span></div>
+      <div class="order-meta"><span>Pedido <span class="order-id-chip">${order.id}</span></span><span>${new Date(order.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</span></div>
+      ${order.items.map(it=>`<a class="mini-line" href="producto.html?id=${encodeURIComponent(it.productId)}"><div class="mini-thumb" style="background:${it.hue1}22;color:${it.hue1}">${VUI.thumbImg(it)}</div><div style="flex:1;"><span class="mini-line-title">${VUI.esc(it.title)} <span style="color:var(--muted-fg);">×${it.qty}</span></span>${it.qty>1?`<span class="mini-line-unit">${VUI.money(it.priceAtPurchase)} c/u</span>`:""}</div><div>${VUI.money(it.priceAtPurchase*it.qty)}</div></a>`).join("")}
+      <div class="summary-row"><span>Subtotal</span><span>${VUI.money(order.subtotal)}</span></div>
+      <div class="summary-row"><span>Envío</span><span class="${order.shipping===0?'sum-free':''}">${order.shipping===0?'Gratis':VUI.money(order.shipping)}</span></div>
+      <div class="summary-row"><span>Impuestos</span><span>${VUI.money(order.tax)}</span></div>
+      <div class="summary-row total"><span class="t-label">Total pagado</span><span class="t-value">${VUI.money(order.total)}</span></div>
     </div>
     <div class="confirm-actions">
-      <a class="btn btn-primary" href="pedidos.html">${VUI.icon('box')}${T("oc.viewOrders")}</a><a class="btn btn-outline" href="buscar.html">${VUI.icon('cart')}${T("common.keepShopping")}</a>
+      <a class="btn btn-primary" href="pedidos.html">${VUI.icon('box')}Ver mis pedidos</a><a class="btn btn-outline" href="buscar.html">${VUI.icon('cart')}Seguir comprando</a>
     </div>
     <div class="card help-box">
-      <h2>${T("oc.helpTitle")}</h2>
-      <p>${T("oc.helpText")} <a href="#">${T("oc.contactSupport")}</a></p>
+      <h2>¿Necesitas ayuda con tu pedido?</h2>
+      <p>Escríbenos y te ayudamos con cambios, seguimiento o cualquier duda. <a href="#">Contactar con soporte →</a></p>
     </div>`;
 })();
 </script>

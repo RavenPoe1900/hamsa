@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="cart.title">Tu carrito — Electro Hogar</title>
+<title>Tu carrito — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   /* ---------- Cabecera del carrito ---------- */
   .cart-head{ padding:32px 0 22px; margin-bottom:26px; border-bottom:1px solid var(--border); }
@@ -13,7 +12,7 @@
   .cart-head .breadcrumbs .sep{ color:var(--border); }
   .cart-head-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px 24px; flex-wrap:wrap; }
   .cart-h1{ font-size:36px; line-height:1.05; letter-spacing:-.025em; }
-  .cart-h1 .count{ display:inline-block; margin-inline-start:10px; font-family:var(--font-ui); font-weight:600; font-size:18px; letter-spacing:0; color:var(--muted-fg); }
+  .cart-h1 .count{ display:inline-block; margin-left:10px; font-family:var(--font-ui); font-weight:600; font-size:18px; letter-spacing:0; color:var(--muted-fg); }
   .keep-shopping{ display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
   .keep-shopping svg{ width:16px; height:16px; }
 
@@ -50,7 +49,7 @@
   .line-actions .act-save{ color:var(--muted-fg); }
   .line-actions .act-save:hover{ color:var(--foreground); }
 
-  .cart-price-col{ grid-area:price; display:flex; flex-direction:column; align-items:flex-end; gap:3px; text-align:end; }
+  .cart-price-col{ grid-area:price; display:flex; flex-direction:column; align-items:flex-end; gap:3px; text-align:right; }
   .line-total{ font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em; }
   .line-unit{ font-size:12px; color:var(--muted-fg); }
 
@@ -100,7 +99,7 @@
     .cart-h1 .count{ display:block; margin:8px 0 0; }
     .cart-line{ grid-template-columns:78px 1fr; grid-template-areas:"thumb info" "price price"; gap:14px 16px; padding:24px 2px; }
     .cart-thumb{ width:78px; height:78px; padding:7px; }
-    .cart-price-col{ flex-direction:row; align-items:baseline; gap:10px; text-align:start; }
+    .cart-price-col{ flex-direction:row; align-items:baseline; gap:10px; text-align:left; }
     .related-grid{ grid-template-columns:1fr 1fr; gap:12px; }
   }
   @media (max-width:420px){ .related-grid{ grid-template-columns:1fr; } }
@@ -113,7 +112,6 @@
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -122,7 +120,6 @@
   const root = document.querySelector("[data-cart-root]");
   const user = VDB.currentUser();
   const money = VUI.money, esc = VUI.esc, I = VUI.icons;
-  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
 
   // Íconos locales (no incluidos en el set compartido)
   const SVG = {
@@ -171,8 +168,8 @@
 
   function stateBox(title, msg, href, cta){
     root.innerHTML = `
-      <nav class="breadcrumbs" style="padding-top:28px;"><a href="index.html">${T("crumb.home")}</a><span class="sep">›</span><span>${T("crumb.cart")}</span></nav>
-      <h1 class="cart-h1" style="padding:22px 0;">${T("cart.h1")}</h1>
+      <nav class="breadcrumbs" style="padding-top:28px;"><a href="index.html">Inicio</a><span class="sep">›</span><span>Carrito</span></nav>
+      <h1 class="cart-h1" style="padding:22px 0;">Tu carrito</h1>
       <div class="empty-state card" style="padding:56px 24px; text-align:center;">
         <h2 style="font-size:20px; margin-bottom:8px;">${title}</h2>
         <p style="color:var(--muted-fg); margin:0 0 20px;">${msg}</p>
@@ -181,9 +178,9 @@
   }
 
   function render(){
-    if(!user){ stateBox(T("cart.loginTitle"), T("cart.loginMsg"), "login.html?next=carrito.html", T("auth.signin")); return; }
+    if(!user){ stateBox("Inicia sesión para ver tu carrito","Guardamos tu carrito asociado a tu cuenta.","login.html?next=carrito.html","Iniciar sesión"); return; }
     const lines = VDB.cartLines(user.id);
-    if(!lines.length){ stateBox(T("cart.emptyTitle"), T("cart.emptyMsg"), "buscar.html", T("common.goToCatalog")); return; }
+    if(!lines.length){ stateBox("Tu carrito está vacío","Explora el catálogo y añade algo que te guste.","buscar.html","Ir al catálogo"); return; }
 
     const totals = VDB.cartTotals(user.id);
     const threshold = VDB.db.settings.freeShippingFrom;
@@ -197,60 +194,60 @@
 
     root.innerHTML = `
       <div class="cart-head">
-        <nav class="breadcrumbs"><a href="index.html">${T("crumb.home")}</a><span class="sep">›</span><span>${T("crumb.cart")}</span></nav>
+        <nav class="breadcrumbs"><a href="index.html">Inicio</a><span class="sep">›</span><span>Carrito</span></nav>
         <div class="cart-head-row">
-          <h1 class="cart-h1">${T("cart.h1")}<span class="count">${TP("cart.count", nProd)}</span></h1>
-          <a class="btn btn-outline btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}${T("common.keepShopping")}</a>
+          <h1 class="cart-h1">Tu carrito<span class="count">(${nProd} producto${nProd!==1?'s':''})</span></h1>
+          <a class="btn btn-outline btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}Seguir comprando</a>
         </div>
       </div>
 
       <div class="cart-layout">
         <section class="cart-lines">${lines.map(l=>{
-          const {name, model} = splitName(VDB.pTitle(l.product));
+          const {name, model} = splitName(l.product.title);
           const unit = l.product.price, lineTotal = unit*l.qty, inStock = l.product.stock>0;
           return `
           <div class="cart-line" data-line="${l.productId}">
             <a href="producto.html?id=${l.productId}" class="cart-thumb">${VUI.thumbImg(l.product)}</a>
             <div class="cart-info">
               <a class="cart-title" href="producto.html?id=${l.productId}">${esc(name)}</a>
-              ${model?`<div class="cart-model">${esc(T("cart.model",{m:model}))}</div>`:''}
-              <div class="stock-line ${inStock?'':'out'}">${inStock?SVG.check+T("cart.inStock"):SVG.alert+T("cart.outStock")}</div>
-              <div class="qty-controls"><button type="button" data-qty-dec aria-label="${esc(T("cart.qtyDec"))}">−</button><span data-qty-val>${l.qty}</span><button type="button" data-qty-inc aria-label="${esc(T("cart.qtyInc"))}">+</button></div>
+              ${model?`<div class="cart-model">Modelo: ${esc(model)}</div>`:''}
+              <div class="stock-line ${inStock?'':'out'}">${inStock?SVG.check+'En stock':SVG.alert+'Sin stock — elimínalo o reduce la cantidad'}</div>
+              <div class="qty-controls"><button type="button" data-qty-dec aria-label="Reducir cantidad">−</button><span data-qty-val>${l.qty}</span><button type="button" data-qty-inc aria-label="Aumentar cantidad">+</button></div>
               <div class="line-actions">
-                <button type="button" class="act-remove" data-remove-line>${SVG.trash}${T("cart.remove")}</button>
-                <button type="button" class="act-save" data-save-later>${SVG.bookmark}${T("cart.saveLater")}</button>
+                <button type="button" class="act-remove" data-remove-line>${SVG.trash}Eliminar</button>
+                <button type="button" class="act-save" data-save-later>${SVG.bookmark}Guardar para después</button>
               </div>
             </div>
             <div class="cart-price-col">
               <div class="line-total">${money(lineTotal)}</div>
-              ${l.qty>1?`<div class="line-unit">${l.qty} × ${money(unit)} ${T("common.each")}</div>`:''}
+              ${l.qty>1?`<div class="line-unit">${l.qty} × ${money(unit)} c/u</div>`:''}
             </div>
           </div>`;
         }).join("")}
-          <div class="cart-foot"><a class="btn btn-ghost btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}${T("common.keepShopping")}</a></div>
+          <div class="cart-foot"><a class="btn btn-ghost btn-sm keep-shopping" href="buscar.html">${I.chevronLeft}Seguir comprando</a></div>
         </section>
 
         <aside class="summary-card">
-          <h2>${T("cart.summary")}</h2>
-          <div class="summary-row"><span>${TP("cart.subtotalN", totals.count)}</span><span>${money(totals.subtotal)}</span></div>
-          <div class="summary-row"><span>${T("sum.shipping")}</span><span class="${totals.shipping===0?'sum-free':''}">${totals.shipping===0?T("sum.free"):money(totals.shipping)}</span></div>
-          <div class="summary-row"><span>${T("sum.tax")}</span><span>${money(totals.tax)}</span></div>
-          <div class="summary-row total"><span class="t-label">${T("sum.total")}</span><span class="t-value">${money(totals.total)}</span></div>
+          <h2>Resumen del pedido</h2>
+          <div class="summary-row"><span>Subtotal (${totals.count} artículo${totals.count!==1?'s':''})</span><span>${money(totals.subtotal)}</span></div>
+          <div class="summary-row"><span>Envío</span><span class="${totals.shipping===0?'sum-free':''}">${totals.shipping===0?'Gratis':money(totals.shipping)}</span></div>
+          <div class="summary-row"><span>Impuestos</span><span>${money(totals.tax)}</span></div>
+          <div class="summary-row total"><span class="t-label">Total</span><span class="t-value">${money(totals.total)}</span></div>
 
           <div class="freeship ${qualifies?'ok':''}">
-            <div class="freeship-top">${I.truck}<div>${qualifies?T("cart.freeshipOk"):T("cart.freeshipMore",{amount:`<b class="amt">${money(threshold-totals.subtotal)}</b>`})}</div></div>
+            <div class="freeship-top">${I.truck}<div>${qualifies?'<b>¡Genial!</b> Tu pedido tiene <b>envío gratis</b>.':`Añade <b>${money(threshold-totals.subtotal)}</b> más y consigue <b>envío gratis</b>.`}</div></div>
             <div class="freeship-bar"><i style="width:${qualifies?100:pct}%"></i></div>
           </div>
 
-          <a class="btn btn-buy btn-checkout" href="checkout.html">${I.lock}${T("cart.checkout")}</a>
-          <div class="secure-note">${I.shield}${T("cart.secure")}</div>
+          <a class="btn btn-buy btn-checkout" href="checkout.html">${I.lock}Tramitar pedido</a>
+          <div class="secure-note">${I.shield}Pago 100% seguro y cifrado</div>
           <div class="pay-methods">${PAY}</div>
         </aside>
       </div>
 
       ${related.length?`
       <section class="related-sec">
-        <h2>${T("cart.related")}</h2>
+        <h2>Productos que te pueden interesar</h2>
         <div class="related-grid">${related.map(p=>VUI.productCard(p)).join("")}</div>
       </section>`:''}
     `;
@@ -259,8 +256,8 @@
       const pid = lineEl.dataset.line;
       lineEl.querySelector("[data-qty-inc]").addEventListener("click",()=>{ const l=VDB.cartLines(user.id).find(x=>x.productId===pid); VDB.setCartQty(user.id,pid,Math.min(l.qty+1,l.product.stock||l.qty+1)); render(); VUI.updateCartBadge(); });
       lineEl.querySelector("[data-qty-dec]").addEventListener("click",()=>{ const l=VDB.cartLines(user.id).find(x=>x.productId===pid); VDB.setCartQty(user.id,pid,l.qty-1); render(); VUI.updateCartBadge(); });
-      lineEl.querySelector("[data-remove-line]").addEventListener("click",()=>{ VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast(T("cart.removed")); render(); });
-      lineEl.querySelector("[data-save-later]").addEventListener("click",()=>{ VDB.toggleWishlist(user.id,pid); VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast(T("cart.savedLater")); render(); });
+      lineEl.querySelector("[data-remove-line]").addEventListener("click",()=>{ VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast("Producto eliminado"); render(); });
+      lineEl.querySelector("[data-save-later]").addEventListener("click",()=>{ VDB.toggleWishlist(user.id,pid); VDB.removeFromCart(user.id,pid); VUI.updateCartBadge(); VUI.toast("Guardado para después"); render(); });
     });
   }
   render();

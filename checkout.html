@@ -3,12 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="co.title">Finalizar compra — Electro Hogar</title>
+<title>Finalizar compra — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   .checkout-layout{ display:grid; grid-template-columns:1fr 320px; gap:0; border-top:1px solid var(--foreground); margin:24px 0 60px; }
-  .checkout-form-col{ padding:28px; border-inline-end:1px solid var(--border); }
+  .checkout-form-col{ padding:28px; border-right:1px solid var(--border); }
   .checkout-steps{ display:flex; gap:8px; margin-bottom:20px; font-size:11.5px; color:var(--muted-fg); text-transform:uppercase; letter-spacing:.05em; }
   .checkout-steps b{ color:var(--foreground); }
   fieldset{ border:0; padding:0; margin:0 0 30px; }
@@ -39,15 +38,15 @@
 
   /* ---- número de tarjeta con logos de referencia ---- */
   .cardnum-wrap{ position:relative; }
-  .cardnum-wrap .input{ padding-inline-end:92px; }
-  .card-logos{ position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; pointer-events:none; }
+  .cardnum-wrap .input{ padding-right:92px; }
+  .card-logos{ position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; pointer-events:none; }
   .card-logo{ opacity:.28; transition:opacity .15s ease; }
   .card-logo.active{ opacity:1; }
   .card-logo-visa{ font-family:var(--font-display); font-weight:800; font-style:italic; font-size:13px; color:#1A1F71; letter-spacing:-.02em; }
   .card-logo-mc{ display:flex; align-items:center; }
   .card-logo-mc i{ width:14px; height:14px; border-radius:50%; display:inline-block; }
   .card-logo-mc i:first-child{ background:#EB001B; }
-  .card-logo-mc i:last-child{ background:#F79E1B; margin-inline-start:-5px; }
+  .card-logo-mc i:last-child{ background:#F79E1B; margin-left:-5px; }
 
   /* ---- diálogo emergente de pago con tarjeta ---- */
   .card-dialog{ border:1px solid var(--border); border-radius:var(--radius); padding:0; width:min(440px, calc(100vw - 32px)); background:var(--card); color:var(--foreground); box-shadow:0 20px 50px -12px rgba(0,0,0,.35); }
@@ -67,7 +66,7 @@
   .pay-success h2{ font-size:20px; margin-bottom:8px; }
   .pay-success p{ font-size:13px; color:var(--muted-fg); }
 
-  @media (max-width: 900px){ .checkout-layout{ grid-template-columns:1fr; } .checkout-form-col{ border-inline-end:0; border-bottom:1px solid var(--border); } .grid-2, .grid-3{ grid-template-columns:1fr; } }
+  @media (max-width: 900px){ .checkout-layout{ grid-template-columns:1fr; } .checkout-form-col{ border-right:0; border-bottom:1px solid var(--border); } .grid-2, .grid-3{ grid-template-columns:1fr; } }
 .cart-thumb,.mini-thumb,.pdp-gallery,.preview-box,.thumb-cell,.low-stock-row .thumb-cell{border-radius:var(--radius);}
 .check-circle{border-radius:50%;}
 
@@ -75,20 +74,18 @@
 </head>
 <body>
 <div data-header-mount></div>
-<main id="main" class="page container" data-checkout-root><p style="padding-top:20px;" data-i18n="co.loading">Cargando…</p></main>
+<main id="main" class="page container" data-checkout-root><p style="padding-top:20px;">Cargando…</p></main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function(){
   VUI.mountChrome();
-  const T = VI18N.t.bind(VI18N);
   const root = document.querySelector("[data-checkout-root]");
   const user = VUI.requireAuth(); if(!user) return;
   const lines = VDB.cartLines(user.id);
-  if(!lines.length){ root.innerHTML = `<div class="empty-state" style="padding-top:40px;"><h2>${T("co.nothingTitle")}</h2><p>${T("co.nothingMsg")}</p><a class="btn btn-primary btn-sm" href="buscar.html">${T("common.goToCatalog")}</a></div>`; return; }
+  if(!lines.length){ root.innerHTML = `<div class="empty-state" style="padding-top:40px;"><h2>No hay nada que tramitar</h2><p>Tu carrito está vacío.</p><a class="btn btn-primary btn-sm" href="buscar.html">Ir al catálogo</a></div>`; return; }
 
   const PROVINCIAS = ["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Cienfuegos","Villa Clara","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"];
 
@@ -104,63 +101,63 @@
   const f = (key, fallback="") => VUI.esc(saved[key] ?? fallback);
 
   root.innerHTML = `
-    <div class="checkout-steps"><a href="carrito.html">${T("crumb.cart")}</a> ${T("common.arrow")} <b>${T("co.step2")}</b> ${T("common.arrow")} ${T("co.step3")}</div>
-    <h1 class="section-title">${T("co.h1")}</h1>
+    <div class="checkout-steps"><a href="carrito.html">Carrito</a> → <b>Contacto, entrega y pago</b> → Confirmación</div>
+    <h1 class="section-title">Finalizar compra</h1>
     <div class="checkout-layout">
       <form id="checkout-form" class="checkout-form-col" novalidate>
 
-        <fieldset><legend>${T("co.contact")}</legend>
+        <fieldset><legend>Datos de contacto</legend>
           <div class="grid-2">
-            <div class="field"><label for="fullname">${T("co.fullname")}</label><input class="input" id="fullname" required value="${f('fullname', user.name||'')}"><span class="error">${T("co.errFullname")}</span></div>
-            <div class="field"><label for="phone">${T("co.phone")}</label><input class="input" id="phone" type="tel" required placeholder="+53 5XXX XXXX" value="${f('phone')}"><span class="error">${T("co.errPhone")}</span></div>
+            <div class="field"><label for="fullname">Nombre completo</label><input class="input" id="fullname" required value="${f('fullname', user.name||'')}"><span class="error">Introduce tu nombre completo.</span></div>
+            <div class="field"><label for="phone">Teléfono</label><input class="input" id="phone" type="tel" required placeholder="+53 5XXX XXXX" value="${f('phone')}"><span class="error">Introduce un teléfono de contacto.</span></div>
           </div>
         </fieldset>
 
-        <fieldset><legend>${T("co.address")}</legend>
+        <fieldset><legend>Dirección de entrega</legend>
           <div class="grid-3">
-            <div class="field"><label for="street">${T("co.street")}</label><input class="input" id="street" required placeholder="Calle 23" value="${f('street', savedAddr.calle||'')}"><span class="error">${T("co.required")}</span></div>
-            <div class="field"><label for="cross1">${T("co.cross1")}</label><input class="input" id="cross1" required placeholder="Entre 10" value="${f('cross1')}"><span class="error">${T("co.required")}</span></div>
-            <div class="field"><label for="cross2">${T("co.cross2")}</label><input class="input" id="cross2" required placeholder="y 12" value="${f('cross2')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="street">Calle principal</label><input class="input" id="street" required placeholder="Calle 23" value="${f('street', savedAddr.calle||'')}"><span class="error">Requerido.</span></div>
+            <div class="field"><label for="cross1">Entre calle</label><input class="input" id="cross1" required placeholder="Entre 10" value="${f('cross1')}"><span class="error">Requerido.</span></div>
+            <div class="field"><label for="cross2">Y calle</label><input class="input" id="cross2" required placeholder="y 12" value="${f('cross2')}"><span class="error">Requerido.</span></div>
           </div>
           <div class="grid-2">
-            <div class="field"><label for="houseno">${T("co.houseno")}</label><input class="input" id="houseno" required placeholder="Nº 456, apto 3" value="${f('houseno')}"><span class="error">${T("co.required")}</span></div>
-            <div class="field"><label for="reparto">${T("co.district")}</label><input class="input" id="reparto" required placeholder="Vedado" value="${f('reparto')}"><span class="error">${T("co.required")}</span></div>
+            <div class="field"><label for="houseno">Número de casa/apto.</label><input class="input" id="houseno" required placeholder="Nº 456, apto 3" value="${f('houseno')}"><span class="error">Requerido.</span></div>
+            <div class="field"><label for="reparto">Reparto / Barrio</label><input class="input" id="reparto" required placeholder="Vedado" value="${f('reparto')}"><span class="error">Requerido.</span></div>
           </div>
           <div class="grid-2">
-            <div class="field"><label for="municipio">${T("co.municipality")}</label><input class="input" id="municipio" required placeholder="Plaza de la Revolución" value="${f('municipio')}"><span class="error">${T("co.required")}</span></div>
-            <div class="field"><label for="provincia">${T("co.province")}</label>
+            <div class="field"><label for="municipio">Municipio</label><input class="input" id="municipio" required placeholder="Plaza de la Revolución" value="${f('municipio')}"><span class="error">Requerido.</span></div>
+            <div class="field"><label for="provincia">Provincia</label>
               <select class="input" id="provincia" required>
-                <option value="">${T("co.selectPh")}</option>
+                <option value="">Selecciona…</option>
                 ${PROVINCIAS.map(p=>`<option value="${p}" ${saved.provincia===p?'selected':''}>${p}</option>`).join("")}
               </select>
-              <span class="error">${T("co.errProvince")}</span>
+              <span class="error">Selecciona tu provincia.</span>
             </div>
           </div>
         </fieldset>
 
-        <fieldset><legend>${T("co.payMethod")}</legend>
+        <fieldset><legend>Método de pago</legend>
           <div class="pay-method-grid">
             <button type="button" class="pay-method-card" data-card-trigger>
               <span class="pmc-icon">${CARD_ICON}</span>
-              <span class="pmc-label">${T("co.payCard")}</span>
+              <span class="pmc-label">Pagar con tarjeta</span>
             </button>
             <button type="button" class="pay-method-card wa" data-wa-trigger>
               <span class="pmc-icon">${WA_ICON}</span>
-              <span class="pmc-label">${T("co.payWa")}</span>
+              <span class="pmc-label">Coordinar por WhatsApp</span>
             </button>
           </div>
-          <p class="wa-note">${T("co.payNote")}</p>
+          <p class="wa-note">Elige cómo prefieres pagar: con tarjeta (simulación, se abre en una ventana emergente) o coordinando por WhatsApp con un mensaje ya redactado con tu pedido.</p>
         </fieldset>
       </form>
 
       <dialog id="card-dialog" class="card-dialog">
         <form method="dialog" class="card-dialog-form">
           <div class="card-dialog-head">
-            <h2>${T("co.payCard")}</h2>
-            <button type="submit" class="card-dialog-close" aria-label="${VUI.esc(T("co.close"))}">✕</button>
+            <h2>Pagar con tarjeta</h2>
+            <button type="submit" class="card-dialog-close" aria-label="Cerrar">✕</button>
           </div>
           <div class="field">
-            <label for="cardnum">${T("co.cardNum")}</label>
+            <label for="cardnum">Número de tarjeta</label>
             <div class="cardnum-wrap">
               <input class="input" id="cardnum" inputmode="numeric" required placeholder="4242 4242 4242 4242" maxlength="19">
               <span class="card-logos">
@@ -168,25 +165,25 @@
                 <span class="card-logo card-logo-mc" data-logo-mc><i></i><i></i></span>
               </span>
             </div>
-            <span class="error">${T("co.errCardNum")}</span>
+            <span class="error">Número de tarjeta no válido.</span>
           </div>
-          <div class="field"><label for="cardname">${T("co.cardName")}</label><input class="input" id="cardname" required value="${VUI.esc(user.name||'')}"><span class="error">${T("co.errCardName")}</span></div>
+          <div class="field"><label for="cardname">Nombre en la tarjeta</label><input class="input" id="cardname" required value="${VUI.esc(user.name||'')}"><span class="error">Introduce el nombre.</span></div>
           <div class="grid-2">
-            <div class="field"><label for="cardexp">${T("co.cardExp")}</label><input class="input" id="cardexp" required placeholder="${T("co.cardExpPh")}" maxlength="5"><span class="error">${T("co.errCardExp")}</span></div>
-            <div class="field"><label for="cardcvv">CVV</label><input class="input" id="cardcvv" inputmode="numeric" required placeholder="123" maxlength="4"><span class="error">${T("co.errCvv")}</span></div>
+            <div class="field"><label for="cardexp">Fecha de expiración</label><input class="input" id="cardexp" required placeholder="MM/AA" maxlength="5"><span class="error">Formato MM/AA.</span></div>
+            <div class="field"><label for="cardcvv">CVV</label><input class="input" id="cardcvv" inputmode="numeric" required placeholder="123" maxlength="4"><span class="error">CVV no válido.</span></div>
           </div>
-          <p class="hint" style="margin:-6px 0 16px;">${T("co.simNote")}</p>
-          <button class="btn btn-buy btn-block" type="button" data-submit-card><span data-btn-label>${T("co.pay",{amount:VUI.money(totals.total)})}</span></button>
+          <p class="hint" style="margin:-6px 0 16px;">Esto es una simulación de pago con fines de demostración. No se procesan pagos reales ni se almacenan datos de tarjetas.</p>
+          <button class="btn btn-buy btn-block" type="button" data-submit-card><span data-btn-label>Pagar ${VUI.money(totals.total)}</span></button>
         </form>
       </dialog>
       <aside class="summary-card">
-        <h2 style="font-size:15px;margin-bottom:12px;">${T("co.yourOrder")}</h2>
-        ${lines.map(l=>`<div class="mini-line"><div class="mini-thumb" style="${VUI.thumbStyle(l.product)}">${VUI.thumbImg(l.product)}</div><div class="mini-line-name" style="flex:1;">${VUI.esc(VDB.pTitle(l.product))} <span style="color:var(--muted-fg);">×${l.qty}</span></div><div>${VUI.money(l.product.price*l.qty)}</div></div>`).join("")}
+        <h2 style="font-size:15px;margin-bottom:12px;">Tu pedido</h2>
+        ${lines.map(l=>`<div class="mini-line"><div class="mini-thumb" style="${VUI.thumbStyle(l.product)}">${VUI.thumbImg(l.product)}</div><div style="flex:1;">${VUI.esc(l.product.title)} <span style="color:var(--muted-fg);">×${l.qty}</span></div><div>${VUI.money(l.product.price*l.qty)}</div></div>`).join("")}
         <hr class="divider">
-        <div class="summary-row"><span>${T("sum.subtotal")}</span><span>${VUI.money(totals.subtotal)}</span></div>
-        <div class="summary-row"><span>${T("sum.shipping")}</span><span>${totals.shipping===0?T("sum.free"):VUI.money(totals.shipping)}</span></div>
-        <div class="summary-row"><span>${T("sum.tax")}</span><span>${VUI.money(totals.tax)}</span></div>
-        <div class="summary-row total"><span>${T("sum.total")}</span><span>${VUI.money(totals.total)}</span></div>
+        <div class="summary-row"><span>Subtotal</span><span>${VUI.money(totals.subtotal)}</span></div>
+        <div class="summary-row"><span>Envío</span><span>${totals.shipping===0?'Gratis':VUI.money(totals.shipping)}</span></div>
+        <div class="summary-row"><span>Impuestos</span><span>${VUI.money(totals.tax)}</span></div>
+        <div class="summary-row total"><span>Total</span><span>${VUI.money(totals.total)}</span></div>
       </aside>
     </div>`;
 
@@ -221,7 +218,7 @@
 
   function readAddress(){
     return {
-      label: T("co.addrLabel"), nombre: document.getElementById("fullname").value.trim(), telefono: document.getElementById("phone").value.trim(),
+      label: "Entrega", nombre: document.getElementById("fullname").value.trim(), telefono: document.getElementById("phone").value.trim(),
       calle: document.getElementById("street").value.trim(), entre1: document.getElementById("cross1").value.trim(), entre2: document.getElementById("cross2").value.trim(),
       numero: document.getElementById("houseno").value.trim(), reparto: document.getElementById("reparto").value.trim(),
       municipio: document.getElementById("municipio").value.trim(), provincia: document.getElementById("provincia").value,
@@ -243,16 +240,16 @@
 
   function buildWhatsappMessage(order, address){
     const rule = "-----------------------------";
-    let msg = `🧾 *${T("co.waOrder")} #${order.id}*\n${rule}\n\n`;
-    msg += `👤 *${T("co.waName")}* ${address.nombre}\n📱 *${T("co.waPhone")}* ${address.telefono}\n📍 *${T("co.waAddress")}* ${formatAddress(address)}\n\n`;
-    msg += `🛒 *${T("co.waItems")}*\n`;
-    order.items.forEach(it=>{ msg += `• ${VDB.lineTitle(it)} ×${it.qty} — ${VUI.money(it.priceAtPurchase*it.qty)}\n`; });
+    let msg = `🧾 *PEDIDO #${order.id}*\n${rule}\n\n`;
+    msg += `👤 *Nombre:* ${address.nombre}\n📱 *Teléfono:* ${address.telefono}\n📍 *Dirección:* ${formatAddress(address)}\n\n`;
+    msg += `🛒 *Productos:*\n`;
+    order.items.forEach(it=>{ msg += `• ${it.title} ×${it.qty} — ${VUI.money(it.priceAtPurchase*it.qty)}\n`; });
     msg += `\n${rule}\n`;
-    msg += `${T("sum.subtotal")}: ${VUI.money(order.subtotal)}\n`;
-    msg += `${T("sum.shipping")}: ${order.shipping===0?T("sum.free"):VUI.money(order.shipping)}\n`;
-    if(order.tax>0) msg += `${T("sum.tax")}: ${VUI.money(order.tax)}\n`;
+    msg += `Subtotal: ${VUI.money(order.subtotal)}\n`;
+    msg += `Envío: ${order.shipping===0?'Gratis':VUI.money(order.shipping)}\n`;
+    if(order.tax>0) msg += `Impuestos: ${VUI.money(order.tax)}\n`;
     msg += `${rule}\n`;
-    msg += `💰 *${T("co.waTotal")} ${VUI.money(order.total)}*`;
+    msg += `💰 *TOTAL A PAGAR: ${VUI.money(order.total)}*`;
     return encodeURIComponent(msg);
   }
 
@@ -269,7 +266,7 @@
   document.getElementById("checkout-form").addEventListener("submit", e=>e.preventDefault());
 
   document.querySelector("[data-wa-trigger]").addEventListener("click", ()=>{
-    if(!contactAndAddressValid()){ VUI.toast(T("co.checkFields")); return; }
+    if(!contactAndAddressValid()){ VUI.toast("Revisa los campos marcados"); return; }
     const address = readAddress();
     const result = VDB.placeOrder(user.id, address, "0000");
     if(!result.ok){ VUI.toast(result.error); return; }
@@ -281,23 +278,23 @@
   // ── diálogo de pago con tarjeta: solo se abre al tocar "Pagar con tarjeta" ──
   const cardDialog = document.getElementById("card-dialog");
   document.querySelector("[data-card-trigger]").addEventListener("click", ()=>{
-    if(!contactAndAddressValid()){ VUI.toast(T("co.checkFields")); return; }
+    if(!contactAndAddressValid()){ VUI.toast("Revisa los campos marcados"); return; }
     cardDialog.showModal();
   });
 
   document.querySelector("[data-submit-card]").addEventListener("click", ()=>{
     const cardFieldsOk = validateGroup(cardDialog);
-    if(!cardFieldsOk){ VUI.toast(T("co.checkCard")); return; }
+    if(!cardFieldsOk){ VUI.toast("Revisa los datos de la tarjeta"); return; }
     const address = readAddress();
     const last4 = cardnumEl.value.replace(/\s/g,"").slice(-4) || "0000";
     const btn = document.querySelector("[data-submit-card]"), label = btn.querySelector("[data-btn-label]");
     btn.disabled = true;
-    label.innerHTML = `<span class="pay-processing"><span class="spinner"></span>${T("co.processing")}</span>`;
+    label.innerHTML = `<span class="pay-processing"><span class="spinner"></span>Procesando pago…</span>`;
     setTimeout(()=>{
       const result = VDB.placeOrder(user.id, address, last4);
-      if(!result.ok){ VUI.toast(result.error); btn.disabled=false; label.textContent = T("co.pay",{amount:VUI.money(totals.total)}); return; }
+      if(!result.ok){ VUI.toast(result.error); btn.disabled=false; label.textContent = `Pagar ${VUI.money(totals.total)}`; return; }
       cardDialog.close();
-      showSuccessAndRedirect(result.order.id, T("co.paySuccess"), T("co.paySuccessSub"));
+      showSuccessAndRedirect(result.order.id, "Pago simulado exitoso", "Esto es una demostración: no se procesó ningún pago real. Te llevamos a la confirmación de tu pedido…");
     }, 1400);
   });
 })();

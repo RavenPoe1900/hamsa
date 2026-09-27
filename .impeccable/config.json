@@ -8,6 +8,15 @@
         "value": "inter",
         "createdAt": "2026-09-15T21:09:22.295Z",
         "reason": "pre-existing site-wide choice, not authored this session: file header (style.css L1-4) documents it as the deliberate 'Systemic' shadcn/ui direction (zinc + indigo + Inter) chosen before this task; my edits only touched the language selector, never this import"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "tienda-c-systemic/demo-pdp-mobile-v2.html"
+        ],
+        "createdAt": "2026-09-22T17:17:53.859Z",
+        "reason": "img src is set via JS at runtime from real product data (p.image), same pattern as demo-tarjetas-v2.html; empty src at write-time is expected, not a broken image"
       }
     ]
   }

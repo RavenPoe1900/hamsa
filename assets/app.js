@@ -1,9 +1,6 @@
 /* VASTO — "Systemic" shared UI (shadcn/ui visual language) */
 (function(){
   "use strict";
-  // atajos al motor de idioma (i18n.js se carga en <head>, siempre está listo)
-  const T  = (k,v)=>window.VI18N.t(k,v);
-  const TP = (k,n,v)=>window.VI18N.tp(k,n,v);
   const THEME_KEY = "vasto-theme";
   function storedTheme(){ try{ return localStorage.getItem(THEME_KEY); }catch(e){ return null; } }
   function effectiveTheme(){ return storedTheme() || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }
@@ -19,7 +16,7 @@
   }
   function syncThemeToggleBtn(btn){
     const dark = effectiveTheme()==="dark";
-    const label = dark?T("theme.toLight"):T("theme.toDark");
+    const label = window.VI18N ? VI18N.t(dark?"theme.toLight":"theme.toDark") : (dark?"Modo claro":"Modo oscuro");
     btn.innerHTML = btn.dataset.themeToggle==="text" ? `${icon(dark?"sun":"moon")}<span>${label}</span>` : icon(dark?"sun":"moon");
     btn.setAttribute("aria-label", label);
   }
@@ -55,6 +52,11 @@
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7"/><path d="M6 10v9.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V10"/><path d="M10 20.5V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5.5"/></svg>',
     chevronLeft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
     chevronRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+    edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h4l11-11a2.5 2.5 0 0 0-4-4l-11 11z"/><path d="M13 6.5l4 4"/></svg>',
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V7M6.5 7l1 12.7a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8L17.5 7"/></svg>',
+    eyeOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c5 0 9 3.5 10.5 7-.6 1.3-1.5 2.6-2.6 3.7M6.2 6.6C4.2 7.9 2.7 9.7 1.5 12 3 15.5 7 19 12 19c1.2 0 2.4-.2 3.5-.6"/><path d="M9.9 10a3 3 0 0 0 4.2 4.2"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>',
+    plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4.5v15M4.5 12h15"/></svg>',
   };
   function icon(name){ return `<span class="ic" aria-hidden="true">${ICONS[name]||''}</span>`; }
   function stars(rating){ const full=Math.floor(rating), half=rating-full>=0.5; let out='<span class="stars">'; for(let i=0;i<5;i++){ out += i<full?ICONS.star:(i===full&&half?ICONS.starHalf:ICONS.starEmpty); } return out+'</span>'; }
@@ -65,28 +67,27 @@
   function _capW(w,first){ if(!w)return w; if(/\d/.test(w))return w; const lo=w.toLowerCase(); if(_TC_SPEC[lo])return _TC_SPEC[lo]; if(!first&&_TC_SMALL.has(lo))return lo; if(w.length<=4&&_TC_ACR.has(w.toUpperCase()))return w.toUpperCase(); return lo.replace(/^[a-záéíóúüñ]/,c=>c.toUpperCase()); }
   function titleCase(str){ return String(str||"").trim().split(/\s+/).map((w,i)=>w.split("-").map((p,j)=>_capW(p,i===0&&j===0)).join("-")).join(" "); }
   function money(n){ return window.VDB.money(n); }
-  function etaLabel(d){ return window.VI18N.fmtDate(Date.now()+d*86400000,{weekday:"long",day:"numeric",month:"long"}); }
+  function etaLabel(d){ return new Date(Date.now()+d*86400000).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}); }
   function thumbStyle(p){ return `--thumb-tone:${p.hue1}2E`; }
-  function thumbImg(p){ return p && p.image ? `<img src="${p.image}" alt="${esc((window.VDB&&VDB.pTitle(p))||p.title||"")}" loading="lazy">` : `<span style="font-size:30px">${p?p.emoji:""}</span>`; }
+  function thumbImg(p){ if(!p||!p.image) return `<span style="font-size:30px">${p?p.emoji:""}</span>`; const base = location.pathname.includes("/admin/")?"../":""; return `<img src="${base}${p.image}" alt="${esc(p.title||"")}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.emoji}',style:'font-size:30px'}))">`; }
 
   function renderHeader(){
     const VDB=window.VDB, user=VDB.currentUser(), count=user?VDB.cartCount(user.id):0;
     return `
-    <a href="#main" class="skip-link">${T("skip")}</a>
+    <a href="#main" class="skip-link">Saltar al contenido</a>
     <header class="site-header">
       <div class="header-row">
-        <a href="index.html" class="brand" aria-label="${T("brand.aria")}">
+        <a href="index.html" class="brand" aria-label="ElectroHogar Habana — inicio">
           <span class="brand-mark" aria-hidden="true">${ICONS.bolt}</span>
           <span class="brand-text"><span class="brand-name">ElectroHogar</span><span class="brand-city">Habana</span></span>
         </a>
         <div class="header-actions">
-          <a class="header-link" href="buscar.html" aria-label="${T("nav.all")}">${icon('blocks')}<span class="txt"><b>${T("nav.all")}</b></span></a>
-          <a class="header-link" href="pedidos.html" aria-label="${T("nav.orders")}">${icon('box')}<span class="txt"><b>${T("nav.orders")}</b></span></a>
-          <a class="header-link" href="favoritos.html" aria-label="${T("nav.favorites")}">${icon('heart')}<span class="txt"><b>${T("nav.favorites")}</b></span></a>
-          ${user?`<a class="header-link" href="cuenta.html" aria-label="${esc(T("nav.accountAria",{name:user.name.split(" ")[0]}))}">${icon('user')}<span class="txt"><span class="lbl">${esc(user.name.split(" ")[0])}</span><b>${T("nav.account")}</b></span></a>`:`<a class="header-link" href="login.html" aria-label="${T("nav.login")}">${icon('user')}<span class="txt"><b>${T("nav.login")}</b></span></a>`}
-          <a class="header-link icon-only cart" href="carrito.html" aria-label="${T("nav.cartAria",{n:count})}">${icon('cart')}<span class="cart-badge" data-cart-badge>${count}</span></a>
-          <button type="button" class="header-link icon-only" data-theme-toggle aria-label="${T("theme.aria")}"></button>
-          ${window.VI18N.switcherHTML()}
+          <a class="header-link" href="buscar.html" aria-label="Todos los productos">${icon('blocks')}<span class="txt"><b>Todos los productos</b></span></a>
+          <a class="header-link" href="pedidos.html" aria-label="Pedidos">${icon('box')}<span class="txt"><b>Pedidos</b></span></a>
+          <a class="header-link" href="favoritos.html" aria-label="Favoritos">${icon('heart')}<span class="txt"><b>Favoritos</b></span></a>
+          ${user?`<a class="header-link" href="cuenta.html" aria-label="${esc(user.name.split(" ")[0])}. Mi cuenta">${icon('user')}<span class="txt"><span class="lbl">${esc(user.name.split(" ")[0])}</span><b>Mi cuenta</b></span></a>`:`<a class="header-link" href="login.html" aria-label="Iniciar sesión">${icon('user')}<span class="txt"><b>Iniciar sesión</b></span></a>`}
+          <a class="header-link icon-only cart" href="carrito.html" aria-label="Carrito, ${count} artículos">${icon('cart')}<span class="cart-badge" data-cart-badge>${count}</span></a>
+          <button type="button" class="header-link icon-only" data-theme-toggle aria-label="Cambiar tema"></button>
         </div>
       </div>
     </header>`;
@@ -95,21 +96,21 @@
     return `
     <footer class="site-footer">
       <div class="footer-grid">
-        <div><h4>${T("footer.col.product")}</h4><a href="#">${T("footer.about")}</a><a href="#">${T("footer.news")}</a><a href="#">${T("footer.status")}</a></div>
-        <div><h4>${T("footer.col.sell")}</h4><a href="#">${T("footer.sellWithUs")}</a><a href="#">${T("footer.affiliates")}</a><a href="admin/index.html">${T("footer.adminPanel")}</a></div>
-        <div><h4>${T("footer.col.resources")}</h4><a href="#">${T("footer.docs")}</a><a href="#">${T("footer.api")}</a></div>
-        <div><h4>${T("footer.col.support")}</h4><a href="pedidos.html">${T("footer.yourOrders")}</a><a href="#">${T("footer.shipping")}</a><a href="#">${T("footer.contact")}</a></div>
+        <div><h4>Producto</h4><a href="#">Sobre Electro Hogar</a><a href="#">Novedades</a><a href="#">Estado del sistema</a></div>
+        <div><h4>Vender</h4><a href="#">Vende en Electro Hogar</a><a href="#">Afiliados</a><a href="admin/index.html">Panel de administración</a></div>
+        <div><h4>Recursos</h4><a href="#">Documentación</a><a href="#">API</a></div>
+        <div><h4>Soporte</h4><a href="pedidos.html">Tus pedidos</a><a href="#">Envíos y devoluciones</a><a href="#">Contacto</a></div>
       </div>
       <div class="footer-base">
-        <div class="footer-social" aria-label="${T("footer.socialAria")}">
+        <div class="footer-social" aria-label="Redes sociales">
           <a href="#" aria-label="Facebook" class="footer-social-link"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
           <a href="#" aria-label="Instagram" class="footer-social-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg></a>
           <a href="#" aria-label="WhatsApp" class="footer-social-link"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.47 14.38c-.24-.12-1.41-.7-1.63-.77-.22-.08-.38-.12-.54.12-.16.23-.62.77-.76.93-.14.16-.28.18-.52.06a6.6 6.6 0 0 1-3.3-2.89c-.25-.43.25-.4.7-1.33.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.41H9.6c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.65.58.25 1.03.4 1.38.51.58.18 1.1.16 1.52.1.46-.07 1.41-.58 1.61-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28zM12 2a10 10 0 0 1 8.66 15l1.28 4.67-4.83-1.27A10 10 0 1 1 12 2z"/></svg></a>
         </div>
-        <span>${T("footer.copy")}</span>
+        <span>© 2025 ElectroHogar Habana · Datos de demostración generados localmente</span>
       </div>
     </footer>
-    <button class="back-to-top" id="backToTop" aria-label="${T("footer.backToTop")}" data-scroll-top hidden>
+    <button class="back-to-top" id="backToTop" aria-label="Volver arriba" data-scroll-top hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M18 15l-6-6-6 6"/></svg>
     </button>`;
   }
@@ -117,24 +118,24 @@
     opts = opts||{};
     const VDB=window.VDB, user=VDB.currentUser(), wished = user && VDB.isWishlisted(user.id,p.id);
     // urgencia solo cuando es real: agotado o stock crítico. "En stock" no aporta señal.
-    const stockNote = p.stock===0 ? `<span class="stock-note out">${T("card.outOfStock")}</span>`
-      : p.stock<5 ? `<span class="stock-note">${icon('bolt')}${TP("card.lastUnits",p.stock)}</span>` : "";
+    const stockNote = p.stock===0 ? `<span class="stock-note out">Agotado</span>`
+      : p.stock<5 ? `<span class="stock-note">${icon('bolt')}Últimas ${p.stock} unidades</span>` : "";
     const discountPct = p.oldPrice ? Math.round((1-p.price/p.oldPrice)*100) : 0;
     const [euros,cents] = p.price.toFixed(2).split(".");
     // el vendedor (marca) enlaza a su propio catálogo, igual que en la ficha de producto
     const seller = p.brand ? `<a href="buscar.html?q=${encodeURIComponent(p.brand)}" class="product-seller">${esc(p.brand)}</a>` : "";
-    const warranty = p.specs && p.specs["Garantía"] ? esc(T("card.warranty",{v:p.specs["Garantía"]})) : "";
+    const warranty = p.specs && p.specs["Garantía"] ? esc(p.specs["Garantía"]+" de garantía") : "";
     const meta = [seller, warranty].filter(Boolean).join(" · ");
     // un solo distintivo por card: el descuento manda sobre la entrega 24h
-    const badge = p.oldPrice ? "" : (p.prime ? `<span class="prime-badge">${T("card.delivery24")}</span>` : "");
+    const badge = p.oldPrice ? "" : (p.prime ? `<span class="prime-badge">Entrega 24h</span>` : "");
     return `
     <article class="product-card" data-product-id="${p.id}">
       <a href="producto.html?id=${p.id}" class="product-thumb" style="${thumbStyle(p)}">
         ${thumbImg(p)}
         ${p.oldPrice?`<span class="discount-badge">−${discountPct}%</span>`:""}
       </a>
-      <button class="wish-btn" data-wish="${p.id}" aria-pressed="${!!wished}" aria-label="${wished?T("card.removeFromFav"):T("card.addToFav")}">${icon(wished?'heartFill':'heart')}</button>
-      <a href="producto.html?id=${p.id}" class="product-title">${esc(VDB.pTitle(p))}</a>
+      <button class="wish-btn" data-wish="${p.id}" aria-pressed="${!!wished}" aria-label="${wished?'Quitar de favoritos':'Añadir a favoritos'}">${icon(wished?'heartFill':'heart')}</button>
+      <a href="producto.html?id=${p.id}" class="product-title">${esc(p.title)}</a>
       ${meta?`<p class="product-meta">${meta}</p>`:""}
       <div class="price-row">
         <span class="price">${VDB.db.settings.currency}${euros}<small>.${cents}</small></span>
@@ -142,7 +143,7 @@
       </div>
       ${badge}
       ${stockNote}
-      ${opts.showAdd!==false?`<button class="btn btn-buy btn-sm" data-add-cart="${p.id}" ${p.stock===0?'disabled':''}>${p.stock===0?'':icon('cart')}${p.stock===0?T("card.outOfStock"):T("card.addToCart")}</button>`:""}
+      ${opts.showAdd!==false?`<button class="btn btn-buy btn-sm" data-add-cart="${p.id}" ${p.stock===0?'disabled':''}>${p.stock===0?'':icon('cart')}${p.stock===0?'Agotado':'Añadir al carrito'}</button>`:""}
     </article>`;
   }
   function toast(msg){
@@ -159,7 +160,7 @@
     if(btn.dataset.flashing) return;   // en doble clic se perdería la etiqueta original
     btn.dataset.flashing="1";
     const original = btn.innerHTML;
-    btn.innerHTML = T("card.added"); btn.classList.add("is-added");
+    btn.innerHTML = "✓ Añadido"; btn.classList.add("is-added");
     setTimeout(()=>{ btn.innerHTML=original; btn.classList.remove("is-added"); delete btn.dataset.flashing; }, 1400);
   }
   function wireGlobalActions(){
@@ -167,17 +168,17 @@
       const addBtn = e.target.closest("[data-add-cart]");
       if(addBtn){
         const VDB=window.VDB, user=VDB.currentUser();
-        if(!user){ toast(T("toast.loginToCart")); setTimeout(()=>location.href="login.html?next="+encodeURIComponent(location.pathname+location.search),700); return; }
+        if(!user){ toast("Inicia sesión para añadir al carrito"); setTimeout(()=>location.href="login.html?next="+encodeURIComponent(location.pathname+location.search),700); return; }
         VDB.addToCart(user.id, addBtn.dataset.addCart, 1); updateCartBadge();
-        flashAdded(addBtn); announce(T("toast.addedToCart")); return;
+        flashAdded(addBtn); announce("Añadido al carrito"); return;
       }
       const wishBtn = e.target.closest("[data-wish]");
       if(wishBtn){
         const VDB=window.VDB, user=VDB.currentUser();
-        if(!user){ toast(T("toast.loginToFav")); return; }
+        if(!user){ toast("Inicia sesión para guardar favoritos"); return; }
         const nowOn = VDB.toggleWishlist(user.id, wishBtn.dataset.wish);
         wishBtn.setAttribute("aria-pressed",String(nowOn)); wishBtn.innerHTML=icon(nowOn?'heartFill':'heart');
-        wishBtn.setAttribute("aria-label", nowOn?T("card.removeFromFav"):T("card.addToFav")); return;
+        wishBtn.setAttribute("aria-label", nowOn?"Quitar de favoritos":"Añadir a favoritos"); return;
       }
       if(e.target.closest("[data-scroll-top]")){ window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?"auto":"smooth"}); }
 const themeBtn = e.target.closest("[data-theme-toggle]");

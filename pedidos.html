@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="orders.title">Tus pedidos — Electro Hogar</title>
+<title>Tus pedidos — Electro Hogar</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="assets/i18n.js"></script>
 <style>
   /* ---------- Cabecera ---------- */
   .orders-head{ padding:32px 0 26px; border-bottom:1px solid var(--border); margin-bottom:28px; }
@@ -21,8 +20,8 @@
 
   /* Cabecera de la tarjeta: 3 columnas */
   .order-head{ display:grid; grid-template-columns:repeat(3,1fr); gap:0; background:var(--muted); border-bottom:1px solid var(--border); }
-  .order-meta{ padding:14px 20px; border-inline-end:1px solid var(--border); }
-  .order-meta:last-child{ border-inline-end:0; }
+  .order-meta{ padding:14px 20px; border-right:1px solid var(--border); }
+  .order-meta:last-child{ border-right:0; }
   .order-meta dt{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-fg); margin-bottom:5px; }
   .order-meta dd{ margin:0; font-weight:700; font-size:13.5px; color:var(--foreground); }
 
@@ -42,8 +41,8 @@
   .mini-title{ font-size:13.5px; font-weight:600; color:var(--foreground); line-height:1.35; }
   .mini-title:hover{ color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
   a.mini-thumb:hover{ border-color:var(--accent); }
-  .mini-qty{ display:inline-flex; align-items:center; justify-content:center; min-width:26px; padding:1px 6px; background:var(--muted); border:1px solid var(--border); border-radius:var(--radius-tag); font-size:11px; font-weight:700; color:var(--muted-fg); margin-inline-start:8px; vertical-align:middle; white-space:nowrap; }
-  .mini-price{ text-align:end; flex-shrink:0; }
+  .mini-qty{ display:inline-flex; align-items:center; justify-content:center; min-width:26px; padding:1px 6px; background:var(--muted); border:1px solid var(--border); border-radius:var(--radius-tag); font-size:11px; font-weight:700; color:var(--muted-fg); margin-left:8px; vertical-align:middle; white-space:nowrap; }
+  .mini-price{ text-align:right; flex-shrink:0; }
   .mini-price .p-total{ font-family:var(--font-display); font-weight:800; font-size:15px; }
   .mini-price .p-unit{ font-size:11px; color:var(--muted-fg); margin-top:2px; }
 
@@ -57,15 +56,15 @@
   @media (max-width:900px){
     .order-head{ grid-template-columns:1fr 1fr; }
     .order-meta{ border-bottom:1px solid var(--border); }
-    .order-meta:nth-child(odd){ border-inline-end:1px solid var(--border); }
-    .order-meta:nth-child(even){ border-inline-end:0; }
+    .order-meta:nth-child(odd){ border-right:1px solid var(--border); }
+    .order-meta:nth-child(even){ border-right:0; }
     .order-meta:nth-last-child(-n+2):nth-child(odd),
     .order-meta:last-child{ border-bottom:0; }
   }
   @media (max-width:480px){
     .orders-h1{ font-size:26px; }
     .order-head{ grid-template-columns:1fr; }
-    .order-meta{ border-inline-end:0 !important; border-bottom:1px solid var(--border) !important; }
+    .order-meta{ border-right:0 !important; border-bottom:1px solid var(--border) !important; }
     .order-meta:last-child{ border-bottom:0 !important; }
     .mini-thumb{ width:48px; height:48px; }
     .order-actions{ gap:8px; }
@@ -77,14 +76,13 @@
 <div data-header-mount></div>
 <main id="main" class="page container">
   <div class="orders-head">
-    <nav class="breadcrumbs"><a href="index.html" data-i18n="crumb.home">Inicio</a><span class="sep">›</span><span data-i18n="orders.h1">Tus pedidos</span></nav>
-    <h1 class="orders-h1" data-i18n="orders.h1">Tus pedidos</h1>
+    <nav class="breadcrumbs"><a href="index.html">Inicio</a><span class="sep">›</span><span>Tus pedidos</span></nav>
+    <h1 class="orders-h1">Tus pedidos</h1>
   </div>
   <div data-orders-root></div>
 </main>
 <div data-footer-mount></div>
 <script src="assets/products-data.js"></script>
-<script src="assets/i18n-catalog.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -93,7 +91,6 @@
   const user = VUI.requireAuth(); if(!user) return;
   const root = document.querySelector("[data-orders-root]");
   const esc = VUI.esc, money = VUI.money;
-  const T = VI18N.t.bind(VI18N), TP = VI18N.tp.bind(VI18N);
 
   const SVG = {
     eye:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>',
@@ -106,23 +103,22 @@
   let visibleCount = PAGE_SIZE;
 
   function orderCard(o){
-    const date = VI18N.fmtDate(o.createdAt,{day:'numeric',month:'short',year:'numeric'});
+    const date = new Date(o.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});
     const canRebuy  = true;
 
     const lines = o.items.map(it=>{
       const lineTotal = it.priceAtPurchase * it.qty;
       const href = `producto.html?id=${encodeURIComponent(it.productId)}`;
-      const itTitle = VDB.lineTitle(it);
       return `
         <div class="mini-line">
-          <a href="${href}" class="mini-thumb" title="${esc(itTitle)}">${VUI.thumbImg(it)}</a>
+          <a href="${href}" class="mini-thumb" title="${esc(it.title)}">${VUI.thumbImg(it)}</a>
           <div class="mini-info">
-            <a href="${href}" class="mini-title" style="color:inherit;">${esc(itTitle)}</a>
+            <a href="${href}" class="mini-title" style="color:inherit;">${esc(it.title)}</a>
             ${it.qty > 1 ? `<span class="mini-qty">×${it.qty}</span>` : ''}
           </div>
           <div class="mini-price">
             <div class="p-total">${money(lineTotal)}</div>
-            ${it.qty > 1 ? `<div class="p-unit">${money(it.priceAtPurchase)} ${T("common.each")}</div>` : ''}
+            ${it.qty > 1 ? `<div class="p-unit">${money(it.priceAtPurchase)} c/u</div>` : ''}
           </div>
         </div>`;
     }).join("");
@@ -130,15 +126,15 @@
     return `
       <div class="order-card" data-order-id="${o.id}">
         <dl class="order-head">
-          <div class="order-meta"><dt>${T("orders.placed")}</dt><dd>${date}</dd></div>
-          <div class="order-meta"><dt>${T("sum.total")}</dt><dd>${money(o.total)}</dd></div>
-          <div class="order-meta"><dt>${T("oc.order")}</dt><dd><span class="order-id-chip">${esc(o.id)}</span></dd></div>
+          <div class="order-meta"><dt>Realizado</dt><dd>${date}</dd></div>
+          <div class="order-meta"><dt>Total</dt><dd>${money(o.total)}</dd></div>
+          <div class="order-meta"><dt>Pedido</dt><dd><span class="order-id-chip">${esc(o.id)}</span></dd></div>
         </dl>
         <div class="order-body">
           ${lines}
           <div class="order-actions">
-            <a class="btn btn-outline btn-sm" href="pedido-confirmado.html?id=${o.id}">${SVG.eye} ${T("orders.viewDetail")}</a>
-            <button class="btn btn-primary btn-sm" data-rebuy="${o.id}">${SVG.rebuy} ${T("orders.rebuy")}</button>
+            <a class="btn btn-outline btn-sm" href="pedido-confirmado.html?id=${o.id}">${SVG.eye} Ver detalle</a>
+            <button class="btn btn-primary btn-sm" data-rebuy="${o.id}">${SVG.rebuy} Volver a comprar</button>
           </div>
         </div>
       </div>`;
@@ -151,9 +147,9 @@
       root.innerHTML = `
         <div class="empty-state">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <h2>${T("orders.emptyTitle")}</h2>
-          <p>${T("orders.emptyMsg")}</p>
-          <a class="btn btn-primary btn-sm" href="buscar.html">${T("common.goToCatalog")}</a>
+          <h2>Aún no tienes pedidos</h2>
+          <p>Cuando realices tu primera compra, aparecerá aquí.</p>
+          <a class="btn btn-primary btn-sm" href="buscar.html">Ir al catálogo</a>
         </div>`;
       return;
     }
@@ -166,8 +162,8 @@
       ${hasMore
         ? `<div class="load-more-wrap">
              <button class="btn btn-outline" id="loadMoreBtn">
-               ${T("orders.loadMore")}
-               <span style="color:var(--muted-fg);font-weight:400;">${TP("orders.remaining", filtered.length - visibleCount)}</span>
+               Cargar más pedidos
+               <span style="color:var(--muted-fg);font-weight:400;">(${filtered.length - visibleCount} restantes)</span>
              </button>
            </div>`
         : ''}`;
@@ -175,14 +171,14 @@
     // Volver a comprar — con guard contra getOrder null y aviso si nada se añadió
     root.querySelectorAll("[data-rebuy]").forEach(btn => btn.addEventListener("click", ()=>{
       const o = VDB.getOrder(btn.dataset.rebuy);
-      if(!o){ VUI.toast(T("orders.notFound")); return; }
+      if(!o){ VUI.toast("No se encontró el pedido"); return; }
       let added = 0;
       o.items.forEach(it=>{
         const prod = VDB.getProduct(it.productId);
         if(prod && prod.stock > 0){ VDB.addToCart(user.id, it.productId, it.qty); added++; }
       });
       VUI.updateCartBadge();
-      VUI.toast(added > 0 ? T("orders.rebought") : T("orders.noneAvail"));
+      VUI.toast(added > 0 ? "Productos añadidos al carrito" : "Ningún producto está disponible actualmente");
     }));
 
     const loadMoreBtn = document.getElementById("loadMoreBtn");
