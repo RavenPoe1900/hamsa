@@ -7,10 +7,13 @@
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/admin.css">
 <script src="../assets/i18n.js"></script>
+<script src="../assets/i18n-negocio.js"></script>
 </head>
 <body>
 <script src="../assets/products-data.js"></script>
 <script src="../assets/data.js"></script>
+<script src="../assets/negocio-demo.js"></script>
+<script src="../assets/negocio.js"></script>
 <script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
 <script src="../assets/app.js"></script>
 <script src="../assets/admin.js"></script>
@@ -25,6 +28,7 @@
         <div style="display:flex; gap:10px;"><button class="btn btn-primary btn-sm" data-gen-products="20">${t('adm.data.nProducts',{n:20})}</button><button class="btn btn-outline btn-sm" data-gen-products="50">${t('adm.data.nProducts',{n:50})}</button></div></div>
       <div class="gen-card"><h3>${t('adm.data.genUsers')}</h3><p>${t('adm.data.genUsersP')}</p><button class="btn btn-primary btn-sm" data-gen-users="10">${t('adm.data.nUsers',{n:10})}</button></div>
       <div class="gen-card"><h3>${t('adm.data.genOrders')}</h3><p>${t('adm.data.genOrdersP')}</p><button class="btn btn-primary btn-sm" data-gen-orders="15">${t('adm.data.nOrders',{n:15})}</button></div>
+      <div class="gen-card"><h3>${t('neg.demo.title')}</h3><p>${t('neg.demo.help')}</p><button class="btn btn-primary btn-sm" data-neg-demo>${t('neg.demo.btn')}</button></div>
       <div class="gen-card"><h3>${t('adm.data.io')}</h3><p>${t('adm.data.ioP')}</p>
         <button class="btn btn-outline btn-sm" data-export style="margin-bottom:10px;">${t('adm.data.copyJson')}</button>
         <textarea class="input" data-import-box placeholder="${t('adm.data.importPh')}" style="min-height:80px;font-size:12px;"></textarea>
@@ -40,6 +44,7 @@
   document.querySelectorAll("[data-gen-products]").forEach(b=>b.addEventListener("click",()=>{ VDB.generateProducts(Number(b.dataset.genProducts)); VUI.toast(t('adm.data.productsDone',{n:b.dataset.genProducts})); paintState(); }));
   document.querySelector("[data-gen-users]").addEventListener("click",(e)=>{ VDB.generateUsers(Number(e.target.dataset.genUsers)); VUI.toast(t('adm.data.usersDone')); paintState(); });
   document.querySelector("[data-gen-orders]").addEventListener("click",(e)=>{ const n=VDB.generateOrders(Number(e.target.dataset.genOrders)); VUI.toast(n?t('adm.data.ordersDone'):t('adm.data.needFirst')); paintState(); });
+  document.querySelector("[data-neg-demo]").addEventListener("click",()=>{ if(!confirm(t('neg.demo.confirm'))) return; VUI.toast(t(VNEG.reloadDemo()?'neg.demo.done':'neg.demo.missing')); paintState(); });
   document.querySelector("[data-export]").addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(VDB.db)); VUI.toast(t('adm.data.jsonCopied')); }catch(e){ document.querySelector("[data-import-box]").value = JSON.stringify(VDB.db,null,2); VUI.toast(t('adm.data.copiedBelow')); } });
   document.querySelector("[data-import]").addEventListener("click",()=>{
     const raw = document.querySelector("[data-import-box]").value.trim(); if(!raw) return;

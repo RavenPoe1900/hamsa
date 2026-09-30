@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/admin.css">
 <script src="../assets/i18n.js"></script>
+<script src="../assets/i18n-negocio.js"></script>
 <style>.status-select{ min-height:32px; padding:4px 8px; font-size:12px; border:1px solid var(--border); border-radius:calc(var(--radius) - 2px); font-family:inherit; }</style>
 </head>
 <body>
@@ -38,9 +39,10 @@
       const buyer = VDB.db.users.find(u=>u.id===o.userId);
       return `<tr data-order-row="${o.id}"><td class="mono-tag">${o.id}</td><td>${buyer?VUI.esc(buyer.name):'—'}</td><td>${VI18N.fmtDate(o.createdAt,{day:'numeric',month:'short'})}</td>
         <td class="num">${o.items.reduce((s,i)=>s+i.qty,0)}</td><td class="num">${VUI.money(o.total)}</td>
-        <td><select class="status-select" data-status-select>${STATUSES.map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${LABEL[s]}</option>`).join("")}</select></td></tr>`;
+        <td><select class="status-select" data-status-select ${VDB.orderNext(o.status).length?'':'disabled'}>${[o.status,...VDB.orderNext(o.status)].map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${LABEL[s]}</option>`).join("")}</select></td></tr>`;
     }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted-fg);padding:32px;">${t('adm.noResults')}</td></tr>`;
-    document.querySelectorAll("[data-status-select]").forEach(sel=>sel.addEventListener("change",(e)=>{ VDB.setOrderStatus(e.target.closest("tr").dataset.orderRow, e.target.value); VUI.toast(t('adm.statusUpdated')); }));
+    document.querySelectorAll("[data-status-select]").forEach(sel=>sel.addEventListener("change",(e)=>{ const id = e.target.closest("tr").dataset.orderRow, ok = VDB.setOrderStatus(id, e.target.value), o = VDB.getOrder(id);
+      VUI.toast(!ok ? t('neg.err.badTransition') : (e.target.value==='cancelled' && o.stockReturned) ? VI18N.tp('neg.stockBack', o.stockReturned) : t('adm.statusUpdated')); render(); }));
   }
   render();
   document.querySelector("[data-search]").addEventListener("input", render);

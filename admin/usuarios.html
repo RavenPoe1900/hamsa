@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/admin.css">
 <script src="../assets/i18n.js"></script>
+<script src="../assets/i18n-negocio.js"></script>
 <style>.role-select{ min-height:32px; padding:4px 8px; font-size:12px; border:1px solid var(--border); border-radius:calc(var(--radius) - 2px); font-family:inherit; }</style>
 </head>
 <body>
@@ -35,7 +36,7 @@
         <td>${VI18N.fmtDate(u.createdAt,{month:'short',year:'numeric'})}</td><td>${VDB.userOrders(u.id).length}</td>
         <td><span class="row-actions">${u.id===me.id?`<span class="mono-tag">${t('adm.you')}</span>`:`<button class="danger" data-delete-user="${u.id}" title="${t('acct.delete')}" aria-label="${t('acct.delete')}">${VUI.icon('trash')}</button>`}</span></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted-fg);padding:32px;">${t('adm.noResults')}</td></tr>`;
     document.querySelectorAll("[data-role-select]").forEach(sel=>sel.addEventListener("change",(e)=>{ VDB.setUserRole(e.target.closest("tr").dataset.userRow, e.target.value); VUI.toast(t('adm.roleUpdated')); }));
-    document.querySelectorAll("[data-delete-user]").forEach(b=>b.addEventListener("click",()=>{ if(!confirm(t('adm.confirmDelUser'))) return; VDB.deleteUser(b.dataset.deleteUser); VUI.toast(t('adm.userDeleted')); render(); }));
+    document.querySelectorAll("[data-delete-user]").forEach(b=>b.addEventListener("click",()=>{ if(!confirm(t('adm.confirmDelUser'))) return; const r = VDB.deleteUser(b.dataset.deleteUser); VUI.toast(r.ok ? t('adm.userDeleted') : t(r.error)); render(); }));
   }
   render();
   document.querySelector("[data-search]").addEventListener("input", render);

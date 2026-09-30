@@ -573,9 +573,9 @@
                             en:"This replaces all data with the sample catalog. Continue?",
                             ar:"سيستبدل هذا جميع البيانات بالكتالوج النموذجي. هل تريد المتابعة؟" },
   "adm.data.resetDone": { es:"Catálogo reiniciado", en:"Catalog reset", ar:"تمت إعادة ضبط الكتالوج" },
-  "adm.data.confirmWipe":{ es:"Elimina todos los productos y pedidos. ¿Continuar?",
-                           en:"This deletes all products and orders. Continue?",
-                           ar:"سيحذف هذا جميع المنتجات والطلبات. هل تريد المتابعة؟" },
+  "adm.data.confirmWipe":{ es:"Elimina todos los productos y pedidos y, con ellos, las facturas, cupones, campañas, cierres de caja y órdenes de compra. Se conservan proveedores, clientes y ajustes. ¿Continuar?",
+                           en:"This deletes all products and orders and, with them, invoices, coupons, campaigns, cash closings and purchase orders. Suppliers, customers and settings are kept. Continue?",
+                           ar:"سيحذف هذا جميع المنتجات والطلبات، ومعها الفواتير والقسائم والحملات وإغلاقات الصندوق وأوامر الشراء. يُحتفظ بالموردين والعملاء والإعدادات. هل تريد المتابعة؟" },
   "adm.data.wipeDone":  { es:"Productos y pedidos eliminados", en:"Products and orders deleted", ar:"تم حذف المنتجات والطلبات" },
 
   /* ============ ADMIN: editor de producto ============ */
@@ -593,6 +593,10 @@
   "adm.pe.create":     { es:"Crear producto", en:"Create product", ar:"إنشاء منتج" },
   "adm.pe.updated":    { es:"Producto actualizado", en:"Product updated", ar:"تم تحديث المنتج" },
   "adm.pe.created":    { es:"Producto creado", en:"Product created", ar:"تم إنشاء المنتج" },
+  "adm.pe.photo":      { es:"Foto del producto", en:"Product photo", ar:"صورة المنتج" },
+  "adm.pe.upload":     { es:"Subir foto", en:"Upload photo", ar:"رفع صورة" },
+  "adm.pe.remove":     { es:"Quitar foto", en:"Remove photo", ar:"إزالة الصورة" },
+  "adm.pe.photoHint":  { es:"JPG o PNG. Se ajusta el tamaño automáticamente.", en:"JPG or PNG. Resized automatically.", ar:"JPG أو PNG. يُعدّل الحجم تلقائيًا." },
 
   "err.hasOrders":     { es:"No se puede eliminar: tiene pedidos activos asociados.",
                          en:"Can't delete: it has active orders associated with it.",
@@ -626,6 +630,9 @@
     return interpolate(val, Object.assign({n:n}, vars||{}));
   }
   function cat(id, fallback){ const k = "cat."+id; return DICT[k] ? t(k) : (fallback || id); }
+
+  /* Otros ficheros (i18n-negocio.js) añaden sus claves aquí: {clave:{es,en,ar}}. */
+  function extend(entries){ Object.keys(entries).forEach(k=>{ DICT[k]=entries[k]; }); }
 
   /* ---------- aplicación al documento ---------- */
   function applyDocAttrs(){
@@ -724,6 +731,6 @@
     get dir(){ return LANGS[lang].dir; },
     get locale(){ return LANGS[lang].locale; },
     get isRTL(){ return LANGS[lang].dir === "rtl"; },
-    LANGS, t, tp, cat, setLang, applyDom, switcherHTML, fmtDate, fmtNum,
+    LANGS, t, tp, cat, setLang, applyDom, switcherHTML, fmtDate, fmtNum, extend,
   };
 })();

@@ -20,6 +20,17 @@
   }
 
   const CATEGORIES = window.REAL_CATEGORIES;
+  // Ciclo de vida del pedido: solo avanza un paso o se cancela antes de entregarse. Un pedido entregado o cancelado ya no cambia
+  // (una devolución posterior es otro proceso); así no se puede «resucitar» un pedido cancelado sin volver a descontar stock.
+  const ORDER_NEXT = { pending:["paid","cancelled"], paid:["shipped","cancelled"], shipped:["delivered","cancelled"], delivered:[], cancelled:[] };
+  // Un pedido retiene stock mientras está vivo: se descuenta lo que haya (sin bajar de 0) y se anota cuánto por línea (it.held),
+  // para devolver exactamente eso si se cancela. Un pedido que nace ya cancelado no retiene nada.
+  function holdStock(order, getProduct){
+    if(order.status==="cancelled"){ order.stock="released"; return; }
+    order.items.forEach(it=>{ const p=getProduct(it.productId), n=p ? Math.min(Math.max(0,p.stock), it.qty) : 0; if(p) p.stock -= n; it.held = n; });
+    order.stock = "held";
+  }
+  const localKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   CATEGORIES.forEach(c=>{ c.name = titleCase(c.name); });
 
   const BRANDS = ["Norlyn","Kaido","Halvern","Fjorn","Ostra","Brumel","Talvix","Ferro&Co","Solby","Adurra","Northmark","Quenta"];
@@ -121,7 +132,7 @@
     for(let i=0;i<16;i++){
       const buyer = pick(rnd, users.filter(u=>u.role==="customer"));
       const items = pickN(rnd, products, 1+Math.floor(rnd()*3)).map(p=>({
-        productId:p.id, title:p.title, qty:1+Math.floor(rnd()*3), priceAtPurchase:p.price, emoji:p.emoji, hue1:p.hue1, hue2:p.hue2, image:p.image,
+        productId:p.id, title:p.title, qty:1+Math.floor(rnd()*3), priceAtPurchase:p.price, cost:p.cost, emoji:p.emoji, hue1:p.hue1, hue2:p.hue2, image:p.image,
       }));
       const subtotal = round2(items.reduce((s,it)=>s+it.priceAtPurchase*it.qty,0));
       const shipping = subtotal > 75 ? 0 : 4.99;
@@ -136,6 +147,7 @@
       });
     }
     orders.sort((a,b)=>b.createdAt-a.createdAt);
+    orders.forEach(o=>holdStock(o, id=>products.find(p=>p.id===id)));
 
     const reviewBodies = [
       "Muy contento con la compra, cumple lo que promete.",
@@ -291,9 +303,10 @@
       const totals = this.cartTotals(userId);
       const order = {
         id: uid("ord").toUpperCase(), userId,
-        items: lines.map(l=>({ productId:l.product.id, title:l.product.title, qty:l.qty, priceAtPurchase:l.product.price, emoji:l.product.emoji, hue1:l.product.hue1, hue2:l.product.hue2, image:l.product.image })),
+        items: lines.map(l=>({ productId:l.product.id, title:l.product.title, qty:l.qty, priceAtPurchase:l.product.price, cost:l.product.cost, held:l.qty, emoji:l.product.emoji, hue1:l.product.hue1, hue2:l.product.hue2, image:l.product.image })),
         subtotal: totals.subtotal, shipping: totals.shipping, tax: totals.tax, total: totals.total,
         status: "paid", address, paymentLast4, createdAt: Date.now(),
+        paidAt: Date.now(), stock: "held",   // stock retenido: si se cancela, vuelve al almacén
       };
       lines.forEach(l=>{ const p=this.getProduct(l.product.id); if(p) p.stock = Math.max(0, p.stock-l.qty); });
       db.orders.unshift(order);
@@ -303,8 +316,30 @@
     },
     userOrders(userId){ return db.orders.filter(o=>o.userId===userId).sort((a,b)=>b.createdAt-a.createdAt); },
     getOrder(id){ return db.orders.find(o=>o.id===id) || null; },
-    cancelOrder(id){ const o=this.getOrder(id); if(o && ["pending","paid"].includes(o.status)) { o.status="cancelled"; save(db); return true; } return false; },
-    setOrderStatus(id, status){ const o=this.getOrder(id); if(!o) return false; o.status=status; save(db); return true; },
+    // Devuelve al almacén lo que el pedido retenía y lo marca liberado (no se puede devolver dos veces). Un pedido anterior a este
+    // control no tiene anotado lo retenido: se da por retenida toda la cantidad, como hacía la tienda al venderlo.
+    releaseStock(o){
+      if(o.stock==="released") return 0;
+      let back = 0;
+      o.items.forEach(it=>{ const p=this.getProduct(it.productId), n=typeof it.held==="number" ? it.held : it.qty; if(p && n>0){ p.stock += n; back += n; } });
+      o.stock = "released"; o.stockReturned = back; return back;
+    },
+    holdStock(o){ holdStock(o, id=>this.getProduct(id)); },
+    orderNext(status){ return ORDER_NEXT[status] || []; },
+    _transition(o, status){
+      if(o.status===status) return true;
+      if(!this.orderNext(o.status).includes(status)) return false;
+      const now = Date.now();
+      if(status==="paid" && !o.paidAt) o.paidAt = now;
+      if(status==="cancelled"){
+        if(["paid","shipped"].includes(o.status)) o.paidAt = o.paidAt || o.createdAt;   // ya estaba cobrado: hay que devolver dinero
+        o.cancelledAt = now;
+        this.releaseStock(o);
+      }
+      o.status = status; save(db); return true;
+    },
+    cancelOrder(id){ const o=this.getOrder(id); return !!o && ["pending","paid"].includes(o.status) && this._transition(o,"cancelled"); },
+    setOrderStatus(id, status){ const o=this.getOrder(id); return !!o && this._transition(o,status); },
 
     // ---- admin: products CRUD ----
     createProduct(data){
@@ -313,7 +348,8 @@
         id: uid("p"), title:data.title, brand:data.brand||"Genérica", category:data.category, categoryName:catDef.name,
         price:Number(data.price)||0, oldPrice: data.oldPrice?Number(data.oldPrice):null,
         stock:Number(data.stock)||0, rating:0, reviewCount:0, prime: !!data.prime,
-        emoji: catDef.emoji, hue1: catDef.hue[0], hue2: catDef.hue[1],
+        cost: (data.cost===undefined||data.cost===null||data.cost==="") ? null : Number(data.cost),
+        emoji: catDef.emoji, hue1: catDef.hue[0], hue2: catDef.hue[1], image: data.image||null,
         description: data.description||"", specs: data.specs||{}, tags:[catDef.name],
         createdAt: Date.now(),
       };
@@ -333,7 +369,11 @@
 
     // ---- admin: users ----
     setUserRole(id, role){ const u=db.users.find(u=>u.id===id); if(u){ u.role=role; save(db); } },
-    deleteUser(id){ db.users = db.users.filter(u=>u.id!==id); save(db); },
+    // Un cliente con pedidos no se elimina: dejaría pedidos y facturas sin dueño.
+    deleteUser(id){
+      if(db.orders.some(o=>o.userId===id)) return {ok:false, error:"neg.err.userHasOrders"};
+      db.users = db.users.filter(u=>u.id!==id); save(db); return {ok:true};
+    },
 
     // ---- admin: reviews moderation ----
     setReviewStatus(id, status){ const r=db.reviews.find(r=>r.id===id); if(r){ r.status=status; save(db); } },
@@ -358,21 +398,23 @@
       for(let i=0;i<n;i++){
         const buyer = pick(rnd, customers);
         const items = pickN(rnd, db.products, 1+Math.floor(rnd()*3)).map(p=>({
-          productId:p.id, title:p.title, qty:1+Math.floor(rnd()*3), priceAtPurchase:p.price, emoji:p.emoji, hue1:p.hue1, hue2:p.hue2, image:p.image,
+          productId:p.id, title:p.title, qty:1+Math.floor(rnd()*3), priceAtPurchase:p.price, cost:p.cost, emoji:p.emoji, hue1:p.hue1, hue2:p.hue2, image:p.image,
         }));
         const subtotal = round2(items.reduce((s,it)=>s+it.priceAtPurchase*it.qty,0));
         const shipping = subtotal > db.settings.freeShippingFrom ? 0 : 4.99;
         const tax = round2(subtotal*db.settings.taxRate);
-        db.orders.unshift({ id:uid("ord").toUpperCase(), userId:buyer.id, items, subtotal, shipping, tax, total: round2(subtotal+shipping+tax), status: pick(rnd,statuses), address: buyer.addresses[0]||{line1:"—",city:"—",zip:"—",country:"España"}, paymentLast4:String(Math.floor(1000+rnd()*8999)), createdAt: Date.now()-Math.floor(rnd()*1000*60*60*24*30) });
+        const ord = ({ id:uid("ord").toUpperCase(), userId:buyer.id, items, subtotal, shipping, tax, total: round2(subtotal+shipping+tax), status: pick(rnd,statuses), address: buyer.addresses[0]||{line1:"—",city:"—",zip:"—",country:"España"}, paymentLast4:String(Math.floor(1000+rnd()*8999)), createdAt: Date.now()-Math.floor(rnd()*1000*60*60*24*30) });
+        holdStock(ord, id=>this.getProduct(id)); db.orders.unshift(ord);
       }
       save(db); return n;
     },
 
     // ---- stats ----
     stats(){
-      const revenue = db.orders.filter(o=>o.status!=="cancelled").reduce((s,o)=>s+o.total,0);
-      const orderCount = db.orders.length;
-      const avgTicket = orderCount ? revenue/db.orders.filter(o=>o.status!=="cancelled").length : 0;
+      const paid = db.orders.filter(o=>["paid","shipped","delivered"].includes(o.status));   // pendiente y cancelado no son ingreso
+      const revenue = paid.reduce((s,o)=>s+o.total,0);
+      const orderCount = paid.length;
+      const avgTicket = orderCount ? revenue/orderCount : 0;
       const lowStock = db.products.filter(p=>p.stock>0 && p.stock<=5).length;
       const outOfStock = db.products.filter(p=>p.stock===0).length;
       const pendingOrders = db.orders.filter(o=>o.status==="pending").length;
@@ -385,11 +427,11 @@
       const now = Date.now();
       for(let i=days-1;i>=0;i--){
         const d = new Date(now - i*86400000);
-        buckets.set(d.toISOString().slice(0,10), 0);
+        buckets.set(localKey(d), 0);   // día local: un pedido de las 22:30 pertenece a ese día, no al siguiente (UTC)
       }
       db.orders.forEach(o=>{
-        if(o.status==="cancelled") return;
-        const key = new Date(o.createdAt).toISOString().slice(0,10);
+        if(!["paid","shipped","delivered"].includes(o.status)) return;
+        const key = localKey(new Date(o.createdAt));
         if(buckets.has(key)) buckets.set(key, buckets.get(key)+o.total);
       });
       return Array.from(buckets.entries()).map(([date,total])=>({date,total:round2(total)}));

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/admin.css">
 <script src="../assets/i18n.js"></script>
+<script src="../assets/i18n-negocio.js"></script>
 <style>
   .panel-h3{ font-size:12px; font-weight:600; margin-bottom:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-fg); }
 
@@ -59,6 +60,8 @@
 <body>
 <script src="../assets/products-data.js"></script>
 <script src="../assets/data.js"></script>
+<script src="../assets/negocio-demo.js"></script>
+<script src="../assets/negocio.js"></script>
 <script>if(!(window.VDB.currentUser()&&window.VDB.currentUser().role==='admin')){ location.href = window.VDB.currentUser() ? "../cuenta.html" : "../login.html?next=" + encodeURIComponent(location.pathname); }</script>
 <script src="../assets/app.js"></script>
 <script src="../assets/admin.js"></script>
@@ -68,12 +71,18 @@
   document.title = t("adm.dash.title");
   const content = VADMIN.mountAdmin("index.html", t("adm.nav.dashboard"), t("adm.dash.sub"));
   const s = VDB.stats();
+  // Una sola definición de cada cifra, la misma que Facturación y Compras: ingresos netos (cobrado − devoluciones, con ventas de
+  // mostrador), stock bajo respecto al mínimo de cada producto e inventario valorado a costo.
+  const ov = VFIN.overview(), lowList = VBUY.lowStock(), invCost = VBUY.inventoryAtCost();
+  s.revenue = ov.revenue; s.orderCount = ov.count; s.avgTicket = ov.avgTicket;
+  s.lowStock = lowList.filter(p=>p.stock>0).length; s.outOfStock = VDB.db.products.filter(p=>!p.stock).length;
+  const neg = { reorder:VBUY.suggestions().length, arLate:VFIN.receivables().filter(r=>r.daysLate>0).length, apLate:VFIN.payables().filter(r=>r.daysLate>0).length };
   content.innerHTML = `
     <div class="panel-hero">
       <div class="chart-box hero-primary">
         <div class="hero-label">${t("adm.chart.sales")}</div>
         <div class="hero-value">${VUI.money(s.revenue)}</div>
-        <div class="hero-sub">${tp("adm.kpi.nOrders", s.orderCount)} · ${t("adm.kpi.avgTicket").toLowerCase()} ${VUI.money(s.avgTicket)}</div>
+        <div class="hero-sub">${tp("neg.nSales", s.orderCount)} · ${t("adm.kpi.avgTicket").toLowerCase()} ${VUI.money(s.avgTicket)}</div>
         <div class="bar-chart-wrap" data-chart-wrap>
           <div class="bar-chart" data-chart></div>
           <div class="chart-axis" data-chart-axis></div>
@@ -85,12 +94,15 @@
         <a class="attn-row" href="pedidos.html"><span>${t("adm.dash.pendingOrders")}</span><b class="attn-count ${s.pendingOrders?'warn':''}">${s.pendingOrders}</b></a>
         <a class="attn-row" href="productos.html"><span>${t("adm.chart.lowStock")}</span><b class="attn-count ${s.lowStock?'warn':''}">${s.lowStock}</b></a>
         <a class="attn-row" href="productos.html"><span>${t("card.outOfStock")}</span><b class="attn-count ${s.outOfStock?'warn':''}">${s.outOfStock}</b></a>
+        <a class="attn-row" href="compras.html"><span>${t("reo.kpi.toReorder")}</span><b class="attn-count ${neg.reorder?'warn':''}">${neg.reorder}</b></a>
+        <a class="attn-row" href="facturacion.html#cobrar"><span>${t("neg.dash.arOverdue")}</span><b class="attn-count ${neg.arLate?'warn':''}">${neg.arLate}</b></a>
+        <a class="attn-row" href="facturacion.html#pagar"><span>${t("neg.dash.apOverdue")}</span><b class="attn-count ${neg.apLate?'warn':''}">${neg.apLate}</b></a>
       </div>
     </div>
     <div class="stat-strip">
       <div class="stat"><span class="stat-value">${s.productCount}</span><span class="stat-label">${t("adm.kpi.products")}</span></div>
       <div class="stat"><span class="stat-value">${s.userCount}</span><span class="stat-label">${t("adm.kpi.customers")}</span></div>
-      <div class="stat"><span class="stat-value">${VUI.money(s.inventoryValue)}</span><span class="stat-label">${t("adm.dash.inventoryValue")}</span></div>
+      <div class="stat"><span class="stat-value">${VUI.money(invCost.value)}</span><span class="stat-label">${t("res.inventory")}${invCost.missing?` · ${t("res.invMissing",{n:invCost.missing})}`:""}</span></div>
     </div>
     <div class="two-cols" style="margin-top:16px;">
       <div class="chart-box"><h3 class="panel-h3">${t("adm.chart.lowStock")}</h3><div class="low-stock-list" data-low-stock></div></div>
@@ -102,12 +114,12 @@
       <div class="status-legend" data-status-legend></div>
     </div>`;
 
-  const low = VDB.db.products.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock).slice(0,8);
+  const low = lowList.slice(0,8);
   document.querySelector("[data-low-stock]").innerHTML = low.map(p=>`<div class="low-stock-row"><div class="thumb-cell" style="${VUI.thumbStyle(p)}">${VUI.thumbImg(p)}</div><div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(p.title)}</div><span class="${p.stock===0?'stock-note out':'stock-note'}">${p.stock===0?t("card.outOfStock"):t("adm.units",{n:p.stock})}</span></div>`).join("") || `<p style="color:var(--muted-fg);font-size:13px;">${t("adm.stockHealthy")}</p>`;
 
   const fmtDate = iso => VI18N.fmtDate(iso+"T00:00:00",{day:"numeric",month:"short"});
   const fmtDateLong = iso => VI18N.fmtDate(iso+"T00:00:00",{weekday:"long",day:"numeric",month:"long"});
-  const sales = VDB.salesByDay(30); const max = Math.max(1, ...sales.map(d=>d.total));
+  const sales = VFIN.dailyRevenue(30); const max = Math.max(1, ...sales.map(d=>d.total));
   document.querySelector("[data-chart-axis]").innerHTML = sales.map((d,i)=>`<span>${(i%5===0||i===sales.length-1)?fmtDate(d.date):''}</span>`).join("");
   const chartEl = document.querySelector("[data-chart]"); const chartH = chartEl.clientHeight || 110;
   chartEl.innerHTML = sales.map((d,i)=>{ const h=Math.round((d.total/max)*chartH); return `<div class="bar" ${d.total===0?'data-empty="1"':''} style="height:${Math.max(h,2)}px" data-i="${i}"></div>`; }).join("");
@@ -126,7 +138,7 @@
   });
 
   const qtyByProduct = new Map();
-  VDB.db.orders.forEach(o=>{ if(o.status==="cancelled") return; o.items.forEach(it=>{ qtyByProduct.set(it.productId, (qtyByProduct.get(it.productId)||0)+it.qty); }); });
+  VDB.db.orders.forEach(o=>{ if(!VNEG.SOLD.includes(o.status)) return; o.items.forEach(it=>{ qtyByProduct.set(it.productId, (qtyByProduct.get(it.productId)||0)+it.qty); }); });
   const topProducts = Array.from(qtyByProduct.entries()).map(([id,qty])=>({p:VDB.getProduct(id),qty})).filter(x=>x.p).sort((a,b)=>b.qty-a.qty).slice(0,8);
   document.querySelector("[data-top-products]").innerHTML = topProducts.map(({p,qty})=>`<div class="low-stock-row"><div class="thumb-cell" style="${VUI.thumbStyle(p)}">${VUI.thumbImg(p)}</div><div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${VUI.esc(p.title)}</div><span class="stock-note ok">${t("adm.dash.unitsSold",{n:qty})}</span></div>`).join("") || `<p style="color:var(--muted-fg);font-size:13px;">${t("adm.dash.noSales")}</p>`;
 

@@ -69,7 +69,7 @@
   function money(n){ return window.VDB.money(n); }
   function etaLabel(d){ return new Date(Date.now()+d*86400000).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}); }
   function thumbStyle(p){ return `--thumb-tone:${p.hue1}2E`; }
-  function thumbImg(p){ if(!p||!p.image) return `<span style="font-size:30px">${p?p.emoji:""}</span>`; const base = location.pathname.includes("/admin/")?"../":""; return `<img src="${base}${p.image}" alt="${esc(p.title||"")}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.emoji}',style:'font-size:30px'}))">`; }
+  function thumbImg(p){ if(!p||!p.image) return `<span style="font-size:30px">${p?p.emoji:""}</span>`; const abs = /^(data:|https?:\/\/|\/|blob:)/.test(p.image); const base = (!abs && location.pathname.includes("/admin/"))?"../":""; return `<img src="${base}${p.image}" alt="${esc(p.title||"")}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.emoji}',style:'font-size:30px'}))">`; }
 
   function renderHeader(){
     const VDB=window.VDB, user=VDB.currentUser(), count=user?VDB.cartCount(user.id):0;
